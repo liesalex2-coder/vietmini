@@ -145,16 +145,24 @@ function SectionProfil({ merchant, onSave }) {
 // ─── Section Services ─────────────────────────────────────────
 function SectionServices({ merchantId, toast }) {
   const [services, setServices] = useState([])
+  const [categories, setCategories] = useState([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
+  const [showCatForm, setShowCatForm] = useState(false)
   const [editing, setEditing] = useState(null)
-  const [form, setForm] = useState({ name: '', price: '', description: '', active: true })
+  const [form, setForm] = useState({ name: '', price: '', description: '', category: '', active: true })
+  const [newCat, setNewCat] = useState('')
 
-  async function load() { const { data } = await supabase.from('services').select('*').eq('merchant_id', merchantId).order('display_order'); setServices(data || []); setLoading(false) }
+  async function load() {
+    const { data: svcs } = await supabase.from('services').select('*').eq('merchant_id', merchantId).order('display_order')
+    const { data: cats } = await supabase.from('service_categories').select('*').eq('merchant_id', merchantId).order('display_order')
+    setServices(svcs || []); setCategories(cats || []); setLoading(false)
+  }
   useEffect(() => { if (merchantId) load() }, [merchantId])
 
-  function openNew() { setForm({ name: '', price: '', description: '', active: true }); setEditing(null); setShowForm(true) }
-  function openEdit(s) { setForm({ name: s.name, price: s.price, description: s.description, active: s.active }); setEditing(s.id); setShowForm(true) }
+  function openNew() { setForm({ name: '', price: '', description: '', category: categories[0]?.name || '', active: true }); setEditing(null); setShowForm(true) }
+  function openEdit(s) { setForm({ name: s.name, price: s.price, description: s.description, category: s.category || '', active: s.active }); setEditing(s.id); setShowForm(true) }
+
   async function save() {
     if (!form.name) { toast('Nom requis', false); return }
     if (editing) { await supabase.from('services').update({ ...form, price: parseInt(form.price) || 0 }).eq('id', editing) }
@@ -163,35 +171,124 @@ function SectionServices({ merchantId, toast }) {
   }
   async function remove(id) { if (!confirm('Supprimer ?')) return; await supabase.from('services').delete().eq('id', id); load(); toast('Supprimé', true) }
   async function toggleActive(s) { await supabase.from('services').update({ active: !s.active }).eq('id', s.id); load() }
+
+  async function addCategory() {
+    if (!newCat.trim()) return
+    await supabase.from('service_categories').insert({ merchant_id: merchantId, name: newCat.trim(), display_order: categories.length })
+    setNewCat(''); setShowCatForm(false); load(); toast('Catégorie ajoutée', true)
+  }
+  async function removeCategory(id) {
+    if (!confirm('Supprimer cette catégorie ?')) return
+    await supabase.from('service_categories').delete().eq('id', id); load(); toast('Catégorie supprimée', true)
+  }
+
   const f = field => e => setForm(p => ({ ...p, [field]: e.target.value }))
+
+  // Grouper les services par catégorie
+  const uncategorized = services.filter(s => !s.category || s.category === '')
+  const grouped = categories.map(cat => ({ cat, items: services.filter(s => s.category === cat.name) }))
+
+  function ServiceRow({ s }) {
+    return (
+      <Card style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px' }}>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontWeight: '600', color: C.dark, fontSize: '14px' }}>{s.name}</div>
+          {s.description && <div style={{ fontSize: '12px', color: C.mid, marginTop: '2px' }}>{s.description}</div>}
+        </div>
+        <div style={{ fontWeight: '700', color: C.dark, fontSize: '14px', whiteSpace: 'nowrap' }}>{s.price ? s.price.toLocaleString('vi-VN') + ' ₫' : '—'}</div>
+        <div style={{ padding: '3px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: '600', background: s.active ? '#f0fff4' : '#f5f5f5', color: s.active ? '#1a6b3a' : C.mid, cursor: 'pointer' }} onClick={() => toggleActive(s)}>{s.active ? 'Actif' : 'Masqué'}</div>
+        <Btn variant="ghost" small onClick={() => openEdit(s)}>✏️</Btn>
+        <Btn variant="danger" small onClick={() => remove(s.id)}>🗑</Btn>
+      </Card>
+    )
+  }
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}><SectionTitle>Services</SectionTitle><Btn onClick={openNew}>+ Ajouter</Btn></div>
+      {/* Header */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+        <SectionTitle>Services</SectionTitle>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <Btn variant="ghost" small onClick={() => setShowCatForm(v => !v)}>+ Catégorie</Btn>
+          <Btn onClick={openNew}>+ Service</Btn>
+        </div>
+      </div>
+
+      {/* Formulaire nouvelle catégorie */}
+      {showCatForm && (
+        <Card style={{ marginBottom: '16px', border: `1px solid ${C.border}` }}>
+          <div style={{ fontWeight: '700', color: C.dark, marginBottom: '12px' }}>Nouvelle catégorie</div>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <Input value={newCat} onChange={e => setNewCat(e.target.value)} placeholder="Ex : Coiffure, Ongles, Soins…" style={{ flex: 1 }} />
+            <Btn onClick={addCategory}>Ajouter</Btn>
+            <Btn variant="ghost" onClick={() => setShowCatForm(false)}>Annuler</Btn>
+          </div>
+          {/* Liste des catégories existantes */}
+          {categories.length > 0 && (
+            <div style={{ marginTop: '12px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+              {categories.map(cat => (
+                <div key={cat.id} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '4px 10px', borderRadius: '20px', background: C.bg, fontSize: '13px', color: C.dark }}>
+                  {cat.name}
+                  <span onClick={() => removeCategory(cat.id)} style={{ cursor: 'pointer', color: C.mid, fontSize: '12px' }}>✕</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </Card>
+      )}
+
+      {/* Formulaire nouveau/modifier service */}
       {showForm && (
         <Card style={{ marginBottom: '16px', border: `1px solid ${C.border}` }}>
           <div style={{ fontWeight: '700', color: C.dark, marginBottom: '16px' }}>{editing ? 'Modifier' : 'Nouveau service'}</div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
             <FieldGroup label="Nom"><Input value={form.name} onChange={f('name')} placeholder="Coupe femme" /></FieldGroup>
             <FieldGroup label="Prix (₫)"><Input value={form.price} onChange={f('price')} placeholder="150000" type="number" /></FieldGroup>
+            <FieldGroup label="Catégorie">
+              {categories.length > 0 ? (
+                <select value={form.category} onChange={f('category')} style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: `1px solid ${C.border}`, fontSize: '14px', color: C.dark, outline: 'none', fontFamily: "'Be Vietnam Pro', sans-serif" }}>
+                  <option value="">Sans catégorie</option>
+                  {categories.map(cat => <option key={cat.id} value={cat.name}>{cat.name}</option>)}
+                </select>
+              ) : (
+                <div style={{ fontSize: '12px', color: C.mid, paddingTop: '10px' }}>Aucune catégorie — créez-en une d'abord</div>
+              )}
+            </FieldGroup>
           </div>
           <FieldGroup label="Description"><Textarea value={form.description} onChange={f('description')} placeholder="Description courte…" rows={2} /></FieldGroup>
           <div style={{ display: 'flex', gap: '8px' }}><Btn onClick={save}>Enregistrer</Btn><Btn variant="ghost" onClick={() => setShowForm(false)}>Annuler</Btn></div>
         </Card>
       )}
+
       {loading ? <div style={{ color: C.mid }}>Chargement…</div> : services.length === 0 ? (
-        <Card style={{ textAlign: 'center', color: C.mid }}><div style={{ fontSize: '32px', marginBottom: '8px' }}>✂️</div><div>Aucun service.</div></Card>
+        <Card style={{ textAlign: 'center', color: C.mid }}>
+          <div style={{ fontSize: '32px', marginBottom: '8px' }}>✂️</div>
+          <div>Aucun service. Commencez par créer une catégorie puis ajoutez vos services.</div>
+        </Card>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          {services.map(s => (
-            <Card key={s.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 18px' }}>
-              <div style={{ flex: 1 }}><div style={{ fontWeight: '600', color: C.dark, fontSize: '14px' }}>{s.name}</div>{s.description && <div style={{ fontSize: '12px', color: C.mid, marginTop: '2px' }}>{s.description}</div>}</div>
-              <div style={{ fontWeight: '700', color: C.dark, fontSize: '14px', whiteSpace: 'nowrap' }}>{s.price ? s.price.toLocaleString('vi-VN') + ' ₫' : '—'}</div>
-              <div style={{ padding: '3px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: '600', background: s.active ? '#f0fff4' : '#f5f5f5', color: s.active ? '#1a6b3a' : C.mid, cursor: 'pointer' }} onClick={() => toggleActive(s)}>{s.active ? 'Actif' : 'Masqué'}</div>
-              <Btn variant="ghost" small onClick={() => openEdit(s)}>✏️</Btn>
-              <Btn variant="danger" small onClick={() => remove(s.id)}>🗑</Btn>
-            </Card>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          {/* Services par catégorie */}
+          {grouped.map(({ cat, items }) => items.length > 0 && (
+            <div key={cat.id}>
+              <div style={{ fontSize: '13px', fontWeight: '700', color: C.mid, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px', paddingLeft: '4px' }}>
+                {cat.name}
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                {items.map(s => <ServiceRow key={s.id} s={s} />)}
+              </div>
+            </div>
           ))}
+          {/* Services sans catégorie */}
+          {uncategorized.length > 0 && (
+            <div>
+              <div style={{ fontSize: '13px', fontWeight: '700', color: C.mid, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px', paddingLeft: '4px' }}>
+                Sans catégorie
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                {uncategorized.map(s => <ServiceRow key={s.id} s={s} />)}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
