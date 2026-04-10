@@ -286,9 +286,14 @@ function SubFlash({ merchantId, toast }) {
 function SubFidelite({ merchantId, toast }) {
   const [data, setData] = useState(null)
   const [form, setForm] = useState({})
+  const [cards, setCards] = useState([])
+  const [showPin, setShowPin] = useState(false)
+
   async function load() {
     const { data: d } = await supabase.from('loyalty_config').select('*').eq('merchant_id', merchantId).single()
     setData(d); setForm(d || {})
+    const { data: c } = await supabase.from('loyalty_cards').select('*').eq('merchant_id', merchantId).order('visit_count', { ascending: false })
+    setCards(c || [])
   }
   useEffect(() => { if (merchantId) load() }, [merchantId])
 
@@ -298,39 +303,100 @@ function SubFidelite({ merchantId, toast }) {
     setData(updated); setForm(updated); toast(updated.enabled ? 'Carte fidélité activée' : 'Carte fidélité désactivée', true)
   }
   async function save() {
-    await supabase.from('loyalty_config').update({ visits_required: parseInt(form.visits_required) || 10, reward_text: form.reward_text || '' }).eq('id', data.id)
+    const pin = (form.pin_code || '').replace(/\D/g, '').slice(0, 4)
+    if (pin.length !== 4) { toast('Le code PIN doit faire 4 chiffres', false); return }
+    await supabase.from('loyalty_config').update({
+      visits_required: parseInt(form.visits_required) || 10,
+      reward_text: form.reward_text || '',
+      pin_code: pin
+    }).eq('id', data.id)
     load(); toast('Carte fidélité enregistrée', true)
   }
   const f = field => e => setForm(p => ({ ...p, [field]: e.target.value }))
 
   if (!data) return <div style={{ color: C.mid }}>Chargement…</div>
 
-  const filled = Math.min(3, parseInt(form.visits_required) || 10)
+  const visitsRequired = parseInt(form.visits_required) || 10
+
   return (
-    <Card>
-      <FeatureHeader title="Carte de fidélité" subtitle="Récompensez les clients après X visites" enabled={data.enabled} onToggle={toggleEnabled} />
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-        <FieldGroup label="Nombre de visites requises">
-          <Input value={form.visits_required} onChange={f('visits_required')} type="number" placeholder="10" style={{ width: '100px' }} />
-        </FieldGroup>
-        <FieldGroup label="Récompense">
-          <Input value={form.reward_text} onChange={f('reward_text')} placeholder="1 soin offert" />
-        </FieldGroup>
-      </div>
-      {/* Aperçu carte */}
-      <div style={{ margin: '16px 0', padding: '16px', background: C.bg, borderRadius: '10px' }}>
-        <div style={{ fontSize: '12px', color: C.mid, marginBottom: '8px', fontWeight: '600' }}>APERÇU</div>
-        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-          {Array.from({ length: Math.min(10, parseInt(form.visits_required) || 10) }).map((_, i) => (
-            <div key={i} style={{ width: '32px', height: '32px', borderRadius: '50%', border: `2px solid ${C.gold}`, background: i < filled ? C.gold : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px' }}>
-              {i < filled ? '⭐' : ''}
+    <div>
+      <Card style={{ marginBottom: '16px' }}>
+        <FeatureHeader title="Carte de fidélité" subtitle="Récompensez les clients après X visites" enabled={data.enabled} onToggle={toggleEnabled} />
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
+          <FieldGroup label="Visites requises">
+            <Input value={form.visits_required} onChange={f('visits_required')} type="number" placeholder="10" />
+          </FieldGroup>
+          <FieldGroup label="Récompense">
+            <Input value={form.reward_text} onChange={f('reward_text')} placeholder="1 soin offert" />
+          </FieldGroup>
+          <FieldGroup label="Code PIN (4 chiffres)">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <input
+                type={showPin ? 'text' : 'password'}
+                value={form.pin_code || ''}
+                onChange={f('pin_code')}
+                maxLength={4}
+                placeholder="0000"
+                style={{ width: '80px', padding: '9px 12px', borderRadius: '8px', border: `1px solid ${C.border}`, fontSize: '16px', color: C.dark, outline: 'none', fontFamily: 'monospace', letterSpacing: '0.2em', textAlign: 'center' }}
+              />
+              <button onClick={() => setShowPin(v => !v)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '16px', color: C.mid }}>
+                {showPin ? '🙈' : '👁'}
+              </button>
             </div>
-          ))}
+          </FieldGroup>
         </div>
-        {form.reward_text && <div style={{ fontSize: '12px', color: C.mid, marginTop: '8px' }}>Récompense : {form.reward_text}</div>}
+        {/* Aperçu carte */}
+        <div style={{ margin: '16px 0', padding: '16px', background: C.bg, borderRadius: '10px' }}>
+          <div style={{ fontSize: '11px', color: C.mid, marginBottom: '8px', fontWeight: '600', textTransform: 'uppercase' }}>Aperçu</div>
+          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+            {Array.from({ length: Math.min(10, visitsRequired) }).map((_, i) => (
+              <div key={i} style={{ width: '28px', height: '28px', borderRadius: '50%', border: `2px solid ${C.gold}`, background: 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', color: C.gold }}>
+                {i + 1}
+              </div>
+            ))}
+          </div>
+          {form.reward_text && <div style={{ fontSize: '12px', color: C.mid, marginTop: '8px' }}>Récompense : {form.reward_text}</div>}
+        </div>
+        <Btn onClick={save}>Enregistrer</Btn>
+      </Card>
+
+      {/* Liste clients */}
+      <div style={{ fontWeight: '700', color: C.dark, marginBottom: '12px', fontSize: '15px' }}>
+        Clients ({cards.length})
       </div>
-      <Btn onClick={save}>Enregistrer</Btn>
-    </Card>
+      {cards.length === 0 ? (
+        <Card style={{ textAlign: 'center', color: C.mid }}>
+          <div style={{ fontSize: '28px', marginBottom: '8px' }}>🎫</div>
+          <div>Aucun client n'a encore utilisé sa carte.</div>
+        </Card>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          {cards.map(card => {
+            const pct = Math.min(100, Math.round((card.visit_count / visitsRequired) * 100))
+            return (
+              <Card key={card.id} style={{ padding: '14px 18px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: '600', color: C.dark, fontSize: '14px' }}>{card.display_name || card.zalo_id}</div>
+                    <div style={{ marginTop: '6px', height: '6px', borderRadius: '3px', background: C.bg, overflow: 'hidden' }}>
+                      <div style={{ height: '100%', width: `${pct}%`, background: pct >= 100 ? '#1a6b3a' : C.gold, borderRadius: '3px', transition: 'width .3s' }} />
+                    </div>
+                  </div>
+                  <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                    <div style={{ fontWeight: '700', fontSize: '15px', color: pct >= 100 ? '#1a6b3a' : C.dark }}>
+                      {card.visit_count} / {visitsRequired}
+                    </div>
+                    <div style={{ fontSize: '11px', color: C.mid, marginTop: '2px' }}>
+                      {pct >= 100 ? '🎁 Récompense disponible' : `${visitsRequired - card.visit_count} visite${visitsRequired - card.visit_count > 1 ? 's' : ''} restante${visitsRequired - card.visit_count > 1 ? 's' : ''}`}
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            )
+          })}
+        </div>
+      )}
+    </div>
   )
 }
 
