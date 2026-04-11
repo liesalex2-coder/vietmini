@@ -22,8 +22,9 @@ export default function Onboarding() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  async function handleConfirm() {
-    if (!selected) return
+  async function selectVertical(id) {
+    if (loading) return
+    setSelected(id)
     setLoading(true)
     setError('')
     try {
@@ -32,13 +33,14 @@ export default function Onboarding() {
       const res = await fetch('/api/setup-merchant', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ vertical: selected, access_token: session.access_token })
+        body: JSON.stringify({ vertical: id, access_token: session.access_token })
       })
       const json = await res.json()
       if (!res.ok) throw new Error(json.error || 'Erreur')
       router.push('/dashboard')
     } catch (e) {
       setError(e.message)
+      setSelected(null)
       setLoading(false)
     }
   }
@@ -70,20 +72,23 @@ export default function Onboarding() {
           {VERTICALS.map(v => (
             <div
               key={v.id}
-              onClick={() => setSelected(v.id)}
+              onClick={() => selectVertical(v.id)}
               style={{
                 background:'#fff',
                 border:`2px solid ${selected === v.id ? C.red : C.border}`,
                 borderRadius:'16px',
                 overflow:'hidden',
-                cursor:'pointer',
+                cursor: loading ? 'wait' : 'pointer',
                 boxShadow: selected === v.id ? '0 4px 24px rgba(208,2,27,0.13)' : '0 2px 8px rgba(0,0,0,0.05)',
                 transition:'all 0.15s',
-                position:'relative'
+                position:'relative',
+                opacity: loading && selected !== v.id ? 0.5 : 1
               }}
             >
               {selected === v.id && (
-                <div style={{ position:'absolute', top:'10px', right:'10px', zIndex:2, width:'24px', height:'24px', background:C.red, borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontSize:'13px', fontWeight:'700' }}>✓</div>
+                <div style={{ position:'absolute', top:'10px', right:'10px', zIndex:2, width:'24px', height:'24px', background:C.red, borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontSize:'13px', fontWeight:'700' }}>
+                  {loading ? '…' : '✓'}
+                </div>
               )}
               <div style={{ height:'160px', background:v.bg, overflow:'hidden' }}>
                 <img src={v.img} alt={v.label} style={{ width:'100%', height:'100%', objectFit:'cover', objectPosition:v.imgPos||'center' }} />
@@ -105,22 +110,7 @@ export default function Onboarding() {
           ))}
         </div>
 
-        {/* CTA */}
-        <div style={{ textAlign:'center' }}>
-          {error && <div style={{ color:C.red, fontSize:'14px', marginBottom:'12px' }}>{error}</div>}
-          <button
-            onClick={handleConfirm}
-            disabled={!selected || loading}
-            style={{ background: selected ? C.red : '#ccc', color:'#fff', border:'none', borderRadius:'12px', padding:'14px 48px', fontSize:'16px', fontWeight:'700', cursor: selected ? 'pointer' : 'not-allowed', transition:'background 0.15s' }}
-          >
-            {loading ? 'Configuration en cours…' : 'Configurer mon app →'}
-          </button>
-          {selected && (
-            <div style={{ marginTop:'10px', fontSize:'13px', color:C.mid }}>
-              Vous pourrez modifier votre configuration à tout moment depuis le dashboard.
-            </div>
-          )}
-        </div>
+        {error && <div style={{ textAlign:'center', color:C.red, fontSize:'14px' }}>{error}</div>}
       </div>
     </>
   )
