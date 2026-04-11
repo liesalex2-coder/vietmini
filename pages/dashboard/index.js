@@ -105,7 +105,7 @@ function SectionApercu({ merchant, contacts, broadcasts }) {
 }
 
 // ─── Section Profil ───────────────────────────────────────────
-function SectionProfil({ merchant, onSave }) {
+function SectionProfil({ merchant, onSave, onChangeVertical }) {
   const [form, setForm] = useState(merchant || {})
   useEffect(() => { setForm(merchant || {}) }, [merchant])
   const f = field => e => setForm(p => ({ ...p, [field]: e.target.value }))
@@ -137,6 +137,12 @@ function SectionProfil({ merchant, onSave }) {
           </FieldGroup>
         </div>
         <Btn onClick={() => onSave(form)}>Enregistrer les modifications</Btn>
+      </Card>
+
+      <Card style={{ border: `1px solid #f5c6cb`, background: '#fff8f8', marginTop: '16px' }}>
+        <div style={{ fontWeight: '700', fontSize: '14px', color: '#c0392b', marginBottom: '6px' }}>Changer d'activité</div>
+        <div style={{ fontSize: '13px', color: C.mid, marginBottom: '16px' }}>Cette action supprimera tous vos services, catégories et configurations actuels et les remplacera par les valeurs par défaut de la nouvelle activité.</div>
+        <Btn variant="danger" onClick={() => { if (window.confirm('Êtes-vous sûr ? Toutes vos données de configuration seront réinitialisées.')) { onChangeVertical() } }}>Changer d'activité →</Btn>
       </Card>
     </div>
   )
@@ -905,7 +911,7 @@ export default function Dashboard() {
           </div>
           <div style={{ padding: '28px 24px', maxWidth: '800px' }}>
             {activeTab === 'apercu'     && <SectionApercu merchant={merchant} contacts={contacts} broadcasts={broadcasts} />}
-            {activeTab === 'profil'     && <SectionProfil merchant={merchant} onSave={saveMerchant} />}
+            {activeTab === 'profil'     && <SectionProfil merchant={merchant} onSave={saveMerchant} onChangeVertical={async () => { await supabase.from('merchants').update({ vertical: null }).eq('id', merchant.id); router.push('/onboarding') }} />}
             {activeTab === 'services'   && <SectionServices merchantId={merchant.id} toast={showToast} />}
             {activeTab === 'marketing'  && <SectionMarketing merchantId={merchant.id} merchant={merchant} onSaveMerchant={saveMerchant} toast={showToast} />}
             {activeTab === 'avis'       && <SectionAvis merchantId={merchant.id} toast={showToast} />}
