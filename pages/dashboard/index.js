@@ -846,6 +846,7 @@ export default function Dashboard() {
   async function loadData(userId) {
     const { data: m } = await supabase.from('merchants').select('*').eq('user_id', userId).single()
     setMerchant(m)
+    if (m && !m.vertical) { router.push('/onboarding'); return }
     if (m) {
       const { data: c } = await supabase.from('contacts').select('*').eq('merchant_id', m.id)
       const { data: b } = await supabase.from('broadcasts').select('*').eq('merchant_id', m.id)
