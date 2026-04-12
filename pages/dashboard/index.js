@@ -99,7 +99,10 @@ function SectionApercu({ merchant, contacts, broadcasts, onChangeVertical }) {
               <div style={{ width: '52px', height: '52px', borderRadius: '12px', background: merchant.primary_color || C.red, display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.white, fontWeight: '700', fontSize: '22px' }}>{(merchant.name || '?')[0]}</div>
               <div><div style={{ fontWeight: '700', fontSize: '16px', color: C.dark }}>{merchant.name || 'Mon établissement'}</div><div style={{ fontSize: '13px', color: C.mid }}>{merchant.vertical || '—'}</div></div>
             </div>
-            <Btn variant="ghost" small onClick={onChangeVertical}>Changer d'activité →</Btn>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <Btn variant="primary" small onClick={() => window.open(`/preview/${merchant.id}`, '_blank')}>👁 Voir mon app</Btn>
+              <Btn variant="ghost" small onClick={onChangeVertical}>Changer d'activité →</Btn>
+            </div>
           </div>
         </Card>
       )}
