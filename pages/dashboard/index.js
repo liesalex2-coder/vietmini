@@ -83,7 +83,7 @@ function MarketingNav({ active, onSelect }) {
 }
 
 // ─── Section Aperçu ───────────────────────────────────────────
-function SectionApercu({ merchant, contacts, broadcasts }) {
+function SectionApercu({ merchant, contacts, broadcasts, onChangeVertical }) {
   const now = new Date()
   const thisMonth = contacts.filter(c => { const d = new Date(c.captured_at); return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear() }).length
   return (
@@ -101,12 +101,7 @@ function SectionApercu({ merchant, contacts, broadcasts }) {
               <div style={{ width: '52px', height: '52px', borderRadius: '12px', background: merchant.primary_color || C.red, display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.white, fontWeight: '700', fontSize: '22px' }}>{(merchant.name || '?')[0]}</div>
               <div><div style={{ fontWeight: '700', fontSize: '16px', color: C.dark }}>{merchant.name || 'Mon établissement'}</div><div style={{ fontSize: '13px', color: C.mid }}>{merchant.vertical || '—'}</div></div>
             </div>
-            <Btn variant="ghost" small onClick={async () => {
-              if (window.confirm("Changer d'activité ? Toutes vos données de configuration seront réinitialisées.")) {
-                await supabase.from('merchants').update({ vertical: null }).eq('id', merchant.id)
-                router.push('/onboarding')
-              }
-            }}>Changer d'activité →</Btn>
+            <Btn variant="ghost" small onClick={onChangeVertical}>Changer d'activité →</Btn>
           </div>
         </Card>
       )}
@@ -914,7 +909,7 @@ export default function Dashboard() {
             <div style={{ width: '24px' }} />
           </div>
           <div style={{ padding: '28px 24px', maxWidth: '800px' }}>
-            {activeTab === 'apercu'     && <SectionApercu merchant={merchant} contacts={contacts} broadcasts={broadcasts} />}
+            {activeTab === 'apercu'     && <SectionApercu merchant={merchant} contacts={contacts} broadcasts={broadcasts} onChangeVertical={async () => { if (window.confirm("Changer d'activité ? Toutes vos données de configuration seront réinitialisées.")) { await supabase.from('merchants').update({ vertical: null }).eq('id', merchant.id); router.push('/onboarding') } }} />}
             {activeTab === 'profil'     && <SectionProfil merchant={merchant} onSave={saveMerchant} />}
             {activeTab === 'services'   && <SectionServices merchantId={merchant.id} toast={showToast} />}
             {activeTab === 'marketing'  && <SectionMarketing merchantId={merchant.id} merchant={merchant} onSaveMerchant={saveMerchant} toast={showToast} />}
