@@ -95,17 +95,27 @@ function SectionApercu({ merchant, contacts, broadcasts }) {
         ))}
       </div>
       {merchant && (
-        <Card><div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <div style={{ width: '52px', height: '52px', borderRadius: '12px', background: merchant.primary_color || C.red, display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.white, fontWeight: '700', fontSize: '22px' }}>{(merchant.name || '?')[0]}</div>
-          <div><div style={{ fontWeight: '700', fontSize: '16px', color: C.dark }}>{merchant.name || 'Mon établissement'}</div><div style={{ fontSize: '13px', color: C.mid }}>{merchant.vertical || '—'}</div></div>
-        </div></Card>
+        <Card>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <div style={{ width: '52px', height: '52px', borderRadius: '12px', background: merchant.primary_color || C.red, display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.white, fontWeight: '700', fontSize: '22px' }}>{(merchant.name || '?')[0]}</div>
+              <div><div style={{ fontWeight: '700', fontSize: '16px', color: C.dark }}>{merchant.name || 'Mon établissement'}</div><div style={{ fontSize: '13px', color: C.mid }}>{merchant.vertical || '—'}</div></div>
+            </div>
+            <Btn variant="ghost" small onClick={async () => {
+              if (window.confirm("Changer d'activité ? Toutes vos données de configuration seront réinitialisées.")) {
+                await supabase.from('merchants').update({ vertical: null }).eq('id', merchant.id)
+                router.push('/onboarding')
+              }
+            }}>Changer d'activité →</Btn>
+          </div>
+        </Card>
       )}
     </div>
   )
 }
 
 // ─── Section Profil ───────────────────────────────────────────
-function SectionProfil({ merchant, onSave, onChangeVertical }) {
+function SectionProfil({ merchant, onSave }) {
   const [form, setForm] = useState(merchant || {})
   useEffect(() => { setForm(merchant || {}) }, [merchant])
   const f = field => e => setForm(p => ({ ...p, [field]: e.target.value }))
@@ -137,12 +147,6 @@ function SectionProfil({ merchant, onSave, onChangeVertical }) {
           </FieldGroup>
         </div>
         <Btn onClick={() => onSave(form)}>Enregistrer les modifications</Btn>
-      </Card>
-
-      <Card style={{ border: `1px solid #f5c6cb`, background: '#fff8f8', marginTop: '16px' }}>
-        <div style={{ fontWeight: '700', fontSize: '14px', color: '#c0392b', marginBottom: '6px' }}>Changer d'activité</div>
-        <div style={{ fontSize: '13px', color: C.mid, marginBottom: '16px' }}>Cette action supprimera tous vos services, catégories et configurations actuels et les remplacera par les valeurs par défaut de la nouvelle activité.</div>
-        <Btn variant="danger" onClick={() => { if (window.confirm('Êtes-vous sûr ? Toutes vos données de configuration seront réinitialisées.')) { onChangeVertical() } }}>Changer d'activité →</Btn>
       </Card>
     </div>
   )
@@ -911,7 +915,7 @@ export default function Dashboard() {
           </div>
           <div style={{ padding: '28px 24px', maxWidth: '800px' }}>
             {activeTab === 'apercu'     && <SectionApercu merchant={merchant} contacts={contacts} broadcasts={broadcasts} />}
-            {activeTab === 'profil'     && <SectionProfil merchant={merchant} onSave={saveMerchant} onChangeVertical={async () => { await supabase.from('merchants').update({ vertical: null }).eq('id', merchant.id); router.push('/onboarding') }} />}
+            {activeTab === 'profil'     && <SectionProfil merchant={merchant} onSave={saveMerchant} />}
             {activeTab === 'services'   && <SectionServices merchantId={merchant.id} toast={showToast} />}
             {activeTab === 'marketing'  && <SectionMarketing merchantId={merchant.id} merchant={merchant} onSaveMerchant={saveMerchant} toast={showToast} />}
             {activeTab === 'avis'       && <SectionAvis merchantId={merchant.id} toast={showToast} />}
