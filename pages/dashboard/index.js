@@ -26,7 +26,6 @@ const MARKETING_TABS = [
   { id: 'parrainage', label: '🤝 Parrainage' },
   { id: 'coupons',    label: '🎟 Coupons' },
   { id: 'bienvenue',  label: '🎁 Bienvenue' },
-  { id: 'galerie',    label: '📸 Galerie' },
 ]
 
 // ─── UI primitives ────────────────────────────────────────────
@@ -110,7 +109,7 @@ function SectionApercu({ merchant, contacts, broadcasts, onChangeVertical }) {
 }
 
 // ─── Section Profil ───────────────────────────────────────────
-function SectionProfil({ merchant, onSave }) {
+function SectionProfil({ merchant, onSave, merchantId, toast }) {
   const [form, setForm] = useState(merchant || {})
   useEffect(() => { setForm(merchant || {}) }, [merchant])
   const f = field => e => setForm(p => ({ ...p, [field]: e.target.value }))
@@ -142,6 +141,10 @@ function SectionProfil({ merchant, onSave }) {
           </FieldGroup>
         </div>
         <Btn onClick={() => onSave(form)}>Enregistrer les modifications</Btn>
+      </Card>
+
+      <Card style={{ marginTop: '16px' }}>
+        <SubGalerie merchantId={merchantId} toast={toast} />
       </Card>
     </div>
   )
@@ -376,8 +379,8 @@ function SubFlash({ merchantId, toast }) {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
         <FieldGroup label="Réduction (%)"><Input value={form.discount_value} onChange={f('discount_value')} type="number" placeholder="20" /></FieldGroup>
         <FieldGroup label="Service concerné"><Input value={form.service_name} onChange={f('service_name')} placeholder="Tous les services" /></FieldGroup>
-        <FieldGroup label="Début"><Input value={form.start_time ? form.start_time.slice(0, 16) : ''} onChange={f('start_time')} type="datetime-local" /></FieldGroup>
-        <FieldGroup label="Fin"><Input value={form.end_time ? form.end_time.slice(0, 16) : ''} onChange={f('end_time')} type="datetime-local" /></FieldGroup>
+        <FieldGroup label="Début (date et heure)"><Input value={form.start_time ? form.start_time.slice(0, 16) : ''} onChange={f('start_time')} type="datetime-local" /></FieldGroup>
+        <FieldGroup label="Fin (date et heure)"><Input value={form.end_time ? form.end_time.slice(0, 16) : ''} onChange={f('end_time')} type="datetime-local" /></FieldGroup>
       </div>
       <Btn onClick={save}>Enregistrer</Btn>
     </Card>
@@ -910,7 +913,7 @@ export default function Dashboard() {
           </div>
           <div style={{ padding: '28px 24px', maxWidth: '800px' }}>
             {activeTab === 'apercu'     && <SectionApercu merchant={merchant} contacts={contacts} broadcasts={broadcasts} onChangeVertical={async () => { if (window.confirm("Changer d'activité ? Toutes vos données de configuration seront réinitialisées.")) { await supabase.from('merchants').update({ vertical: null }).eq('id', merchant.id); router.push('/onboarding') } }} />}
-            {activeTab === 'profil'     && <SectionProfil merchant={merchant} onSave={saveMerchant} />}
+            {activeTab === 'profil'     && <SectionProfil merchant={merchant} onSave={saveMerchant} merchantId={merchant.id} toast={showToast} />}
             {activeTab === 'services'   && <SectionServices merchantId={merchant.id} toast={showToast} />}
             {activeTab === 'marketing'  && <SectionMarketing merchantId={merchant.id} merchant={merchant} onSaveMerchant={saveMerchant} toast={showToast} />}
             {activeTab === 'avis'       && <SectionAvis merchantId={merchant.id} toast={showToast} />}
