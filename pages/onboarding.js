@@ -95,16 +95,7 @@ export default function Onboarding() {
               </div>
               <div style={{ padding:'16px' }}>
                 <div style={{ fontWeight:'700', fontSize:'15px', color:C.dark, marginBottom:'4px' }}>{v.label}</div>
-                <div style={{ fontSize:'13px', color:C.mid, marginBottom:'12px' }}>{v.desc}</div>
-                <a
-                  href={v.demo}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={e => e.stopPropagation()}
-                  style={{ display:'inline-flex', alignItems:'center', gap:'4px', fontSize:'12px', fontWeight:'600', color:C.red, textDecoration:'none', background:'rgba(208,2,27,0.06)', padding:'4px 10px', borderRadius:'20px' }}
-                >
-                  Voir la démo →
-                </a>
+                <div style={{ fontSize:'13px', color:C.mid }}>{v.desc}</div>
               </div>
             </div>
           ))}
