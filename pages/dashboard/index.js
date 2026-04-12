@@ -12,7 +12,6 @@ const C = {
 const TABS = [
   { id: 'apercu',     icon: '📊', label: 'Aperçu' },
   { id: 'profil',     icon: '🏪', label: 'Ma page' },
-  { id: 'services',   icon: '✂️',  label: 'Services' },
   { id: 'marketing',  icon: '🎯', label: 'Marketing' },
   { id: 'avis',       icon: '⭐', label: 'Avis' },
   { id: 'contacts',   icon: '👥', label: 'Contacts' },
@@ -109,43 +108,106 @@ function SectionApercu({ merchant, contacts, broadcasts, onChangeVertical }) {
 }
 
 // ─── Section Profil ───────────────────────────────────────────
-function SectionProfil({ merchant, onSave, merchantId, toast }) {
+const PROFIL_TABS = [
+  { id: 'infos',    label: '📋 Infos' },
+  { id: 'hero',     label: '🖼 Photo d\'accueil' },
+  { id: 'services', label: '✂️ Services' },
+]
+
+function ProfilNav({ active, onSelect }) {
+  return (
+    <div style={{ display: 'flex', gap: '6px', marginBottom: '20px', flexWrap: 'wrap' }}>
+      {PROFIL_TABS.map(t => (
+        <button key={t.id} onClick={() => onSelect(t.id)} style={{ padding: '7px 16px', borderRadius: '20px', border: `1px solid ${active === t.id ? C.red : C.border}`, background: active === t.id ? '#fff0f2' : C.white, color: active === t.id ? C.red : C.mid, fontWeight: active === t.id ? '700' : '400', fontSize: '13px', cursor: 'pointer', fontFamily: "'Be Vietnam Pro', sans-serif" }}>
+          {t.label}
+        </button>
+      ))}
+    </div>
+  )
+}
+
+function SubInfos({ merchant, onSave }) {
   const [form, setForm] = useState(merchant || {})
   useEffect(() => { setForm(merchant || {}) }, [merchant])
   const f = field => e => setForm(p => ({ ...p, [field]: e.target.value }))
   return (
+    <Card>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+        <FieldGroup label="Nom"><Input value={form.name} onChange={f('name')} placeholder="Bella Beauty Salon" /></FieldGroup>
+        <FieldGroup label="Type"><Input value={form.vertical} onChange={f('vertical')} placeholder="Salon de beauté" /></FieldGroup>
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+        <FieldGroup label="Téléphone"><Input value={form.phone} onChange={f('phone')} placeholder="0901 234 567" /></FieldGroup>
+        <FieldGroup label="Adresse"><Input value={form.address} onChange={f('address')} placeholder="123 Đường Lê Lợi" /></FieldGroup>
+      </div>
+      <FieldGroup label="Horaires"><Input value={form.hours} onChange={f('hours')} placeholder="Lun–Sam : 8h–20h" /></FieldGroup>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
+        <FieldGroup label="Couleur principale">
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <input type="color" value={form.primary_color || '#D0021B'} onChange={f('primary_color')} style={{ width: '40px', height: '36px', borderRadius: '6px', border: `1px solid ${C.border}`, cursor: 'pointer', padding: '2px' }} />
+            <Input value={form.primary_color || '#D0021B'} onChange={f('primary_color')} style={{ flex: 1 }} />
+          </div>
+        </FieldGroup>
+        <FieldGroup label="Couleur secondaire">
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <input type="color" value={form.secondary_color || '#F5A623'} onChange={f('secondary_color')} style={{ width: '40px', height: '36px', borderRadius: '6px', border: `1px solid ${C.border}`, cursor: 'pointer', padding: '2px' }} />
+            <Input value={form.secondary_color || '#F5A623'} onChange={f('secondary_color')} style={{ flex: 1 }} />
+          </div>
+        </FieldGroup>
+      </div>
+      <Btn onClick={() => onSave(form)}>Enregistrer les modifications</Btn>
+    </Card>
+  )
+}
+
+function SubHero({ merchant, onSave }) {
+  const fileRef = useRef()
+  const [uploading, setUploading] = useState(false)
+  const [preview, setPreview] = useState(merchant?.hero_image || null)
+
+  async function handleFile(e) {
+    const file = e.target.files[0]
+    if (!file) return
+    if (file.size > 3 * 1024 * 1024) { alert('Fichier trop lourd (max 3 Mo)'); return }
+    setUploading(true)
+    const reader = new FileReader()
+    reader.onload = async (ev) => {
+      const base64 = ev.target.result
+      setPreview(base64)
+      await onSave({ hero_image: base64 })
+      setUploading(false)
+    }
+    reader.readAsDataURL(file)
+  }
+
+  return (
+    <Card>
+      <div style={{ fontWeight: '700', fontSize: '15px', color: C.dark, marginBottom: '6px' }}>Photo d'accueil</div>
+      <div style={{ fontSize: '13px', color: C.mid, marginBottom: '20px' }}>Cette photo s'affiche en bannière principale dans votre app. Format recommandé : 800×400px.</div>
+      {preview ? (
+        <div style={{ marginBottom: '16px' }}>
+          <img src={preview} alt="Hero" style={{ width: '100%', maxHeight: '220px', objectFit: 'cover', borderRadius: '10px', border: `1px solid ${C.border}` }} />
+        </div>
+      ) : (
+        <div style={{ width: '100%', height: '160px', borderRadius: '10px', border: `2px dashed ${C.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.mid, fontSize: '14px', marginBottom: '16px', cursor: 'pointer', background: C.bg }} onClick={() => fileRef.current.click()}>
+          Cliquez pour uploader votre photo d'accueil
+        </div>
+      )}
+      <input ref={fileRef} type="file" accept="image/*" onChange={handleFile} style={{ display: 'none' }} />
+      <Btn onClick={() => fileRef.current.click()} disabled={uploading}>{uploading ? 'Envoi…' : preview ? '🔄 Changer la photo' : '📷 Uploader une photo'}</Btn>
+    </Card>
+  )
+}
+
+function SectionProfil({ merchant, onSave, merchantId, toast }) {
+  const [sub, setSub] = useState('infos')
+  return (
     <div>
       <SectionTitle>Ma page</SectionTitle>
-      <Card>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-          <FieldGroup label="Nom"><Input value={form.name} onChange={f('name')} placeholder="Bella Beauty Salon" /></FieldGroup>
-          <FieldGroup label="Type"><Input value={form.vertical} onChange={f('vertical')} placeholder="Salon de beauté" /></FieldGroup>
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-          <FieldGroup label="Téléphone"><Input value={form.phone} onChange={f('phone')} placeholder="0901 234 567" /></FieldGroup>
-          <FieldGroup label="Adresse"><Input value={form.address} onChange={f('address')} placeholder="123 Đường Lê Lợi" /></FieldGroup>
-        </div>
-        <FieldGroup label="Horaires"><Input value={form.hours} onChange={f('hours')} placeholder="Lun–Sam : 8h–20h" /></FieldGroup>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
-          <FieldGroup label="Couleur principale">
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-              <input type="color" value={form.primary_color || '#D0021B'} onChange={f('primary_color')} style={{ width: '40px', height: '36px', borderRadius: '6px', border: `1px solid ${C.border}`, cursor: 'pointer', padding: '2px' }} />
-              <Input value={form.primary_color || '#D0021B'} onChange={f('primary_color')} style={{ flex: 1 }} />
-            </div>
-          </FieldGroup>
-          <FieldGroup label="Couleur secondaire">
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-              <input type="color" value={form.secondary_color || '#F5A623'} onChange={f('secondary_color')} style={{ width: '40px', height: '36px', borderRadius: '6px', border: `1px solid ${C.border}`, cursor: 'pointer', padding: '2px' }} />
-              <Input value={form.secondary_color || '#F5A623'} onChange={f('secondary_color')} style={{ flex: 1 }} />
-            </div>
-          </FieldGroup>
-        </div>
-        <Btn onClick={() => onSave(form)}>Enregistrer les modifications</Btn>
-      </Card>
-
-      <Card style={{ marginTop: '16px' }}>
-        <SubGalerie merchantId={merchantId} toast={toast} />
-      </Card>
+      <ProfilNav active={sub} onSelect={setSub} />
+      {sub === 'infos'    && <SubInfos merchant={merchant} onSave={onSave} />}
+      {sub === 'hero'     && <SubHero merchant={merchant} onSave={onSave} />}
+      {sub === 'services' && <SectionServices merchantId={merchantId} toast={toast} />}
     </div>
   )
 }
@@ -158,7 +220,7 @@ function SectionServices({ merchantId, toast }) {
   const [showForm, setShowForm] = useState(false)
   const [showCatForm, setShowCatForm] = useState(false)
   const [editing, setEditing] = useState(null)
-  const [form, setForm] = useState({ name: '', price: '', description: '', category: '', active: true })
+  const [form, setForm] = useState({ name: '', price: '', description: '', category: '', image_base64: '', active: true })
   const [newCat, setNewCat] = useState('')
 
   async function load() {
@@ -168,8 +230,8 @@ function SectionServices({ merchantId, toast }) {
   }
   useEffect(() => { if (merchantId) load() }, [merchantId])
 
-  function openNew() { setForm({ name: '', price: '', description: '', category: categories[0]?.name || '', active: true }); setEditing(null); setShowForm(true) }
-  function openEdit(s) { setForm({ name: s.name, price: s.price, description: s.description, category: s.category || '', active: s.active }); setEditing(s.id); setShowForm(true) }
+  function openNew() { setForm({ name: '', price: '', description: '', category: categories[0]?.name || '', image_base64: '', active: true }); setEditing(null); setShowForm(true) }
+  function openEdit(s) { setForm({ name: s.name, price: s.price, description: s.description, category: s.category || '', image_base64: s.image_base64 || '', active: s.active }); setEditing(s.id); setShowForm(true) }
 
   async function save() {
     if (!form.name) { toast('Nom requis', false); return }
@@ -199,6 +261,11 @@ function SectionServices({ merchantId, toast }) {
   function ServiceRow({ s }) {
     return (
       <Card style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px' }}>
+        {s.image_base64 ? (
+          <img src={s.image_base64} alt={s.name} style={{ width: '48px', height: '48px', objectFit: 'cover', borderRadius: '8px', flexShrink: 0 }} />
+        ) : (
+          <div style={{ width: '48px', height: '48px', borderRadius: '8px', background: C.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', flexShrink: 0 }}>📷</div>
+        )}
         <div style={{ flex: 1 }}>
           <div style={{ fontWeight: '600', color: C.dark, fontSize: '14px' }}>{s.name}</div>
           {s.description && <div style={{ fontSize: '12px', color: C.mid, marginTop: '2px' }}>{s.description}</div>}
@@ -264,6 +331,21 @@ function SectionServices({ merchantId, toast }) {
             </FieldGroup>
           </div>
           <FieldGroup label="Description"><Textarea value={form.description} onChange={f('description')} placeholder="Description courte…" rows={2} /></FieldGroup>
+          <FieldGroup label="Photo du service">
+            <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+              {form.image_base64 && <img src={form.image_base64} alt="" style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px', border: `1px solid ${C.border}` }} />}
+              <label style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '8px', border: `1px solid ${C.border}`, cursor: 'pointer', fontSize: '13px', color: C.mid, background: C.white }}>
+                📷 {form.image_base64 ? 'Changer' : 'Ajouter une photo'}
+                <input type="file" accept="image/*" style={{ display: 'none' }} onChange={e => {
+                  const file = e.target.files[0]; if (!file) return
+                  const reader = new FileReader()
+                  reader.onload = ev => setForm(p => ({ ...p, image_base64: ev.target.result }))
+                  reader.readAsDataURL(file)
+                }} />
+              </label>
+              {form.image_base64 && <span onClick={() => setForm(p => ({ ...p, image_base64: '' }))} style={{ fontSize: '12px', color: C.red, cursor: 'pointer' }}>Supprimer</span>}
+            </div>
+          </FieldGroup>
           <div style={{ display: 'flex', gap: '8px' }}><Btn onClick={save}>Enregistrer</Btn><Btn variant="ghost" onClick={() => setShowForm(false)}>Annuler</Btn></div>
         </Card>
       )}
@@ -278,8 +360,38 @@ function SectionServices({ merchantId, toast }) {
           {/* Services par catégorie */}
           {grouped.map(({ cat, items }) => items.length > 0 && (
             <div key={cat.id}>
-              <div style={{ fontSize: '13px', fontWeight: '700', color: C.mid, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px', paddingLeft: '4px' }}>
-                {cat.name}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px', paddingLeft: '4px' }}>
+                {cat.image_base64 ? (
+                  <img src={cat.image_base64} alt={cat.name} style={{ width: '36px', height: '36px', objectFit: 'cover', borderRadius: '6px', border: `1px solid ${C.border}` }} />
+                ) : (
+                  <label style={{ width: '36px', height: '36px', borderRadius: '6px', border: `2px dashed ${C.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '16px', flexShrink: 0, background: C.bg }} title="Ajouter une photo de catégorie">
+                    📷
+                    <input type="file" accept="image/*" style={{ display: 'none' }} onChange={async e => {
+                      const file = e.target.files[0]; if (!file) return
+                      const reader = new FileReader()
+                      reader.onload = async ev => {
+                        await supabase.from('service_categories').update({ image_base64: ev.target.result }).eq('id', cat.id)
+                        load()
+                      }
+                      reader.readAsDataURL(file)
+                    }} />
+                  </label>
+                )}
+                <div style={{ fontSize: '13px', fontWeight: '700', color: C.mid, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{cat.name}</div>
+                {cat.image_base64 && (
+                  <label style={{ cursor: 'pointer', fontSize: '11px', color: C.mid }} title="Changer la photo">
+                    ✏️
+                    <input type="file" accept="image/*" style={{ display: 'none' }} onChange={async e => {
+                      const file = e.target.files[0]; if (!file) return
+                      const reader = new FileReader()
+                      reader.onload = async ev => {
+                        await supabase.from('service_categories').update({ image_base64: ev.target.result }).eq('id', cat.id)
+                        load()
+                      }
+                      reader.readAsDataURL(file)
+                    }} />
+                  </label>
+                )}
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                 {items.map(s => <ServiceRow key={s.id} s={s} />)}
@@ -914,7 +1026,6 @@ export default function Dashboard() {
           <div style={{ padding: '28px 24px', maxWidth: '800px' }}>
             {activeTab === 'apercu'     && <SectionApercu merchant={merchant} contacts={contacts} broadcasts={broadcasts} onChangeVertical={async () => { if (window.confirm("Changer d'activité ? Toutes vos données de configuration seront réinitialisées.")) { await supabase.from('merchants').update({ vertical: null }).eq('id', merchant.id); router.push('/onboarding') } }} />}
             {activeTab === 'profil'     && <SectionProfil merchant={merchant} onSave={saveMerchant} merchantId={merchant.id} toast={showToast} />}
-            {activeTab === 'services'   && <SectionServices merchantId={merchant.id} toast={showToast} />}
             {activeTab === 'marketing'  && <SectionMarketing merchantId={merchant.id} merchant={merchant} onSaveMerchant={saveMerchant} toast={showToast} />}
             {activeTab === 'avis'       && <SectionAvis merchantId={merchant.id} toast={showToast} />}
             {activeTab === 'contacts'   && <SectionContacts merchantId={merchant.id} />}
