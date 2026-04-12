@@ -357,7 +357,7 @@ export default async function handler(req, res) {
       svcData.categories.map((name, i) => ({
         merchant_id: merchantId,
         name,
-        sort_order: i + 1
+        display_order: i + 1
       }))
     )
 
@@ -372,7 +372,7 @@ export default async function handler(req, res) {
         category: s.cat,
         name: s.name,
         price: s.price,
-        sort_order: i + 1
+        display_order: i + 1
       }))
     )
 
