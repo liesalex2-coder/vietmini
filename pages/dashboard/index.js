@@ -27,7 +27,28 @@ const MARKETING_TABS = [
   { id: 'bienvenue',  label: '🎁 Bienvenue' },
 ]
 
-// ─── UI primitives ────────────────────────────────────────────
+// ─── Compression WebP qualité 82 ─────────────────────────────
+function compressToWebP(file, maxSize = 1200) {
+  return new Promise((resolve) => {
+    const reader = new FileReader()
+    reader.onload = (ev) => {
+      const img = new Image()
+      img.onload = () => {
+        const canvas = document.createElement('canvas')
+        let w = img.width, h = img.height
+        if (w > maxSize) { h = Math.round(h * maxSize / w); w = maxSize }
+        if (h > maxSize) { w = Math.round(w * maxSize / h); h = maxSize }
+        canvas.width = w; canvas.height = h
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h)
+        resolve(canvas.toDataURL('image/webp', 0.82))
+      }
+      img.src = ev.target.result
+    }
+    reader.readAsDataURL(file)
+  })
+}
+
+
 function Card({ children, style }) {
   return <div style={{ background: C.white, borderRadius: '12px', padding: '24px', boxShadow: '0 2px 12px rgba(26,10,0,0.06)', ...style }}>{children}</div>
 }
@@ -171,16 +192,12 @@ function SubHero({ merchant, onSave }) {
   async function handleFile(e) {
     const file = e.target.files[0]
     if (!file) return
-    if (file.size > 3 * 1024 * 1024) { alert('Fichier trop lourd (max 3 Mo)'); return }
+    if (file.size > 5 * 1024 * 1024) { alert('Fichier trop lourd (max 5 Mo)'); return }
     setUploading(true)
-    const reader = new FileReader()
-    reader.onload = async (ev) => {
-      const base64 = ev.target.result
-      setPreview(base64)
-      await onSave({ hero_image: base64 })
-      setUploading(false)
-    }
-    reader.readAsDataURL(file)
+    const base64 = await compressToWebP(file, 1200)
+    setPreview(base64)
+    await onSave({ hero_image: base64 })
+    setUploading(false)
   }
 
   return (
@@ -339,11 +356,10 @@ function SectionServices({ merchantId, toast }) {
               {form.image_base64 && <img src={form.image_base64} alt="" style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px', border: `1px solid ${C.border}` }} />}
               <label style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '8px', border: `1px solid ${C.border}`, cursor: 'pointer', fontSize: '13px', color: C.mid, background: C.white }}>
                 📷 {form.image_base64 ? 'Changer' : 'Ajouter une photo'}
-                <input type="file" accept="image/*" style={{ display: 'none' }} onChange={e => {
+                <input type="file" accept="image/*" style={{ display: 'none' }} onChange={async e => {
                   const file = e.target.files[0]; if (!file) return
-                  const reader = new FileReader()
-                  reader.onload = ev => setForm(p => ({ ...p, image_base64: ev.target.result }))
-                  reader.readAsDataURL(file)
+                  const base64 = await compressToWebP(file, 400)
+                  setForm(p => ({ ...p, image_base64: base64 }))
                 }} />
               </label>
               {form.image_base64 && <span onClick={() => setForm(p => ({ ...p, image_base64: '' }))} style={{ fontSize: '12px', color: C.red, cursor: 'pointer' }}>Supprimer</span>}
@@ -371,12 +387,9 @@ function SectionServices({ merchantId, toast }) {
                     📷
                     <input type="file" accept="image/*" style={{ display: 'none' }} onChange={async e => {
                       const file = e.target.files[0]; if (!file) return
-                      const reader = new FileReader()
-                      reader.onload = async ev => {
-                        await supabase.from('service_categories').update({ image_base64: ev.target.result }).eq('id', cat.id)
-                        load()
-                      }
-                      reader.readAsDataURL(file)
+                      const base64 = await compressToWebP(file, 400)
+                      await supabase.from('service_categories').update({ image_base64: base64 }).eq('id', cat.id)
+                      load()
                     }} />
                   </label>
                 )}
@@ -386,12 +399,9 @@ function SectionServices({ merchantId, toast }) {
                     ✏️
                     <input type="file" accept="image/*" style={{ display: 'none' }} onChange={async e => {
                       const file = e.target.files[0]; if (!file) return
-                      const reader = new FileReader()
-                      reader.onload = async ev => {
-                        await supabase.from('service_categories').update({ image_base64: ev.target.result }).eq('id', cat.id)
-                        load()
-                      }
-                      reader.readAsDataURL(file)
+                      const base64 = await compressToWebP(file, 400)
+                      await supabase.from('service_categories').update({ image_base64: base64 }).eq('id', cat.id)
+                      load()
                     }} />
                   </label>
                 )}
@@ -757,15 +767,11 @@ function SubGalerie({ merchantId, toast }) {
   async function handleFile(e) {
     const file = e.target.files[0]
     if (!file) return
-    if (file.size > 2 * 1024 * 1024) { toast('Fichier trop lourd (max 2 Mo)', false); return }
+    if (file.size > 5 * 1024 * 1024) { toast('Fichier trop lourd (max 5 Mo)', false); return }
     setUploading(true)
-    const reader = new FileReader()
-    reader.onload = async (ev) => {
-      const base64 = ev.target.result
-      await supabase.from('gallery').insert({ merchant_id: merchantId, image_url: base64, display_order: photos.length, active: true })
-      load(); setUploading(false); toast('Photo ajoutée', true)
-    }
-    reader.readAsDataURL(file)
+    const base64 = await compressToWebP(file, 800)
+    await supabase.from('gallery').insert({ merchant_id: merchantId, image_url: base64, display_order: photos.length, active: true })
+    load(); setUploading(false); toast('Photo ajoutée', true)
   }
 
   async function toggleActive(p) { await supabase.from('gallery').update({ active: !p.active }).eq('id', p.id); load() }
