@@ -497,6 +497,29 @@
   .loyalty-reward-box { background:var(--cream); border-radius:10px; padding:10px 12px; text-align:center; font-size:13px; color:var(--dark); margin-bottom:12px; }
   .stamp-btn { display:block; width:100%; background:var(--primary); color:#fff; border:none; border-radius:12px; padding:13px; font-size:14px; font-weight:700; cursor:pointer; font-family:'Be Vietnam Pro',sans-serif; }
   .stamp-complete-banner { background:linear-gradient(135deg,#27ae60,#2ecc71); color:#fff; border-radius:12px; padding:12px; text-align:center; font-size:13px; font-weight:700; margin-bottom:12px; display:none; }
+  /* ── COUPONS ── */
+  .coupon-card { background:#fff; border-radius:16px; margin:8px 16px 0; padding:16px; box-shadow:0 2px 8px rgba(0,0,0,0.08); display:flex; align-items:center; gap:14px; cursor:pointer; }
+  .coupon-icon { font-size:32px; flex-shrink:0; }
+  .coupon-info { flex:1; }
+  .coupon-title { font-size:15px; font-weight:800; color:var(--primary); }
+  .coupon-desc { font-size:12px; color:var(--muted); margin-top:2px; }
+  .coupon-expiry { font-size:11px; color:var(--muted); margin-top:4px; }
+  .coupon-btn { background:var(--primary); color:#fff; border:none; border-radius:10px; padding:8px 14px; font-size:12px; font-weight:700; cursor:pointer; font-family:'Be Vietnam Pro',sans-serif; flex-shrink:0; }
+  /* ── PHONE MODAL ── */
+  .phone-backdrop { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:700; align-items:flex-end; justify-content:center; max-width:430px; margin:0 auto; }
+  .phone-backdrop.open { display:flex; }
+  .phone-modal { background:#fff; border-radius:24px 24px 0 0; width:100%; padding:24px 20px 32px; }
+  .phone-modal-title { font-size:17px; font-weight:800; color:var(--text); margin-bottom:6px; }
+  .phone-modal-sub { font-size:13px; color:var(--muted); margin-bottom:16px; }
+  .phone-input { width:100%; padding:14px; border:2px solid var(--border); border-radius:12px; font-size:16px; font-family:'Be Vietnam Pro',sans-serif; box-sizing:border-box; margin-bottom:8px; }
+  .phone-input:focus { outline:none; border-color:var(--primary); }
+  .phone-error { color:#e74c3c; font-size:13px; margin-bottom:12px; min-height:18px; }
+  .phone-submit { display:block; width:100%; background:var(--primary); color:#fff; border:none; border-radius:12px; padding:14px; font-size:14px; font-weight:700; cursor:pointer; font-family:'Be Vietnam Pro',sans-serif; margin-bottom:10px; }
+  .phone-cancel-btn { display:block; width:100%; background:#f5f5f5; border:none; border-radius:12px; padding:13px; font-size:14px; font-weight:600; cursor:pointer; font-family:'Be Vietnam Pro',sans-serif; color:var(--muted); }
+  /* ── COUPON SUCCESS ── */
+  .coupon-success-backdrop { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:700; align-items:flex-end; justify-content:center; max-width:430px; margin:0 auto; }
+  .coupon-success-backdrop.open { display:flex; }
+  .coupon-success-modal { background:#fff; border-radius:24px 24px 0 0; width:100%; padding:28px 20px 36px; text-align:center; }
   /* ── PIN MODAL ── */
   .pin-backdrop { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:700; align-items:flex-end; justify-content:center; max-width:430px; margin:0 auto; }
   .pin-backdrop.open { display:flex; }
@@ -683,6 +706,11 @@
           </div>
           <div class="pb-cta">Quay ngay</div>
         </div>
+      </div>
+
+      <div id="couponsSection" style="display:none;">
+        <div class="section-label" style="margin-top:8px">🎟 Ưu đãi</div>
+        <div id="couponsList"></div>
       </div>
 
       <div class="section-label">Dịch vụ</div>
@@ -1063,6 +1091,53 @@ function initBooking() {
 }
 
 
+// ── COUPONS ──────────────────────────────────────────────────
+var _currentCouponId = null;
+var _currentMerchantId = null;
+var _apiBase = 'https://vietmini.vercel.app';
+
+function openPhoneModal(couponId, merchantId) {
+  _currentCouponId = couponId;
+  _currentMerchantId = merchantId;
+  document.getElementById('phoneInput').value = '';
+  document.getElementById('phoneError').textContent = '';
+  document.getElementById('phoneBackdrop').classList.add('open');
+}
+function closePhoneModal() {
+  document.getElementById('phoneBackdrop').classList.remove('open');
+}
+function closeCouponSuccess() {
+  document.getElementById('couponSuccessBackdrop').classList.remove('open');
+}
+
+async function submitCouponClaim() {
+  var phone = document.getElementById('phoneInput').value.trim();
+  var err = document.getElementById('phoneError');
+  err.textContent = '';
+  if (!phone || phone.length < 8) { err.textContent = 'Numéro invalide'; return; }
+  var btn = document.querySelector('.phone-submit');
+  btn.disabled = true; btn.textContent = 'Chờ...';
+  try {
+    var res = await fetch(_apiBase + '/api/coupon/claim', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ coupon_id: _currentCouponId, merchant_id: _currentMerchantId, phone: phone })
+    });
+    var data = await res.json();
+    if (!res.ok) { err.textContent = data.error || 'Erreur'; btn.disabled = false; btn.textContent = 'Activer mon coupon'; return; }
+    closePhoneModal();
+    // Afficher succès
+    document.getElementById('successCouponCode').textContent = data.coupon.code;
+    var desc = data.coupon.discount_type === 'percent' ? 'Giảm ' + data.coupon.discount_value + '%' : 'Giảm ' + data.coupon.discount_value.toLocaleString('vi-VN') + 'đ';
+    document.getElementById('successCouponDesc').textContent = desc;
+    document.getElementById('successCouponExpiry').textContent = data.coupon.valid_until ? 'Hết hạn: ' + data.coupon.valid_until.substring(0,10).split('-').reverse().join('/') : '';
+    document.getElementById('couponSuccessBackdrop').classList.add('open');
+  } catch(e) {
+    err.textContent = 'Erreur réseau';
+  }
+  btn.disabled = false; btn.textContent = 'Activer mon coupon';
+}
+
 // ── LOYALTY / STAMP CARD ─────────────────────────────────────
 var LOYALTY = { enabled: false, visits_required: 10, reward_text: '1 dịch vụ miễn phí', pin: '0000' };
 var _merchantId = null;
@@ -1138,6 +1213,7 @@ renderStamps();
   const merchantId = params.get('merchant_id');
   _merchantId = merchantId;
   const apiBase = params.get('api') || 'https://vietmini.vercel.app';
+  _apiBase = apiBase;
   if (!merchantId) return;
 
   try {
@@ -1313,6 +1389,24 @@ renderStamps();
       document.querySelectorAll('.loyalty-feature').forEach(el => el.style.display = 'none');
     }
 
+    // Coupons
+    if (d.coupons && d.coupons.length > 0) {
+      const section = document.getElementById('couponsSection');
+      const list = document.getElementById('couponsList');
+      if (section && list) {
+        section.style.display = 'block';
+        list.innerHTML = '';
+        d.coupons.forEach(c => {
+          const desc = c.discount_type === 'percent' ? `Giảm ${c.discount_value}%` : `Giảm ${Number(c.discount_value).toLocaleString('vi-VN')}đ`;
+          const expiry = c.valid_until ? `Hết hạn: ${c.valid_until.substring(0,10).split('-').reverse().join('/')}` : '';
+          const div = document.createElement('div');
+          div.className = 'coupon-card';
+          div.innerHTML = `<div class="coupon-icon">🎟</div><div class="coupon-info"><div class="coupon-title">${desc}</div><div class="coupon-desc">Mã: ${c.code}</div><div class="coupon-expiry">${expiry}</div></div><button class="coupon-btn" onclick="openPhoneModal('${c.id}','${merchantId}')">Lấy ngay</button>`;
+          list.appendChild(div);
+        });
+      }
+    }
+
   } catch(e) {
     console.warn('[VietMini] Erreur loader:', e);
   }
@@ -1446,25 +1540,30 @@ renderStamps();
 </div>
 
 <!-- WHEEL MODAL -->
-<!-- FLASH SALE MODAL -->
-<div style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:600;align-items:flex-end;justify-content:center;max-width:430px;margin:0 auto;" id="flashModalBackdrop" onclick="if(event.target.id==='flashModalBackdrop')closeFlashModal()">
-  <div style="background:#fff;border-radius:24px 24px 0 0;width:100%;padding:0 0 32px;animation:wm-up 0.35s cubic-bezier(.22,.68,0,1.2);">
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 20px 0;">
-      <div style="font-size:18px;font-weight:800;color:var(--text);">⚡ Flash Sale</div>
-      <button onclick="closeFlashModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted);">✕</button>
+<!-- PHONE MODAL (coupon claim) -->
+<div class="phone-backdrop" id="phoneBackdrop">
+  <div class="phone-modal">
+    <div class="phone-modal-title">📱 Entrez votre numéro</div>
+    <div class="phone-modal-sub">Pour activer votre coupon — un seul par numéro</div>
+    <input class="phone-input" type="tel" id="phoneInput" placeholder="0901 234 567" />
+    <div class="phone-error" id="phoneError"></div>
+    <button class="phone-submit" onclick="submitCouponClaim()">Activer mon coupon</button>
+    <button class="phone-cancel-btn" onclick="closePhoneModal()">Annuler</button>
+  </div>
+</div>
+
+<!-- COUPON SUCCESS MODAL -->
+<div class="coupon-success-backdrop" id="couponSuccessBackdrop">
+  <div class="coupon-success-modal">
+    <div style="font-size:48px;margin-bottom:12px;">🎉</div>
+    <div style="font-size:18px;font-weight:800;color:var(--text);margin-bottom:8px;">Coupon activé !</div>
+    <div style="background:var(--primary);border-radius:14px;padding:16px;margin:16px 0;">
+      <div style="font-size:28px;font-weight:900;color:#fff;letter-spacing:2px;" id="successCouponCode">CODE20</div>
+      <div style="font-size:13px;color:rgba(255,255,255,0.9);margin-top:4px;" id="successCouponDesc">Giảm 20%</div>
     </div>
-    <div style="padding:16px 20px 0;">
-      <div style="background:linear-gradient(135deg,#e67e22,#d35400);border-radius:16px;padding:20px;text-align:center;margin-bottom:16px;">
-        <div style="font-size:42px;font-weight:900;color:#fff;" id="flashModalDiscount">GIẢM 20%</div>
-        <div style="font-size:14px;color:rgba(255,255,255,0.9);margin-top:4px;" id="flashModalService">Nhuộm tóc</div>
-      </div>
-      <div style="background:#fff8f0;border-radius:12px;padding:12px 14px;font-size:13px;color:var(--dark);margin-bottom:16px;">
-        📅 Bắt đầu: <strong id="flashModalStart">--/-- --:--</strong><br>
-        ⏰ Kết thúc: <strong id="flashModalEnd">--/-- --:--</strong>
-      </div>
-      <div style="font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.6;">Xuất trình màn hình này khi thanh toán để được áp dụng ưu đãi.</div>
-    </div>
-    <button onclick="closeFlashModal()" style="display:block;width:calc(100% - 40px);margin:0 20px;background:var(--primary);color:#fff;border:none;border-radius:12px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Be Vietnam Pro',sans-serif;">Đã hiểu — Tôi sẽ xuất trình khi đến</button>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:20px;" id="successCouponExpiry"></div>
+    <div style="font-size:13px;color:var(--dark);background:#f5f5f5;border-radius:10px;padding:12px;margin-bottom:20px;line-height:1.6;">Xuất trình màn hình này khi thanh toán để được áp dụng ưu đãi.</div>
+    <button onclick="closeCouponSuccess()" style="display:block;width:100%;background:var(--primary);color:#fff;border:none;border-radius:12px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Be Vietnam Pro',sans-serif;">Đã hiểu ✓</button>
   </div>
 </div>
 
