@@ -1151,9 +1151,16 @@ initFeatures();
             <div class="pb-title">⚡ Flash Sale — Giảm ${d.flash.discount_value}%</div>
             <div class="pb-sub">${d.flash.service_name || 'Tất cả dịch vụ'}${end ? ' · Kết thúc ' + new Date(end).toLocaleTimeString('vi-VN', {hour:'2-digit',minute:'2-digit'}) : ''}</div>
           </div>
-          <div class="pb-cta">Xem ngay</div>
+          <div class="pb-cta" onclick="openFlashModal()" style="cursor:pointer;">Xem ngay</div>
         `;
         bannersDiv.insertBefore(flashBanner, bannersDiv.firstChild);
+        // Peupler le modal
+        const fDiscount = document.getElementById('flashModalDiscount');
+        const fService = document.getElementById('flashModalService');
+        const fEnd = document.getElementById('flashModalEnd');
+        if (fDiscount) fDiscount.textContent = 'GIẢM ' + d.flash.discount_value + '%';
+        if (fService) fService.textContent = d.flash.service_name || 'Tất cả dịch vụ';
+        if (fEnd && d.flash.end_time) fEnd.textContent = new Date(d.flash.end_time).toLocaleTimeString('vi-VN', {hour:'2-digit',minute:'2-digit'});
       }
     }
 
@@ -1181,10 +1188,9 @@ initFeatures();
       if (badge) badge.textContent = 'GIẢM ' + m.welcome_discount + '%';
       const promoBadge = document.querySelector('.promo-discount-badge');
       if (promoBadge) promoBadge.textContent = 'GIẢM ' + m.welcome_discount + '%';
-    } else if (!m.welcome_enabled) {
+      setTimeout(showWelcomePopup, 3000);
+    } else {
       document.querySelectorAll('.promo-feature').forEach(el => el.style.display = 'none');
-      const wb = document.getElementById('welcomeBackdrop');
-      if (wb) { wb.style.display = 'none'; wb.dataset.disabled = '1'; }
     }
 
     // Fidélité
@@ -1305,6 +1311,27 @@ initFeatures();
   </div>
 </div>
 
+<!-- FLASH SALE MODAL -->
+<div style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:600;align-items:flex-end;justify-content:center;max-width:430px;margin:0 auto;" id="flashModalBackdrop" onclick="if(event.target.id==='flashModalBackdrop')closeFlashModal()">
+  <div style="background:#fff;border-radius:24px 24px 0 0;width:100%;padding:0 0 32px;animation:wm-up 0.35s cubic-bezier(.22,.68,0,1.2);">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 20px 0;">
+      <div style="font-size:18px;font-weight:800;color:var(--text);">⚡ Flash Sale</div>
+      <button onclick="closeFlashModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted);">✕</button>
+    </div>
+    <div style="padding:16px 20px 0;">
+      <div style="background:linear-gradient(135deg,#e67e22,#d35400);border-radius:16px;padding:20px;text-align:center;margin-bottom:16px;">
+        <div style="font-size:42px;font-weight:900;color:#fff;" id="flashModalDiscount">GIẢM 20%</div>
+        <div style="font-size:14px;color:rgba(255,255,255,0.9);margin-top:4px;" id="flashModalService">Nhuộm tóc</div>
+      </div>
+      <div style="background:#fff8f0;border-radius:12px;padding:12px 14px;font-size:13px;color:var(--dark);margin-bottom:16px;">
+        ⏰ Ưu đãi kết thúc lúc <strong id="flashModalEnd">--:--</strong> — Đến tiệm ngay hôm nay!
+      </div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.6;">Xuất trình màn hình này khi thanh toán để được áp dụng ưu đãi.</div>
+    </div>
+    <button onclick="closeFlashModal()" style="display:block;width:calc(100% - 40px);margin:0 20px;background:var(--primary);color:#fff;border:none;border-radius:12px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Be Vietnam Pro',sans-serif;">Đã hiểu — Tôi sẽ xuất trình khi đến</button>
+  </div>
+</div>
+
 <!-- WHEEL MODAL -->
 <div class="wheel-modal-backdrop wheel-feature" id="wheelBackdrop" onclick="if(event.target.id==='wheelBackdrop')closeWheelModal()">
   <div class="wheel-modal">
@@ -1369,17 +1396,17 @@ function drawWheel(rot){
   ctx.strokeStyle='#FFE066';ctx.lineWidth=3;ctx.stroke();
 }
 
-// Welcome popup auto-show after 1.5s
-(function(){
-  setTimeout(function(){
-    var bd=document.getElementById('welcomeBackdrop');
-    if(bd && bd.dataset.disabled !== '1') bd.style.display='flex';
-  },3000);
-})();
+// Welcome popup — déclenché uniquement par le loader si welcome_enabled = true
+function showWelcomePopup() {
+  var bd = document.getElementById('welcomeBackdrop');
+  if (bd) bd.style.display = 'flex';
+}
 function closeWelcome(){
   var bd=document.getElementById('welcomeBackdrop');
   if(bd) bd.style.display='none';
 }
+function openFlashModal(){ document.getElementById('flashModalBackdrop').style.display='flex'; }
+function closeFlashModal(){ document.getElementById('flashModalBackdrop').style.display='none'; }
 function openWheelModal(){
   const bd=document.getElementById('wheelBackdrop');
   bd.classList.add('open');
