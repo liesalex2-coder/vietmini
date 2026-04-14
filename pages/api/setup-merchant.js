@@ -5,6 +5,19 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 )
 
+const BASE = 'https://vietmini.vercel.app/mini-apps-assets'
+
+const HERO_IMAGES = {
+  salon:    `${BASE}/salon/img_1.webp`,
+  barber:   `${BASE}/barber/img_1.webp`,
+  spa:      `${BASE}/spa/img_1.webp`,
+  resto:    `${BASE}/resto/img_1.webp`,
+  gym:      `${BASE}/gym/img_1.webp`,
+  karaoke:  `${BASE}/karaoke/img_1.webp`,
+  pet:      `${BASE}/pet/img_1.webp`,
+  boutique: `${BASE}/boutique/img_1.webp`,
+}
+
 const COLORS = {
   salon:    { primary: '#D0021B', secondary: '#F5A623' },
   barber:   { primary: '#1A0A00', secondary: '#F5A623' },
@@ -263,6 +276,7 @@ export default async function handler(req, res) {
       welcome_enabled:  true,
       welcome_discount: welcome.discount,
       welcome_message:  welcome.message,
+      hero_image:       HERO_IMAGES[vertical] || HERO_IMAGES.salon,
     }).eq('id', merchantId)
 
     // 2. Roue
@@ -357,7 +371,8 @@ export default async function handler(req, res) {
       svcData.categories.map((name, i) => ({
         merchant_id: merchantId,
         name,
-        display_order: i + 1
+        display_order: i + 1,
+        image_base64: `${BASE}/${vertical}/img_${i + 2}.webp`,
       }))
     )
 
@@ -372,7 +387,8 @@ export default async function handler(req, res) {
         category: s.cat,
         name: s.name,
         price: s.price,
-        display_order: i + 1
+        display_order: i + 1,
+        image_base64: `${BASE}/${vertical}/img_${i + 2}.webp`,
       }))
     )
 
