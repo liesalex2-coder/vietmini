@@ -1139,26 +1139,21 @@ initFeatures();
 
     // Flash sale banner
     if (d.flash && d.flash.enabled) {
-      const now = new Date();
-      const start = d.flash.start_time ? new Date(d.flash.start_time) : null;
       const end = d.flash.end_time ? new Date(d.flash.end_time) : null;
-      const isActive = (!start || now >= start) && (!end || now <= end);
-      if (isActive) {
-        const bannersDiv = document.querySelector('.promo-banner')?.parentElement;
-        if (bannersDiv) {
-          const flashBanner = document.createElement('div');
-          flashBanner.className = 'promo-banner';
-          flashBanner.style.background = 'linear-gradient(135deg,#e67e22,#d35400)';
-          flashBanner.innerHTML = `
-            <div class="pb-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#FFE066" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
-            <div class="pb-text">
-              <div class="pb-title">⚡ Flash Sale — Giảm ${d.flash.discount_value}%</div>
-              <div class="pb-sub">${d.flash.service_name || 'Tất cả dịch vụ'}${end ? ' · Kết thúc ' + new Date(end).toLocaleTimeString('vi-VN', {hour:'2-digit',minute:'2-digit'}) : ''}</div>
-            </div>
-            <div class="pb-cta">Xem ngay</div>
-          `;
-          bannersDiv.insertBefore(flashBanner, bannersDiv.firstChild);
-        }
+      const bannersDiv = document.querySelector('.promo-banner')?.parentElement;
+      if (bannersDiv) {
+        const flashBanner = document.createElement('div');
+        flashBanner.className = 'promo-banner';
+        flashBanner.style.background = 'linear-gradient(135deg,#e67e22,#d35400)';
+        flashBanner.innerHTML = `
+          <div class="pb-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#FFE066" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+          <div class="pb-text">
+            <div class="pb-title">⚡ Flash Sale — Giảm ${d.flash.discount_value}%</div>
+            <div class="pb-sub">${d.flash.service_name || 'Tất cả dịch vụ'}${end ? ' · Kết thúc ' + new Date(end).toLocaleTimeString('vi-VN', {hour:'2-digit',minute:'2-digit'}) : ''}</div>
+          </div>
+          <div class="pb-cta">Xem ngay</div>
+        `;
+        bannersDiv.insertBefore(flashBanner, bannersDiv.firstChild);
       }
     }
 
