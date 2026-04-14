@@ -486,6 +486,32 @@
   .hx-price { font-size: 14px; font-weight: 700; color: var(--primary); }
   .hx-status { font-size: 11px; color: #27ae60; }
 
+  /* ── LOYALTY CARD ── */
+  .loyalty-card-box { background:#fff; border-radius:16px; margin:12px 16px 0; padding:16px; box-shadow:0 2px 8px rgba(0,0,0,0.08); }
+  .loyalty-card-title { font-size:14px; font-weight:700; color:var(--text); margin-bottom:4px; }
+  .loyalty-card-sub { font-size:12px; color:var(--muted); margin-bottom:14px; }
+  .stamps-grid { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-bottom:14px; }
+  .stamp { width:40px; height:40px; border-radius:50%; border:2px solid var(--primary); display:flex; align-items:center; justify-content:center; font-size:18px; transition:all 0.2s; }
+  .stamp.filled { background:var(--primary); }
+  .stamp.empty { background:#fff; }
+  .loyalty-reward-box { background:var(--cream); border-radius:10px; padding:10px 12px; text-align:center; font-size:13px; color:var(--dark); margin-bottom:12px; }
+  .stamp-btn { display:block; width:100%; background:var(--primary); color:#fff; border:none; border-radius:12px; padding:13px; font-size:14px; font-weight:700; cursor:pointer; font-family:'Be Vietnam Pro',sans-serif; }
+  .stamp-complete-banner { background:linear-gradient(135deg,#27ae60,#2ecc71); color:#fff; border-radius:12px; padding:12px; text-align:center; font-size:13px; font-weight:700; margin-bottom:12px; display:none; }
+  /* ── PIN MODAL ── */
+  .pin-backdrop { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:700; align-items:flex-end; justify-content:center; max-width:430px; margin:0 auto; }
+  .pin-backdrop.open { display:flex; }
+  .pin-modal { background:#fff; border-radius:24px 24px 0 0; width:100%; padding:24px 20px 32px; }
+  .pin-modal-title { font-size:17px; font-weight:800; color:var(--text); text-align:center; margin-bottom:6px; }
+  .pin-modal-sub { font-size:13px; color:var(--muted); text-align:center; margin-bottom:20px; }
+  .pin-dots { display:flex; gap:12px; justify-content:center; margin-bottom:20px; }
+  .pin-dot { width:18px; height:18px; border-radius:50%; border:2px solid var(--primary); background:#fff; transition:background 0.15s; }
+  .pin-dot.filled { background:var(--primary); }
+  .pin-keypad { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+  .pin-key { background:#f5f5f5; border:none; border-radius:12px; padding:16px; font-size:20px; font-weight:700; cursor:pointer; font-family:'Be Vietnam Pro',sans-serif; color:var(--text); transition:background 0.1s; }
+  .pin-key:active { background:#e0e0e0; }
+  .pin-error { color:#e74c3c; font-size:13px; text-align:center; margin-bottom:8px; min-height:18px; }
+  .pin-cancel { display:block; width:100%; margin-top:12px; background:#f5f5f5; border:none; border-radius:12px; padding:13px; font-size:14px; font-weight:600; cursor:pointer; font-family:'Be Vietnam Pro',sans-serif; color:var(--muted); }
+
   /* Mobile full screen */
   @media (max-width: 430px) {
     body { background: var(--bg); align-items: flex-start; justify-content: flex-start; }
@@ -776,7 +802,17 @@
         <div class="profile-sub">Thành viên Bella Beauty Salon</div>
       </div>
 
-      <div class="section-label">Lịch sử dịch vụ</div>
+      <div class="section-label loyalty-feature" style="margin-top:16px">Thẻ tích điểm</div>
+      <div class="loyalty-card-box loyalty-feature">
+        <div class="loyalty-card-title stamp-reward">1 dịch vụ miễn phí</div>
+        <div class="loyalty-card-sub">Tích đủ <span class="stamp-total">10</span> lần ghé thăm để nhận thưởng</div>
+        <div class="stamps-grid" id="stampsGrid"></div>
+        <div class="stamp-complete-banner" id="stampCompleteBanner">🎉 Chúc mừng! Bạn đã tích đủ tem — xuất trình khi đến tiệm!</div>
+        <div class="loyalty-reward-box">🎁 Phần thưởng: <strong class="stamp-reward">1 dịch vụ miễn phí</strong></div>
+        <button class="stamp-btn loyalty-feature" onclick="openPinModal()">Nhận tem ✦</button>
+      </div>
+
+      <div class="section-label" style="margin-top:16px">Lịch sử dịch vụ</div>
       <div class="history-card">
         <div class="hx-row">
           <div class="hx-name">💅 Nail Gel</div>
@@ -813,7 +849,7 @@
 </div>
 
 <script>
-const CONFIG = { booking: true, wheel: true, promo: true };
+const CONFIG = { booking: true, wheel: true, promo: true, loyalty: true };
 
   // ── DATA ──
   const SERVICES = [
@@ -1027,18 +1063,80 @@ function initBooking() {
 }
 
 
+// ── LOYALTY / STAMP CARD ─────────────────────────────────────
+var LOYALTY = { enabled: false, visits_required: 10, reward_text: '1 dịch vụ miễn phí', pin: '0000' };
+var _merchantId = null;
+var _pinBuffer = '';
+
+function _loyaltyKey() { return 'vietmini_stamps_' + (_merchantId || 'demo'); }
+function _getStamps() { try { return parseInt(localStorage.getItem(_loyaltyKey()) || '0', 10); } catch(e) { return 0; } }
+function _setStamps(n) { try { localStorage.setItem(_loyaltyKey(), String(n)); } catch(e) {} }
+
+function renderStamps() {
+  var total = LOYALTY.visits_required;
+  var current = _getStamps();
+  var grid = document.getElementById('stampsGrid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  for (var i = 0; i < total; i++) {
+    var div = document.createElement('div');
+    div.className = 'stamp ' + (i < current ? 'filled' : 'empty');
+    div.textContent = i < current ? '⭐' : '';
+    grid.appendChild(div);
+  }
+  var banner = document.getElementById('stampCompleteBanner');
+  var btn = document.querySelector('.stamp-btn');
+  if (current >= total) {
+    if (banner) banner.style.display = 'block';
+    if (btn) btn.style.display = 'none';
+  } else {
+    if (banner) banner.style.display = 'none';
+    if (btn) btn.style.display = 'block';
+  }
+}
+
+function openPinModal() {
+  _pinBuffer = '';
+  document.getElementById('pinError').textContent = '';
+  [0,1,2,3].forEach(function(i){ document.getElementById('pd'+i).classList.remove('filled'); });
+  document.getElementById('pinBackdrop').classList.add('open');
+}
+function closePinModal() { document.getElementById('pinBackdrop').classList.remove('open'); _pinBuffer = ''; }
+function pinPress(key) {
+  var err = document.getElementById('pinError');
+  err.textContent = '';
+  if (key === 'del') { _pinBuffer = _pinBuffer.slice(0,-1); }
+  else if (key === 'ok') {
+    if (_pinBuffer.length < 4) { err.textContent = 'Entrez 4 chiffres'; return; }
+    if (_pinBuffer === LOYALTY.pin) {
+      var current = _getStamps();
+      if (current < LOYALTY.visits_required) { _setStamps(current + 1); renderStamps(); }
+      closePinModal();
+    } else {
+      err.textContent = 'Code incorrect, réessayez';
+      _pinBuffer = '';
+      [0,1,2,3].forEach(function(i){ document.getElementById('pd'+i).classList.remove('filled'); });
+    }
+    return;
+  } else if (_pinBuffer.length < 4) { _pinBuffer += key; }
+  [0,1,2,3].forEach(function(i){ document.getElementById('pd'+i).classList.toggle('filled', i < _pinBuffer.length); });
+}
+
 function initFeatures() {
   if (!CONFIG.booking) document.querySelectorAll('.booking-feature').forEach(el=>el.style.display='none');
   if (!CONFIG.wheel)   document.querySelectorAll('.wheel-feature').forEach(el=>el.style.display='none');
   if (!CONFIG.promo)   document.querySelectorAll('.promo-feature').forEach(el=>el.style.display='none');
+  if (!CONFIG.loyalty) document.querySelectorAll('.loyalty-feature').forEach(el=>el.style.display='none');
 }
 
 initFeatures();
+renderStamps();
 
 // ── VIETMINI DYNAMIC LOADER ──────────────────────────────────
 (async function() {
   const params = new URLSearchParams(window.location.search);
   const merchantId = params.get('merchant_id');
+  _merchantId = merchantId;
   const apiBase = params.get('api') || 'https://vietmini.vercel.app';
   if (!merchantId) return;
 
@@ -1203,10 +1301,16 @@ initFeatures();
 
     // Fidélité
     if (d.loyalty && d.loyalty.enabled) {
-      const rewardEl = document.querySelector('.loyalty-reward, .stamp-reward');
-      if (rewardEl && d.loyalty.reward_text) rewardEl.textContent = d.loyalty.reward_text;
-      const visitsEl = document.querySelector('.loyalty-visits, .stamp-total');
-      if (visitsEl) visitsEl.textContent = d.loyalty.visits_required;
+      LOYALTY.enabled = true;
+      LOYALTY.visits_required = d.loyalty.visits_required || 10;
+      LOYALTY.reward_text = d.loyalty.reward_text || '1 dịch vụ miễn phí';
+      if (d.loyalty.pin) LOYALTY.pin = String(d.loyalty.pin);
+      document.querySelectorAll('.stamp-reward').forEach(el => el.textContent = LOYALTY.reward_text);
+      document.querySelectorAll('.stamp-total').forEach(el => el.textContent = LOYALTY.visits_required);
+      renderStamps();
+    } else {
+      CONFIG.loyalty = false;
+      document.querySelectorAll('.loyalty-feature').forEach(el => el.style.display = 'none');
     }
 
   } catch(e) {
@@ -1342,6 +1446,58 @@ initFeatures();
 </div>
 
 <!-- WHEEL MODAL -->
+<!-- FLASH SALE MODAL -->
+<div style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:600;align-items:flex-end;justify-content:center;max-width:430px;margin:0 auto;" id="flashModalBackdrop" onclick="if(event.target.id==='flashModalBackdrop')closeFlashModal()">
+  <div style="background:#fff;border-radius:24px 24px 0 0;width:100%;padding:0 0 32px;animation:wm-up 0.35s cubic-bezier(.22,.68,0,1.2);">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 20px 0;">
+      <div style="font-size:18px;font-weight:800;color:var(--text);">⚡ Flash Sale</div>
+      <button onclick="closeFlashModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted);">✕</button>
+    </div>
+    <div style="padding:16px 20px 0;">
+      <div style="background:linear-gradient(135deg,#e67e22,#d35400);border-radius:16px;padding:20px;text-align:center;margin-bottom:16px;">
+        <div style="font-size:42px;font-weight:900;color:#fff;" id="flashModalDiscount">GIẢM 20%</div>
+        <div style="font-size:14px;color:rgba(255,255,255,0.9);margin-top:4px;" id="flashModalService">Nhuộm tóc</div>
+      </div>
+      <div style="background:#fff8f0;border-radius:12px;padding:12px 14px;font-size:13px;color:var(--dark);margin-bottom:16px;">
+        📅 Bắt đầu: <strong id="flashModalStart">--/-- --:--</strong><br>
+        ⏰ Kết thúc: <strong id="flashModalEnd">--/-- --:--</strong>
+      </div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.6;">Xuất trình màn hình này khi thanh toán để được áp dụng ưu đãi.</div>
+    </div>
+    <button onclick="closeFlashModal()" style="display:block;width:calc(100% - 40px);margin:0 20px;background:var(--primary);color:#fff;border:none;border-radius:12px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Be Vietnam Pro',sans-serif;">Đã hiểu — Tôi sẽ xuất trình khi đến</button>
+  </div>
+</div>
+
+<!-- PIN MODAL -->
+<div class="pin-backdrop" id="pinBackdrop">
+  <div class="pin-modal">
+    <div class="pin-modal-title">🔐 Code PIN</div>
+    <div class="pin-modal-sub">Demandez le code à votre prestataire</div>
+    <div class="pin-dots">
+      <div class="pin-dot" id="pd0"></div>
+      <div class="pin-dot" id="pd1"></div>
+      <div class="pin-dot" id="pd2"></div>
+      <div class="pin-dot" id="pd3"></div>
+    </div>
+    <div class="pin-error" id="pinError"></div>
+    <div class="pin-keypad">
+      <button class="pin-key" onclick="pinPress('1')">1</button>
+      <button class="pin-key" onclick="pinPress('2')">2</button>
+      <button class="pin-key" onclick="pinPress('3')">3</button>
+      <button class="pin-key" onclick="pinPress('4')">4</button>
+      <button class="pin-key" onclick="pinPress('5')">5</button>
+      <button class="pin-key" onclick="pinPress('6')">6</button>
+      <button class="pin-key" onclick="pinPress('7')">7</button>
+      <button class="pin-key" onclick="pinPress('8')">8</button>
+      <button class="pin-key" onclick="pinPress('9')">9</button>
+      <button class="pin-key" onclick="pinPress('del')" style="font-size:16px;">⌫</button>
+      <button class="pin-key" onclick="pinPress('0')">0</button>
+      <button class="pin-key" onclick="pinPress('ok')" style="background:var(--primary);color:#fff;">OK</button>
+    </div>
+    <button class="pin-cancel" onclick="closePinModal()">Annuler</button>
+  </div>
+</div>
+
 <div class="wheel-modal-backdrop wheel-feature" id="wheelBackdrop" onclick="if(event.target.id==='wheelBackdrop')closeWheelModal()">
   <div class="wheel-modal">
     <div class="wm-header">
