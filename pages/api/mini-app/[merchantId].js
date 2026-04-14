@@ -19,6 +19,7 @@ export default async function handler(req, res) {
       { data: loyalty },
       { data: flash },
       { data: reviews },
+      { data: coupons },
     ] = await Promise.all([
       supabase.from('merchants').select('*').eq('id', merchantId).single(),
       supabase.from('services').select('*').eq('merchant_id', merchantId).eq('active', true).order('display_order'),
@@ -27,6 +28,7 @@ export default async function handler(req, res) {
       supabase.from('loyalty_config').select('*').eq('merchant_id', merchantId).single(),
       supabase.from('flash_sales').select('*').eq('merchant_id', merchantId).single(),
       supabase.from('reviews').select('*').eq('merchant_id', merchantId).eq('visible', true).order('created_at', { ascending: false }).limit(10),
+      supabase.from('coupons').select('*').eq('merchant_id', merchantId).eq('active', true),
     ])
 
     if (!merchant) return res.status(404).json({ error: 'Marchand introuvable' })
@@ -87,6 +89,13 @@ export default async function handler(req, res) {
         author: r.author || 'Client',
         rating: r.rating || 5,
         text: r.text || '',
+      })),
+      coupons: (coupons || []).filter(c => !c.valid_until || new Date(c.valid_until) > new Date()).map(c => ({
+        id: c.id,
+        code: c.code,
+        discount_type: c.discount_type,
+        discount_value: c.discount_value,
+        valid_until: c.valid_until || null,
       })),
     })
   } catch (e) {
