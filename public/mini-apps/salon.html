@@ -1184,7 +1184,7 @@ initFeatures();
     } else if (!m.welcome_enabled) {
       document.querySelectorAll('.promo-feature').forEach(el => el.style.display = 'none');
       const wb = document.getElementById('welcomeBackdrop');
-      if (wb) wb.style.display = 'none';
+      if (wb) { wb.style.display = 'none'; wb.dataset.disabled = '1'; }
     }
 
     // Fidélité
@@ -1373,7 +1373,7 @@ function drawWheel(rot){
 (function(){
   setTimeout(function(){
     var bd=document.getElementById('welcomeBackdrop');
-    if(bd) bd.style.display='flex';
+    if(bd && bd.dataset.disabled !== '1') bd.style.display='flex';
   },3000);
 })();
 function closeWelcome(){

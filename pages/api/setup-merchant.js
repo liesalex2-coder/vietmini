@@ -319,7 +319,7 @@ export default async function handler(req, res) {
         enabled: true,
         visits_required: loyalty.visits,
         reward_text: loyalty.reward,
-        pin: '0000'
+        pin_code: '0000'
       }).eq('merchant_id', merchantId)
     } else {
       await supabaseAdmin.from('loyalty_config').insert({
@@ -327,7 +327,7 @@ export default async function handler(req, res) {
         enabled: true,
         visits_required: loyalty.visits,
         reward_text: loyalty.reward,
-        pin: '0000'
+        pin_code: '0000'
       })
     }
 
