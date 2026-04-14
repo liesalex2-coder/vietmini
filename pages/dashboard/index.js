@@ -741,14 +741,14 @@ function SubCoupons({ merchantId, toast }) {
 
 // ─── Marketing : Offre de bienvenue ──────────────────────────
 function SubBienvenue({ merchant, onSave }) {
-  const [form, setForm] = useState({ welcome_offer_enabled: false, welcome_offer_text: '', welcome_offer_discount: 10 })
-  useEffect(() => { setForm({ welcome_offer_enabled: merchant?.welcome_offer_enabled || false, welcome_offer_text: merchant?.welcome_offer_text || '', welcome_offer_discount: merchant?.welcome_offer_discount || 10 }) }, [merchant])
+  const [form, setForm] = useState({ welcome_enabled: false, welcome_message: '', welcome_discount: 10 })
+  useEffect(() => { setForm({ welcome_enabled: merchant?.welcome_enabled || false, welcome_message: merchant?.welcome_message || '', welcome_discount: merchant?.welcome_discount || 10 }) }, [merchant])
   const f = field => e => setForm(p => ({ ...p, [field]: e.target.value }))
   return (
     <Card>
-      <FeatureHeader title="Offre de bienvenue" subtitle="Affichée automatiquement à la première visite" enabled={form.welcome_offer_enabled} onToggle={() => setForm(p => ({ ...p, welcome_offer_enabled: !p.welcome_offer_enabled }))} />
-      <FieldGroup label="Message d'accueil"><Textarea value={form.welcome_offer_text} onChange={f('welcome_offer_text')} placeholder="Bienvenue ! Profitez de 10% de réduction sur votre première visite." rows={3} /></FieldGroup>
-      <FieldGroup label="Réduction offerte (%)"><Input value={form.welcome_offer_discount} onChange={f('welcome_offer_discount')} type="number" style={{ width: '120px' }} /></FieldGroup>
+      <FeatureHeader title="Offre de bienvenue" subtitle="Affichée automatiquement à la première visite" enabled={form.welcome_enabled} onToggle={() => setForm(p => ({ ...p, welcome_enabled: !p.welcome_enabled }))} />
+      <FieldGroup label="Message d'accueil"><Textarea value={form.welcome_message} onChange={f('welcome_message')} placeholder="Bienvenue ! Profitez de 10% de réduction sur votre première visite." rows={3} /></FieldGroup>
+      <FieldGroup label="Réduction offerte (%)"><Input value={form.welcome_discount} onChange={f('welcome_discount')} type="number" style={{ width: '120px' }} /></FieldGroup>
       <Btn onClick={() => onSave(form)}>Enregistrer</Btn>
     </Card>
   )

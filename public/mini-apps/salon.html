@@ -1149,7 +1149,7 @@ initFeatures();
           <div class="pb-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#FFE066" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
           <div class="pb-text">
             <div class="pb-title">⚡ Flash Sale — Giảm ${d.flash.discount_value}%</div>
-            <div class="pb-sub">${d.flash.service_name || 'Tất cả dịch vụ'}${end ? ' · Kết thúc ' + new Date(end).toLocaleTimeString('vi-VN', {hour:'2-digit',minute:'2-digit'}) : ''}</div>
+            <div class="pb-sub">${d.flash.service_name || 'Tất cả dịch vụ'}${d.flash.end_time ? ' · Kết thúc ' + d.flash.end_time.substring(11,16) : ''}</div>
           </div>
           <div class="pb-cta" onclick="openFlashModal()" style="cursor:pointer;">Xem ngay</div>
         `;
@@ -1160,7 +1160,15 @@ initFeatures();
         const fEnd = document.getElementById('flashModalEnd');
         if (fDiscount) fDiscount.textContent = 'GIẢM ' + d.flash.discount_value + '%';
         if (fService) fService.textContent = d.flash.service_name || 'Tất cả dịch vụ';
-        if (fEnd && d.flash.end_time) fEnd.textContent = new Date(d.flash.end_time).toLocaleTimeString('vi-VN', {hour:'2-digit',minute:'2-digit'});
+        function fmtDT(iso) {
+          if (!iso) return '--';
+          var d = iso.substring(0,10).split('-'); // [yyyy, mm, dd]
+          var t = iso.substring(11,16); // hh:mm
+          return d[2]+'/'+d[1]+'/'+d[0]+' '+t;
+        }
+        if (fEnd) fEnd.textContent = fmtDT(d.flash.end_time);
+        var fStart = document.getElementById('flashModalStart');
+        if (fStart) fStart.textContent = fmtDT(d.flash.start_time);
       }
     }
 
@@ -1324,7 +1332,8 @@ initFeatures();
         <div style="font-size:14px;color:rgba(255,255,255,0.9);margin-top:4px;" id="flashModalService">Nhuộm tóc</div>
       </div>
       <div style="background:#fff8f0;border-radius:12px;padding:12px 14px;font-size:13px;color:var(--dark);margin-bottom:16px;">
-        ⏰ Ưu đãi kết thúc lúc <strong id="flashModalEnd">--:--</strong> — Đến tiệm ngay hôm nay!
+        📅 Bắt đầu: <strong id="flashModalStart">--/-- --:--</strong><br>
+        ⏰ Kết thúc: <strong id="flashModalEnd">--/-- --:--</strong>
       </div>
       <div style="font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.6;">Xuất trình màn hình này khi thanh toán để được áp dụng ưu đãi.</div>
     </div>

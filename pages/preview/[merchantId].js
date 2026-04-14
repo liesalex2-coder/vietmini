@@ -53,10 +53,7 @@ export default function Preview() {
           boxShadow: '0 40px 80px rgba(0,0,0,0.6), inset 0 0 0 2px rgba(255,255,255,0.1)',
           position: 'relative'
         }}>
-          <div style={{
-            position: 'absolute', top: '14px', left: '50%', transform: 'translateX(-50%)',
-            width: '120px', height: '30px', background: '#000', borderRadius: '20px', zIndex: 10
-          }} />
+
           <div style={{ width: '100%', height: '100%', borderRadius: '36px', overflow: 'hidden', background: '#fff' }}>
             {loading || !appUrl ? (
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#7A4A2A', fontSize: '14px' }}>
