@@ -477,6 +477,9 @@ function SubRoue({ merchantId, toast }) {
 }
 
 // ─── Marketing : Flash sale ───────────────────────────────────
+const DAYS_FR = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam']
+const DAYS_VI = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7']
+
 function SubFlash({ merchantId, toast }) {
   const [data, setData] = useState(null)
   const [form, setForm] = useState({})
@@ -492,10 +495,34 @@ function SubFlash({ merchantId, toast }) {
     setData(updated); setForm(updated); toast(updated.enabled ? 'Flash sale activée' : 'Flash sale désactivée', true)
   }
   async function save() {
-    await supabase.from('flash_sales').update({ discount_value: parseInt(form.discount_value) || 0, service_name: form.service_name || '', start_time: form.start_time || null, end_time: form.end_time || null }).eq('id', data.id)
+    const isRecurring = form.recurring || false
+    const update = {
+      discount_value: parseInt(form.discount_value) || 0,
+      service_name: form.service_name || '',
+      recurring: isRecurring,
+    }
+    if (isRecurring) {
+      update.recurring_days = form.recurring_days || []
+      update.recurring_start_time = form.recurring_start_time || null
+      update.recurring_end_time = form.recurring_end_time || null
+      update.start_time = null
+      update.end_time = null
+    } else {
+      update.start_time = form.start_time || null
+      update.end_time = form.end_time || null
+      update.recurring_days = []
+      update.recurring_start_time = null
+      update.recurring_end_time = null
+    }
+    await supabase.from('flash_sales').update(update).eq('id', data.id)
     load(); toast('Flash sale enregistrée', true)
   }
   const f = field => e => setForm(p => ({ ...p, [field]: e.target.value }))
+  const toggleDay = (day) => {
+    const days = form.recurring_days || []
+    const newDays = days.includes(day) ? days.filter(d => d !== day) : [...days, day].sort()
+    setForm(p => ({ ...p, recurring_days: newDays }))
+  }
 
   if (!data) return <div style={{ color: C.mid }}>Chargement…</div>
   return (
@@ -504,9 +531,34 @@ function SubFlash({ merchantId, toast }) {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
         <FieldGroup label="Réduction (%)"><Input value={form.discount_value} onChange={f('discount_value')} type="number" placeholder="20" /></FieldGroup>
         <FieldGroup label="Service concerné"><Input value={form.service_name} onChange={f('service_name')} placeholder="Tous les services" /></FieldGroup>
-        <FieldGroup label="Début (date et heure)"><Input value={form.start_time ? form.start_time.slice(0, 16) : ''} onChange={f('start_time')} type="datetime-local" /></FieldGroup>
-        <FieldGroup label="Fin (date et heure)"><Input value={form.end_time ? form.end_time.slice(0, 16) : ''} onChange={f('end_time')} type="datetime-local" /></FieldGroup>
       </div>
+      <div style={{ margin: '12px 0 4px', fontSize: '12px', fontWeight: '600', color: C.mid, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Type de programmation</div>
+      <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+        <button onClick={() => setForm(p => ({ ...p, recurring: false }))} style={{ flex: 1, padding: '9px', borderRadius: '8px', border: `2px solid ${!form.recurring ? C.red : C.border}`, background: !form.recurring ? '#fff5f5' : '#fff', color: !form.recurring ? C.red : C.mid, fontWeight: '600', fontSize: '13px', cursor: 'pointer', fontFamily: "'Be Vietnam Pro', sans-serif" }}>📅 Ponctuel</button>
+        <button onClick={() => setForm(p => ({ ...p, recurring: true }))} style={{ flex: 1, padding: '9px', borderRadius: '8px', border: `2px solid ${form.recurring ? C.red : C.border}`, background: form.recurring ? '#fff5f5' : '#fff', color: form.recurring ? C.red : C.mid, fontWeight: '600', fontSize: '13px', cursor: 'pointer', fontFamily: "'Be Vietnam Pro', sans-serif" }}>🔁 Récurrent</button>
+      </div>
+      {!form.recurring ? (
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+          <FieldGroup label="Début (date et heure)"><Input value={form.start_time ? form.start_time.slice(0, 16) : ''} onChange={f('start_time')} type="datetime-local" /></FieldGroup>
+          <FieldGroup label="Fin (date et heure)"><Input value={form.end_time ? form.end_time.slice(0, 16) : ''} onChange={f('end_time')} type="datetime-local" /></FieldGroup>
+        </div>
+      ) : (
+        <div>
+          <div style={{ marginBottom: '12px' }}>
+            <div style={{ fontSize: '12px', fontWeight: '600', color: C.mid, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>Jours de la semaine</div>
+            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+              {[0,1,2,3,4,5,6].map(d => {
+                const selected = (form.recurring_days || []).includes(d)
+                return <button key={d} onClick={() => toggleDay(d)} style={{ padding: '7px 12px', borderRadius: '20px', border: `2px solid ${selected ? C.red : C.border}`, background: selected ? C.red : '#fff', color: selected ? '#fff' : C.mid, fontWeight: '700', fontSize: '12px', cursor: 'pointer', fontFamily: "'Be Vietnam Pro', sans-serif" }}>{DAYS_FR[d]}</button>
+              })}
+            </div>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+            <FieldGroup label="Heure début"><Input value={form.recurring_start_time || ''} onChange={f('recurring_start_time')} type="time" /></FieldGroup>
+            <FieldGroup label="Heure fin"><Input value={form.recurring_end_time || ''} onChange={f('recurring_end_time')} type="time" /></FieldGroup>
+          </div>
+        </div>
+      )}
       <Btn onClick={save}>Enregistrer</Btn>
     </Card>
   )
