@@ -680,7 +680,7 @@ function SubCoupons({ merchantId, toast }) {
   const [coupons, setCoupons] = useState([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
-  const [form, setForm] = useState({ code: '', discount_type: 'percent', discount_value: 10, valid_until: '', active: true })
+  const [form, setForm] = useState({ code: '', discount_type: 'percent', discount_value: 10, valid_until: '', service_name: '', active: true })
 
   async function load() { const { data } = await supabase.from('coupons').select('*').eq('merchant_id', merchantId).order('created_at', { ascending: false }); setCoupons(data || []); setLoading(false) }
   useEffect(() => { if (merchantId) load() }, [merchantId])
@@ -688,7 +688,7 @@ function SubCoupons({ merchantId, toast }) {
   async function save() {
     if (!form.code) { toast('Code requis', false); return }
     await supabase.from('coupons').insert({ ...form, discount_value: parseInt(form.discount_value) || 0, merchant_id: merchantId, valid_until: form.valid_until || null })
-    setShowForm(false); setForm({ code: '', discount_type: 'percent', discount_value: 10, valid_until: '', active: true }); load(); toast('Coupon créé', true)
+    setShowForm(false); setForm({ code: '', discount_type: 'percent', discount_value: 10, valid_until: '', service_name: '', active: true }); load(); toast('Coupon créé', true)
   }
   async function toggleActive(c) { await supabase.from('coupons').update({ active: !c.active }).eq('id', c.id); load() }
   async function remove(id) { if (!confirm('Supprimer ?')) return; await supabase.from('coupons').delete().eq('id', id); load(); toast('Supprimé', true) }
@@ -712,6 +712,7 @@ function SubCoupons({ merchantId, toast }) {
             </FieldGroup>
             <FieldGroup label="Réduction"><Input value={form.discount_value} onChange={f('discount_value')} type="number" /></FieldGroup>
             <FieldGroup label="Valide jusqu'au"><Input value={form.valid_until} onChange={f('valid_until')} type="date" /></FieldGroup>
+            <FieldGroup label="Service concerné" style={{ gridColumn: '1 / -1' }}><Input value={form.service_name} onChange={f('service_name')} placeholder="Ex: Nail Gel, Cắt tóc… (laisser vide = tous les services)" /></FieldGroup>
           </div>
           <div style={{ display: 'flex', gap: '8px' }}><Btn onClick={save}>Créer</Btn><Btn variant="ghost" onClick={() => setShowForm(false)}>Annuler</Btn></div>
         </Card>
@@ -726,6 +727,7 @@ function SubCoupons({ merchantId, toast }) {
                 <div style={{ fontWeight: '700', fontSize: '15px', color: C.dark, fontFamily: 'monospace' }}>{c.code}</div>
                 <div style={{ fontSize: '12px', color: C.mid, marginTop: '2px' }}>
                   {c.discount_type === 'percent' ? `−${c.discount_value}%` : `−${c.discount_value.toLocaleString('vi-VN')} ₫`}
+                  {c.service_name ? ` · ${c.service_name}` : ' · Tất cả dịch vụ'}
                   {c.valid_until ? ` · jusqu'au ${new Date(c.valid_until).toLocaleDateString('fr-FR')}` : ''}
                 </div>
               </div>

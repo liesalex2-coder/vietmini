@@ -1401,7 +1401,7 @@ renderStamps();
           const expiry = c.valid_until ? `Hết hạn: ${c.valid_until.substring(0,10).split('-').reverse().join('/')}` : '';
           const div = document.createElement('div');
           div.className = 'coupon-card';
-          div.innerHTML = `<div class="coupon-icon">🎟</div><div class="coupon-info"><div class="coupon-title">${desc}</div><div class="coupon-desc">Mã: ${c.code}</div><div class="coupon-expiry">${expiry}</div></div><button class="coupon-btn" onclick="openPhoneModal('${c.id}','${merchantId}')">Lấy ngay</button>`;
+          div.innerHTML = `<div class="coupon-icon">🎟</div><div class="coupon-info"><div class="coupon-title">${desc}</div><div class="coupon-desc">${c.service_name ? c.service_name : 'Tất cả dịch vụ'} · Mã: ${c.code}</div><div class="coupon-expiry">${expiry}</div></div><button class="coupon-btn" onclick="openPhoneModal('${c.id}','${merchantId}')">Lấy ngay</button>`;
           list.appendChild(div);
         });
       }

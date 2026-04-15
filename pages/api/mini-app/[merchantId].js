@@ -95,6 +95,7 @@ export default async function handler(req, res) {
         code: c.code,
         discount_type: c.discount_type,
         discount_value: c.discount_value,
+        service_name: c.service_name || '',
         valid_until: c.valid_until || null,
       })),
     })
