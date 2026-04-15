@@ -1280,6 +1280,13 @@ renderStamps();
           return d[2]+'/'+d[1]+'/'+d[0]+' '+t;
         }
         if (d.flash.recurring) {
+          var DAYS_VI = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+          var daysEl = document.getElementById('flashModalDays');
+          var daysTextEl = document.getElementById('flashModalDaysText');
+          if (daysEl && daysTextEl && d.flash.recurring_days && d.flash.recurring_days.length > 0) {
+            daysTextEl.textContent = d.flash.recurring_days.map(function(d) { return DAYS_VI[d]; }).join(', ');
+            daysEl.style.display = 'block';
+          }
           if (fStart) fStart.textContent = flashStartLabel;
           if (fEnd) fEnd.textContent = flashEndLabel;
         } else {
@@ -1473,6 +1480,7 @@ renderStamps();
         <div style="font-size:14px;color:rgba(255,255,255,0.9);margin-top:4px;" id="flashModalService">Nhuộm tóc</div>
       </div>
       <div style="background:#fff8f0;border-radius:12px;padding:12px 14px;font-size:13px;color:var(--dark);margin-bottom:16px;">
+        <div id="flashModalDays" style="margin-bottom:6px;display:none;">📆 <strong id="flashModalDaysText"></strong></div>
         📅 Bắt đầu: <strong id="flashModalStart">--/-- --:--</strong><br>
         ⏰ Kết thúc: <strong id="flashModalEnd">--/-- --:--</strong>
       </div>
