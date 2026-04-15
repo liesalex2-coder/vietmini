@@ -1251,71 +1251,40 @@ renderStamps();
 
     // Flash sale banner
     if (d.flash && d.flash.enabled) {
-      // Vérifier si la flash sale est active maintenant
-      var flashActive = false;
-      var flashEndLabel = '';
-      var flashStartLabel = '';
-
-      if (d.flash.recurring && d.flash.recurring_days && d.flash.recurring_days.length > 0) {
-        // Mode récurrent : vérifier jour + heure courante
-        var now = new Date();
-        var currentDay = now.getDay(); // 0=dim, 1=lun...
-        var currentTime = now.getHours() * 60 + now.getMinutes();
-        var startParts = d.flash.recurring_start_time ? d.flash.recurring_start_time.substring(0,5).split(':') : null;
-        var endParts = d.flash.recurring_end_time ? d.flash.recurring_end_time.substring(0,5).split(':') : null;
-        var startMin = startParts ? parseInt(startParts[0])*60 + parseInt(startParts[1]) : 0;
-        var endMin = endParts ? parseInt(endParts[0])*60 + parseInt(endParts[1]) : 1439;
-        if (d.flash.recurring_days.includes(currentDay) && currentTime >= startMin && currentTime <= endMin) {
-          flashActive = true;
-          flashEndLabel = d.flash.recurring_end_time ? d.flash.recurring_end_time.substring(0,5) : '';
-          flashStartLabel = d.flash.recurring_start_time ? d.flash.recurring_start_time.substring(0,5) : '';
+      var flashEndLabel = d.flash.recurring ? (d.flash.recurring_end_time ? d.flash.recurring_end_time.substring(0,5) : '') : (d.flash.end_time ? d.flash.end_time.substring(11,16) : '');
+      var flashStartLabel = d.flash.recurring ? (d.flash.recurring_start_time ? d.flash.recurring_start_time.substring(0,5) : '') : '';
+      const bannersDiv = document.querySelector('.promo-banner')?.parentElement;
+      if (bannersDiv) {
+        const flashBanner = document.createElement('div');
+        flashBanner.className = 'promo-banner';
+        flashBanner.style.background = 'linear-gradient(135deg,#e67e22,#d35400)';
+        flashBanner.innerHTML = `
+          <div class="pb-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#FFE066" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+          <div class="pb-text">
+            <div class="pb-title">⚡ Flash Sale — Giảm ${d.flash.discount_value}%</div>
+            <div class="pb-sub">${d.flash.service_name || 'Tất cả dịch vụ'}${flashEndLabel ? ' · Kết thúc ' + flashEndLabel : ''}</div>
+          </div>
+          <div class="pb-cta" onclick="openFlashModal()" style="cursor:pointer;">Xem ngay</div>
+        `;
+        bannersDiv.insertBefore(flashBanner, bannersDiv.firstChild);
+        const fDiscount = document.getElementById('flashModalDiscount');
+        const fService = document.getElementById('flashModalService');
+        const fEnd = document.getElementById('flashModalEnd');
+        const fStart = document.getElementById('flashModalStart');
+        if (fDiscount) fDiscount.textContent = 'GIẢM ' + d.flash.discount_value + '%';
+        if (fService) fService.textContent = d.flash.service_name || 'Tất cả dịch vụ';
+        function fmtDT(iso) {
+          if (!iso) return '--';
+          var d = iso.substring(0,10).split('-');
+          var t = iso.substring(11,16);
+          return d[2]+'/'+d[1]+'/'+d[0]+' '+t;
         }
-      } else {
-        // Mode ponctuel
-        var now = new Date();
-        var start = d.flash.start_time ? new Date(d.flash.start_time) : null;
-        var end = d.flash.end_time ? new Date(d.flash.end_time) : null;
-        if ((!start || now >= start) && (!end || now <= end)) {
-          flashActive = true;
-          flashEndLabel = d.flash.end_time ? d.flash.end_time.substring(11,16) : '';
-        }
-      }
-
-      if (flashActive) {
-        const bannersDiv = document.querySelector('.promo-banner')?.parentElement;
-        if (bannersDiv) {
-          const flashBanner = document.createElement('div');
-          flashBanner.className = 'promo-banner';
-          flashBanner.style.background = 'linear-gradient(135deg,#e67e22,#d35400)';
-          flashBanner.innerHTML = `
-            <div class="pb-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#FFE066" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
-            <div class="pb-text">
-              <div class="pb-title">⚡ Flash Sale — Giảm ${d.flash.discount_value}%</div>
-              <div class="pb-sub">${d.flash.service_name || 'Tất cả dịch vụ'}${flashEndLabel ? ' · Kết thúc ' + flashEndLabel : ''}</div>
-            </div>
-            <div class="pb-cta" onclick="openFlashModal()" style="cursor:pointer;">Xem ngay</div>
-          `;
-          bannersDiv.insertBefore(flashBanner, bannersDiv.firstChild);
-          // Peupler le modal
-          const fDiscount = document.getElementById('flashModalDiscount');
-          const fService = document.getElementById('flashModalService');
-          const fEnd = document.getElementById('flashModalEnd');
-          const fStart = document.getElementById('flashModalStart');
-          if (fDiscount) fDiscount.textContent = 'GIẢM ' + d.flash.discount_value + '%';
-          if (fService) fService.textContent = d.flash.service_name || 'Tất cả dịch vụ';
-          function fmtDT(iso) {
-            if (!iso) return '--';
-            var d = iso.substring(0,10).split('-');
-            var t = iso.substring(11,16);
-            return d[2]+'/'+d[1]+'/'+d[0]+' '+t;
-          }
-          if (d.flash.recurring) {
-            if (fStart) fStart.textContent = flashStartLabel;
-            if (fEnd) fEnd.textContent = flashEndLabel;
-          } else {
-            if (fStart) fStart.textContent = fmtDT(d.flash.start_time);
-            if (fEnd) fEnd.textContent = fmtDT(d.flash.end_time);
-          }
+        if (d.flash.recurring) {
+          if (fStart) fStart.textContent = flashStartLabel;
+          if (fEnd) fEnd.textContent = flashEndLabel;
+        } else {
+          if (fStart) fStart.textContent = fmtDT(d.flash.start_time);
+          if (fEnd) fEnd.textContent = fmtDT(d.flash.end_time);
         }
       }
     }
