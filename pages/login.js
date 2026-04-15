@@ -33,6 +33,10 @@ export default function Login() {
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (user) router.replace('/dashboard')
     })
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session) router.replace('/dashboard')
+    })
+    return () => subscription.unsubscribe()
   }, [])
 
   async function handleSubmit(e) {
