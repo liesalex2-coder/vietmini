@@ -56,7 +56,7 @@ export default function Header() {
 
           {/* CTA + hamburger */}
           <div className="actions">
-            <Link href="/register" className="cta-btn">Démarrer →</Link>
+            <Link href="/register" className="cta-btn">Créer un compte</Link>
             <button
               className={`hamburger${open ? ' open' : ''}`}
               onClick={() => setOpen(!open)}
@@ -79,7 +79,7 @@ export default function Header() {
             </Link>
           ))}
           <Link href="/login" className="mobile-link">Se connecter</Link>
-          <Link href="/register" className="mobile-cta">Démarrer →</Link>
+          <Link href="/register" className="mobile-cta">Créer un compte</Link>
         </div>
       </header>
 
