@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/router'
 import Head from 'next/head'
 import { supabase } from '../../lib/supabaseClient'
@@ -68,6 +68,18 @@ function Btn({ onClick, children, variant = 'primary', small, disabled, style })
   const base = { padding: small ? '7px 14px' : '10px 20px', borderRadius: '8px', fontWeight: '600', fontSize: small ? '13px' : '14px', border: 'none', cursor: disabled ? 'default' : 'pointer', fontFamily: "'Be Vietnam Pro', sans-serif", ...style }
   const variants = { primary: { background: C.red, color: C.white }, secondary: { background: C.bg, color: C.dark }, danger: { background: '#fff0f0', color: C.red }, ghost: { background: 'transparent', color: C.mid, border: `1px solid ${C.border}` } }
   return <button onClick={onClick} disabled={disabled} style={{ ...base, ...variants[variant], opacity: disabled ? 0.5 : 1 }}>{children}</button>
+}
+function SaveBtn({ onClick, children = 'Enregistrer', small, style }) {
+  const [state, setState] = React.useState('idle')
+  async function handle() {
+    setState('saving')
+    try { await onClick() } catch(e) {}
+    setState('saved')
+    setTimeout(() => setState('idle'), 2000)
+  }
+  const bg = state === 'saved' ? '#16a34a' : C.red
+  const label = state === 'saving' ? 'Enregistrement…' : state === 'saved' ? '✓ Enregistré' : children
+  return <button onClick={handle} disabled={state === 'saving'} style={{ padding: small ? '7px 14px' : '10px 20px', borderRadius: '8px', fontWeight: '600', fontSize: small ? '13px' : '14px', border: 'none', cursor: state === 'saving' ? 'default' : 'pointer', fontFamily: "'Be Vietnam Pro', sans-serif", background: bg, color: C.white, transition: 'background .3s', ...style }}>{label}</button>
 }
 function Toggle({ enabled, onToggle }) {
   return <div onClick={onToggle} style={{ width: '52px', height: '28px', borderRadius: '14px', background: enabled ? C.red : '#ccc', position: 'relative', cursor: 'pointer', transition: 'background .2s', flexShrink: 0 }}><div style={{ position: 'absolute', top: '3px', left: enabled ? '27px' : '3px', width: '22px', height: '22px', borderRadius: '50%', background: C.white, transition: 'left .2s', boxShadow: '0 1px 4px rgba(0,0,0,0.2)' }} /></div>
@@ -179,7 +191,7 @@ function SubInfos({ merchant, onSave }) {
           </div>
         </FieldGroup>
       </div>
-      <Btn onClick={() => onSave(form)}>Enregistrer les modifications</Btn>
+      <SaveBtn onClick={() => onSave(form)}>Enregistrer les modifications</SaveBtn>
     </Card>
   )
 }
@@ -365,7 +377,7 @@ function SectionServices({ merchantId, toast }) {
               {form.image_base64 && <span onClick={() => setForm(p => ({ ...p, image_base64: '' }))} style={{ fontSize: '12px', color: C.red, cursor: 'pointer' }}>Supprimer</span>}
             </div>
           </FieldGroup>
-          <div style={{ display: 'flex', gap: '8px' }}><Btn onClick={save}>Enregistrer</Btn><Btn variant="ghost" onClick={() => setShowForm(false)}>Annuler</Btn></div>
+          <div style={{ display: 'flex', gap: '8px' }}><SaveBtn onClick={save} /><Btn variant="ghost" onClick={() => setShowForm(false)}>Annuler</Btn></div>
         </Card>
       )}
 
@@ -559,7 +571,7 @@ function SubFlash({ merchantId, toast }) {
           </div>
         </div>
       )}
-      <Btn onClick={save}>Enregistrer</Btn>
+      <SaveBtn onClick={save} />
     </Card>
   )
 }
@@ -639,7 +651,7 @@ function SubFidelite({ merchantId, toast }) {
           </div>
           {form.reward_text && <div style={{ fontSize: '12px', color: C.mid, marginTop: '8px' }}>Récompense : {form.reward_text}</div>}
         </div>
-        <Btn onClick={save}>Enregistrer</Btn>
+        <SaveBtn onClick={save} />
       </Card>
 
       {/* Liste clients */}
@@ -722,7 +734,7 @@ function SubParrainage({ merchantId, toast }) {
           <span style={{ background: '#f0fff4', padding: '6px 12px', borderRadius: '8px', color: '#1a6b3a', fontWeight: '600' }}>Toutes les deux reçoivent −{form.discount_referrer || 15}%</span>
         </div>
       </div>
-      <Btn onClick={save}>Enregistrer</Btn>
+      <SaveBtn onClick={save} />
     </Card>
   )
 }
@@ -803,7 +815,7 @@ function SubBienvenue({ merchant, onSave }) {
       <FeatureHeader title="Offre de bienvenue" subtitle="Affichée automatiquement à la première visite" enabled={form.welcome_enabled} onToggle={() => setForm(p => ({ ...p, welcome_enabled: !p.welcome_enabled }))} />
       <FieldGroup label="Message d'accueil"><Textarea value={form.welcome_message} onChange={f('welcome_message')} placeholder="Bienvenue ! Profitez de 10% de réduction sur votre première visite." rows={3} /></FieldGroup>
       <FieldGroup label="Réduction offerte (%)"><Input value={form.welcome_discount} onChange={f('welcome_discount')} type="number" style={{ width: '120px' }} /></FieldGroup>
-      <Btn onClick={() => onSave(form)}>Enregistrer</Btn>
+      <SaveBtn onClick={() => onSave(form)} />
     </Card>
   )
 }
@@ -907,7 +919,7 @@ function SectionAvis({ merchantId, toast }) {
             <FieldGroup label="Note (1–5)"><Input value={form.rating} onChange={f('rating')} type="number" /></FieldGroup>
           </div>
           <FieldGroup label="Commentaire"><Textarea value={form.content} onChange={f('content')} placeholder="Très bon service…" /></FieldGroup>
-          <div style={{ display: 'flex', gap: '8px' }}><Btn onClick={save}>Enregistrer</Btn><Btn variant="ghost" onClick={() => setShowForm(false)}>Annuler</Btn></div>
+          <div style={{ display: 'flex', gap: '8px' }}><SaveBtn onClick={save} /><Btn variant="ghost" onClick={() => setShowForm(false)}>Annuler</Btn></div>
         </Card>
       )}
       {loading ? <div style={{ color: C.mid }}>Chargement…</div> : reviews.length === 0 ? (
