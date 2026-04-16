@@ -27,16 +27,25 @@ export default function AuthCallback() {
           router.replace('/login')
           return
         }
-        window.location.href = "/dashboard"
+      }
+
+      // Vérifier session puis rediriger selon vertical
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) {
+        router.replace('/login')
         return
       }
 
-      // Pas de code — vérifier session existante
-      const { data: { session } } = await supabase.auth.getSession()
-      if (session) {
-        window.location.href = "/dashboard"
+      const { data: merchant } = await supabase
+        .from('merchants')
+        .select('vertical')
+        .eq('user_id', session.user.id)
+        .single()
+
+      if (!merchant || !merchant.vertical) {
+        window.location.href = '/onboarding'
       } else {
-        router.replace('/login')
+        window.location.href = '/dashboard'
       }
     }
 
