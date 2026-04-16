@@ -1,13 +1,16 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { useRouter } from 'next/router'
 import Head from 'next/head'
 import { supabase } from '../../lib/supabaseClient'
 
 export default function AuthCallback() {
   const router = useRouter()
+  const handled = useRef(false)
 
   useEffect(() => {
     if (!router.isReady) return
+    if (handled.current) return
+    handled.current = true
 
     async function handleCallback() {
       const { code, error } = router.query
@@ -18,35 +21,27 @@ export default function AuthCallback() {
       }
 
       if (code) {
-        // PKCE flow — échange le code contre une session
         const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(String(code))
         if (exchangeError) {
+          console.error('Exchange error:', exchangeError)
           router.replace('/login')
           return
         }
-        router.replace('/dashboard')
+        window.location.href = "/dashboard"
         return
       }
 
-      // Implicit flow — le token est dans le hash, Supabase le parse automatiquement
+      // Pas de code — vérifier session existante
       const { data: { session } } = await supabase.auth.getSession()
       if (session) {
-        router.replace('/dashboard')
+        window.location.href = "/dashboard"
       } else {
-        // Attendre l'event SIGNED_IN
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-          if (event === 'SIGNED_IN' && session) {
-            subscription.unsubscribe()
-            router.replace('/dashboard')
-          }
-        })
-        // Timeout de sécurité
-        setTimeout(() => router.replace('/login'), 5000)
+        router.replace('/login')
       }
     }
 
     handleCallback()
-  }, [router.isReady, router.query])
+  }, [router.isReady])
 
   return (
     <>
