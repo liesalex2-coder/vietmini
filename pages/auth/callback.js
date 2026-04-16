@@ -7,22 +7,46 @@ export default function AuthCallback() {
   const router = useRouter()
 
   useEffect(() => {
-    // Avec flowType: 'implicit', le token est dans le hash.
-    // Supabase le parse automatiquement au premier getSession().
-    // On attend l'event SIGNED_IN avant de rediriger.
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_IN' && session) {
-        router.replace('/dashboard')
+    if (!router.isReady) return
+
+    async function handleCallback() {
+      const { code, error } = router.query
+
+      if (error) {
+        router.replace('/login')
+        return
       }
-    })
 
-    // Fallback : si la session est déjà établie
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) router.replace('/dashboard')
-    })
+      if (code) {
+        // PKCE flow — échange le code contre une session
+        const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(String(code))
+        if (exchangeError) {
+          router.replace('/login')
+          return
+        }
+        router.replace('/dashboard')
+        return
+      }
 
-    return () => subscription.unsubscribe()
-  }, [])
+      // Implicit flow — le token est dans le hash, Supabase le parse automatiquement
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session) {
+        router.replace('/dashboard')
+      } else {
+        // Attendre l'event SIGNED_IN
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+          if (event === 'SIGNED_IN' && session) {
+            subscription.unsubscribe()
+            router.replace('/dashboard')
+          }
+        })
+        // Timeout de sécurité
+        setTimeout(() => router.replace('/login'), 5000)
+      }
+    }
+
+    handleCallback()
+  }, [router.isReady, router.query])
 
   return (
     <>
