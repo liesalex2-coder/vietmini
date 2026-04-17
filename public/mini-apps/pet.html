@@ -1192,8 +1192,8 @@ function renderStamps() {}
       } else {
         // Remplacer WP
         WP.length = 0;
-        d.wheel.prizes.forEach(p => {
-          WP.push({ label: p.label, emoji: '🎁', detail: '', color: p.color || '#c0392b', weight: 15 });
+        d.wheel.prizes.forEach((p, idx) => {
+          WP.push({ label: p.label, emoji: '🎁', detail: '', color: WHEEL_PALETTE[idx % WHEEL_PALETTE.length], weight: 15 });
         });
         // Recalculer
         const newTW = WP.reduce((s, p) => s + p.weight, 0);
@@ -1388,6 +1388,7 @@ function renderStamps() {}
   </div>
 </div>
 <script>
+const WHEEL_PALETTE=['#D0021B','#F5A623','#7A4A2A','#1A0A00','#E8873A','#A0522D'];
 const WP=[
   {label:'Giảm 20%',emoji:'🐾',detail:'Tất cả dịch vụ',color:'#8B6F5E',weight:20},
   {label:'May mắn',emoji:'⭐',detail:'Hẹn gặp lần sau!',color:'#9a8070',weight:35},
@@ -1507,7 +1508,30 @@ const cs=document.createElement('style');
 cs.textContent='@keyframes cDrop{0%{transform:translateY(0) rotate(0);opacity:1}100%{transform:translateY(150px) rotate(360deg);opacity:0}}';
 document.head.appendChild(cs);
 window.addEventListener('DOMContentLoaded',()=>setTimeout(()=>drawWheel(wAngle),100));
+function openFlashModal(){ document.getElementById('flashModalBackdrop').style.display='flex'; }
+function closeFlashModal(){ document.getElementById('flashModalBackdrop').style.display='none'; }
 </script>
 
+<div style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:600;align-items:flex-end;justify-content:center;max-width:430px;margin:0 auto;" id="flashModalBackdrop" onclick="if(event.target.id==='flashModalBackdrop')closeFlashModal()">
+  <div style="background:#fff;border-radius:24px 24px 0 0;width:100%;padding:0 0 32px;animation:wm-up 0.35s cubic-bezier(.22,.68,0,1.2);">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 20px 0;">
+      <div style="font-size:18px;font-weight:800;color:var(--text);">⚡ Flash Sale</div>
+      <button onclick="closeFlashModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted);">✕</button>
+    </div>
+    <div style="padding:16px 20px 0;">
+      <div style="background:linear-gradient(135deg,#e67e22,#d35400);border-radius:16px;padding:20px;text-align:center;margin-bottom:16px;">
+        <div style="font-size:42px;font-weight:900;color:#fff;" id="flashModalDiscount">GIẢM 20%</div>
+        <div style="font-size:14px;color:rgba(255,255,255,0.9);margin-top:4px;" id="flashModalService">Nhuộm tóc</div>
+      </div>
+      <div style="background:#fff8f0;border-radius:12px;padding:12px 14px;font-size:13px;color:var(--dark);margin-bottom:16px;">
+        <div id="flashModalDays" style="margin-bottom:6px;display:none;">📆 <strong id="flashModalDaysText"></strong></div>
+        📅 Bắt đầu: <strong id="flashModalStart">--/-- --:--</strong><br>
+        ⏰ Kết thúc: <strong id="flashModalEnd">--/-- --:--</strong>
+      </div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.6;">Xuất trình màn hình này khi thanh toán để được áp dụng ưu đãi.</div>
+    </div>
+    <button onclick="closeFlashModal()" style="display:block;width:calc(100% - 40px);margin:0 20px;background:var(--primary);color:#fff;border:none;border-radius:12px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Be Vietnam Pro',sans-serif;">Đã hiểu — Tôi sẽ xuất trình khi đến</button>
+  </div>
+</div>
 </body>
 </html>
