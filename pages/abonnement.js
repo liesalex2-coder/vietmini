@@ -13,8 +13,9 @@ const FEATURES = [
   'Carte de fidélité numérique',
   'Coupons & offre de bienvenue',
   'Contacts clients illimités',
-  'Diffusions ZNS à vos clients',
   'Tableau de bord marchand complet',
+  'Accès immédiat — app disponible le jour même',
+  'Mises à jour incluses',
   'Support inclus',
 ]
 
@@ -73,6 +74,7 @@ export default function Abonnement() {
                 ))}
               </div>
 
+              <p style={{ fontSize: '13px', color: C.mid, fontStyle: 'italic', margin: '0 0 20px', textAlign: 'center' }}>… et bien d'autres fonctionnalités à venir.</p>
               {/* CTA */}
               <button
                 onClick={() => alert('Paiement bientôt disponible — contactez-nous sur Zalo pour activer votre abonnement.')}
@@ -82,7 +84,7 @@ export default function Abonnement() {
               </button>
 
               <p style={{ textAlign: 'center', fontSize: '12px', color: C.mid, marginTop: '12px' }}>
-                Paiement sécurisé · Renouvellement annuel
+                Paiement sécurisé
               </p>
             </div>
           </div>
