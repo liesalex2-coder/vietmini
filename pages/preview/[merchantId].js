@@ -70,18 +70,17 @@ export default function Preview() {
         {/* Bandeau mode aperçu */}
         <div style={{
           width: '375px',
-          background: 'rgba(245,166,35,0.1)',
-          border: '1px solid rgba(245,166,35,0.25)',
+          background: '#F5A623',
           borderRadius: '12px',
           padding: '12px 16px',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px',
         }}>
-          <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.65)', lineHeight: 1.5 }}>
+          <span style={{ fontSize: '12px', color: '#1A0A00', fontWeight: '600', lineHeight: 1.5 }}>
             ⚡ Chế độ xem trước — Kích hoạt để khách hàng có thể truy cập ứng dụng này.
           </span>
           <a href="/abonnement" style={{
             flexShrink: 0,
-            fontSize: '12px', fontWeight: '700', color: '#F5A623',
+            fontSize: '12px', fontWeight: '800', color: '#1A0A00',
             textDecoration: 'none', whiteSpace: 'nowrap'
           }}>Kích hoạt →</a>
         </div>
