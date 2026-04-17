@@ -453,16 +453,18 @@ function SubRoue({ merchantId, toast }) {
   }
   async function updatePrize(i, field, value) {
     const prizes = [...(config.prizes || [])]; prizes[i] = { ...prizes[i], [field]: value }
-    const updated = { ...config, prizes }; setConfig(updated)
-    await supabase.from('wheel_config').update({ prizes }).eq('id', config.id)
+    setConfig({ ...config, prizes })
   }
   async function addPrize() {
     const prizes = [...(config.prizes || []), { label: 'Nouveau lot', color: C.red }]
-    setConfig({ ...config, prizes }); await supabase.from('wheel_config').update({ prizes }).eq('id', config.id)
+    setConfig({ ...config, prizes })
   }
   async function removePrize(i) {
     const prizes = config.prizes.filter((_, j) => j !== i)
-    setConfig({ ...config, prizes }); await supabase.from('wheel_config').update({ prizes }).eq('id', config.id); toast('Lot supprimé', true)
+    setConfig({ ...config, prizes })
+  }
+  async function savePrizes() {
+    await supabase.from('wheel_config').update({ prizes: config.prizes }).eq('id', config.id)
   }
 
   if (!config) return <div style={{ color: C.mid }}>Chargement…</div>
@@ -483,6 +485,9 @@ function SubRoue({ merchantId, toast }) {
             <Btn variant="danger" small onClick={() => removePrize(i)}>🗑</Btn>
           </div>
         ))}
+        <div style={{ marginTop: '16px' }}>
+          <SaveBtn onClick={savePrizes} />
+        </div>
       </Card>
     </div>
   )
