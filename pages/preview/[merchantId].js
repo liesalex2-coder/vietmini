@@ -33,7 +33,7 @@ export default function Preview() {
         alignItems: 'center',
         justifyContent: 'center',
         padding: '24px',
-        gap: '24px'
+        gap: '16px'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           <Link href="/dashboard" style={{ color: 'rgba(255,255,255,0.5)', fontSize: '13px', textDecoration: 'none' }}>
@@ -51,9 +51,8 @@ export default function Preview() {
           width: '375px', height: '760px',
           background: '#000', borderRadius: '44px', padding: '12px',
           boxShadow: '0 40px 80px rgba(0,0,0,0.6), inset 0 0 0 2px rgba(255,255,255,0.1)',
-          position: 'relative'
         }}>
-          <div style={{ width: '100%', height: '100%', borderRadius: '36px', overflow: 'hidden', background: '#fff', position: 'relative' }}>
+          <div style={{ width: '100%', height: '100%', borderRadius: '36px', overflow: 'hidden', background: '#fff' }}>
             {loading || !appUrl ? (
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#7A4A2A', fontSize: '14px' }}>
                 Chargement…
@@ -65,29 +64,28 @@ export default function Preview() {
                 title="Aperçu Mini App"
               />
             )}
-            {/* Bandeau mode aperçu */}
-            <div style={{
-              position: 'absolute', bottom: 0, left: 0, right: 0,
-              background: 'rgba(26,10,0,0.85)',
-              backdropFilter: 'blur(4px)',
-              padding: '10px 16px',
-              display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px',
-              zIndex: 999
-            }}>
-              <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.7)', fontWeight: '500' }}>
-                👁 Mode aperçu — non visible par vos clients
-              </span>
-              <a href="/abonnement" style={{
-                fontSize: '11px', fontWeight: '700', color: '#F5A623',
-                textDecoration: 'none', whiteSpace: 'nowrap'
-              }}>Activer →</a>
-            </div>
           </div>
         </div>
 
-        <div style={{ textAlign: 'center', color: 'rgba(255,255,255,0.3)', fontSize: '12px', maxWidth: '320px' }}>
-          Ceci est un aperçu de votre app telle que vos clients la verront.
+        {/* Bandeau mode aperçu */}
+        <div style={{
+          width: '375px',
+          background: 'rgba(245,166,35,0.1)',
+          border: '1px solid rgba(245,166,35,0.25)',
+          borderRadius: '12px',
+          padding: '12px 16px',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px',
+        }}>
+          <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.65)', lineHeight: 1.5 }}>
+            ⚡ Chế độ xem trước — Kích hoạt để khách hàng có thể truy cập ứng dụng này.
+          </span>
+          <a href="/abonnement" style={{
+            flexShrink: 0,
+            fontSize: '12px', fontWeight: '700', color: '#F5A623',
+            textDecoration: 'none', whiteSpace: 'nowrap'
+          }}>Kích hoạt →</a>
         </div>
+
       </div>
     </>
   )
