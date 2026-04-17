@@ -1027,6 +1027,230 @@ function initFeatures() {
 }
 
 initFeatures();
+
+var LOYALTY = { enabled: false, visits_required: 10, reward_text: '1 dịch vụ miễn phí', pin: '0000' };
+var _merchantId = null;
+var _apiBase = null;
+function renderStamps() {}
+
+
+// ── VIETMINI DYNAMIC LOADER ──────────────────────────────────
+(async function() {
+  const params = new URLSearchParams(window.location.search);
+  const merchantId = params.get('merchant_id');
+  _merchantId = merchantId;
+  const apiBase = params.get('api') || 'https://vietmini.vercel.app';
+  _apiBase = apiBase;
+  if (!merchantId) return;
+
+  try {
+    const res = await fetch(`${apiBase}/api/mini-app/${merchantId}`);
+    if (!res.ok) return;
+    const d = await res.json();
+    const m = d.merchant;
+
+    // Nom
+    if (m.name) {
+      document.querySelector('.hero-name').innerHTML = m.name;
+      document.querySelector('.footer-name') && (document.querySelector('.footer-name').textContent = m.name);
+      document.querySelector('.profile-sub') && (document.querySelector('.profile-sub').textContent = 'Thành viên ' + m.name);
+      document.title = m.name;
+    }
+
+    // Couleurs CSS
+    if (m.primary_color) {
+      document.documentElement.style.setProperty('--primary', m.primary_color);
+      document.documentElement.style.setProperty('--primary-dark', m.primary_color);
+    }
+
+    // Photo d'accueil hero
+    if (m.hero_image) {
+      const hero = document.querySelector('.hero');
+      if (hero) {
+        hero.style.backgroundImage = `url(${m.hero_image})`;
+        hero.style.backgroundSize = 'cover';
+        hero.style.backgroundPosition = 'center';
+        const heroImgEl = hero.querySelector('.hero-img');
+        if (heroImgEl) heroImgEl.src = m.hero_image;
+      }
+    }
+
+    // Adresse, horaires, téléphone via info-value (ordre : adresse, horaires, téléphone)
+    const infoValues = document.querySelectorAll('.info-value');
+    if (infoValues.length >= 3) {
+      if (m.address) infoValues[0].textContent = m.address;
+      if (m.hours)   infoValues[1].textContent = m.hours;
+      if (m.phone)   infoValues[2].textContent = m.phone;
+    }
+
+    // Hero chip horaires
+    if (m.hours) {
+      document.querySelectorAll('.hero-chip').forEach(el => {
+        if (el.textContent.includes('8:00') || el.textContent.includes(':')) el.textContent = '🕐 ' + m.hours;
+      });
+    }
+
+    // Téléphone liens tel:
+    if (m.phone) {
+      document.querySelectorAll('a[href^="tel:"]').forEach(a => a.href = 'tel:' + m.phone);
+    }
+
+    // Services
+    if (d.services && d.services.length > 0) {
+      // Reconstruire SERVICES à plat
+      const newServices = [];
+      d.services.forEach(cat => {
+        cat.items.forEach(item => {
+          newServices.push({
+            id: item.id,
+            name: item.name,
+            cat: cat.name,
+            price: item.price,
+            dur: 60,
+            desc: item.description || '',
+            emoji: '✨',
+            hot: false,
+            _img: item.image || null,
+          });
+        });
+      });
+      // Remplacer le tableau global
+      SERVICES.length = 0;
+      newServices.forEach(s => SERVICES.push(s));
+
+      // Mettre à jour SVC_IMGS
+      newServices.forEach(s => { if (s._img) SVC_IMGS[s.id] = s._img; });
+
+      // Reconstruire les tabs de catégories
+      const tabsEl = document.querySelector('.tabs') || document.querySelector('.tab-bar');
+      if (tabsEl) {
+        tabsEl.innerHTML = '<button class="tab-pill active" onclick="filterTab(this,\'all\')">Tất cả</button>';
+        d.services.forEach(cat => {
+          const btn = document.createElement('button');
+          btn.className = 'tab-pill';
+          btn.textContent = cat.name;
+          btn.onclick = function() { filterTab(this, cat.name); };
+          tabsEl.appendChild(btn);
+        });
+      }
+
+      // Re-render
+      renderServices('all');
+    }
+
+    // Flash sale banner
+    if (d.flash && d.flash.enabled) {
+      var flashEndLabel = d.flash.recurring ? (d.flash.recurring_end_time ? d.flash.recurring_end_time.substring(0,5) : '') : (d.flash.end_time ? d.flash.end_time.substring(11,16) : '');
+      var flashStartLabel = d.flash.recurring ? (d.flash.recurring_start_time ? d.flash.recurring_start_time.substring(0,5) : '') : '';
+      const bannersDiv = document.querySelector('.promo-banner')?.parentElement;
+      if (bannersDiv) {
+        const flashBanner = document.createElement('div');
+        flashBanner.className = 'promo-banner';
+        flashBanner.style.background = 'linear-gradient(135deg,#e67e22,#d35400)';
+        flashBanner.innerHTML = `
+          <div class="pb-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#FFE066" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+          <div class="pb-text">
+            <div class="pb-title">⚡ Flash Sale — Giảm ${d.flash.discount_value}%</div>
+            <div class="pb-sub">${d.flash.service_name || 'Tất cả dịch vụ'}${flashEndLabel ? ' · Kết thúc ' + flashEndLabel : ''}</div>
+          </div>
+          <div class="pb-cta" onclick="openFlashModal()" style="cursor:pointer;">Xem ngay</div>
+        `;
+        bannersDiv.insertBefore(flashBanner, bannersDiv.firstChild);
+        const fDiscount = document.getElementById('flashModalDiscount');
+        const fService = document.getElementById('flashModalService');
+        const fEnd = document.getElementById('flashModalEnd');
+        const fStart = document.getElementById('flashModalStart');
+        if (fDiscount) fDiscount.textContent = 'GIẢM ' + d.flash.discount_value + '%';
+        if (fService) fService.textContent = d.flash.service_name || 'Tất cả dịch vụ';
+        function fmtDT(iso) {
+          if (!iso) return '--';
+          var d = iso.substring(0,10).split('-');
+          var t = iso.substring(11,16);
+          return d[2]+'/'+d[1]+'/'+d[0]+' '+t;
+        }
+        if (d.flash.recurring) {
+          var DAYS_VI = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+          var daysEl = document.getElementById('flashModalDays');
+          var daysTextEl = document.getElementById('flashModalDaysText');
+          if (daysEl && daysTextEl && d.flash.recurring_days && d.flash.recurring_days.length > 0) {
+            daysTextEl.textContent = d.flash.recurring_days.map(function(d) { return DAYS_VI[d]; }).join(', ');
+            daysEl.style.display = 'block';
+          }
+          if (fStart) fStart.textContent = flashStartLabel;
+          if (fEnd) fEnd.textContent = flashEndLabel;
+        } else {
+          if (fStart) fStart.textContent = fmtDT(d.flash.start_time);
+          if (fEnd) fEnd.textContent = fmtDT(d.flash.end_time);
+        }
+      }
+    }
+
+    // Roue
+    if (d.wheel && d.wheel.prizes && d.wheel.prizes.length > 0) {
+      if (!d.wheel.enabled) {
+        document.querySelectorAll('.wheel-feature').forEach(el => el.style.display = 'none');
+      } else {
+        // Remplacer WP
+        WP.length = 0;
+        d.wheel.prizes.forEach(p => {
+          WP.push({ label: p.label, emoji: '🎁', detail: '', color: p.color || '#c0392b', weight: 15 });
+        });
+        // Recalculer
+        const newTW = WP.reduce((s, p) => s + p.weight, 0);
+        SL.length = 0;
+        WP.forEach(p => SL.push({...p, sweep: (p.weight / newTW) * 2 * Math.PI}));
+        drawWheel(0);
+      }
+    }
+
+    // Offre de bienvenue
+    if (m.welcome_enabled && m.welcome_discount > 0) {
+      const badge = document.getElementById('welcomeDiscountBadge');
+      if (badge) badge.textContent = 'GIẢM ' + m.welcome_discount + '%';
+      const promoBadge = document.querySelector('.promo-discount-badge');
+      if (promoBadge) promoBadge.textContent = 'GIẢM ' + m.welcome_discount + '%';
+      setTimeout(showWelcomePopup, 3000);
+    } else {
+      document.querySelectorAll('.promo-feature').forEach(el => el.style.display = 'none');
+    }
+
+    // Fidélité
+    if (d.loyalty && d.loyalty.enabled) {
+      LOYALTY.enabled = true;
+      LOYALTY.visits_required = d.loyalty.visits_required || 10;
+      LOYALTY.reward_text = d.loyalty.reward_text || '1 dịch vụ miễn phí';
+      if (d.loyalty.pin) LOYALTY.pin = String(d.loyalty.pin);
+      document.querySelectorAll('.stamp-reward').forEach(el => el.textContent = LOYALTY.reward_text);
+      document.querySelectorAll('.stamp-total').forEach(el => el.textContent = LOYALTY.visits_required);
+      renderStamps();
+    } else {
+      CONFIG.loyalty = false;
+      document.querySelectorAll('.loyalty-feature').forEach(el => el.style.display = 'none');
+    }
+
+    // Coupons
+    if (d.coupons && d.coupons.length > 0) {
+      const section = document.getElementById('couponsSection');
+      const list = document.getElementById('couponsList');
+      if (section && list) {
+        section.style.display = 'block';
+        list.innerHTML = '';
+        d.coupons.forEach(c => {
+          const desc = c.discount_type === 'percent' ? `Giảm ${c.discount_value}%` : `Giảm ${Number(c.discount_value).toLocaleString('vi-VN')}đ`;
+          const expiry = c.valid_until ? `Hết hạn: ${c.valid_until.substring(0,10).split('-').reverse().join('/')}` : '';
+          const div = document.createElement('div');
+          div.className = 'coupon-card';
+          div.innerHTML = `<div class="coupon-icon">🎟</div><div class="coupon-info"><div class="coupon-title">${desc}</div><div class="coupon-desc">${c.service_name ? c.service_name : 'Tất cả dịch vụ'}</div><div class="coupon-expiry">${expiry}</div></div><div style="background:var(--primary);color:#fff;border-radius:10px;padding:6px 12px;font-size:13px;font-weight:800;letter-spacing:1px;flex-shrink:0;">${c.code}</div>`;
+          list.appendChild(div);
+        });
+      }
+    }
+
+  } catch(e) {
+    console.warn('[VietMini] Erreur loader:', e);
+  }
+})();
+// ── FIN VIETMINI DYNAMIC LOADER ──────────────────────────────
 </script>
 
 
