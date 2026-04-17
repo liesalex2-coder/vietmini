@@ -2,7 +2,7 @@ import Layout from '../components/Layout';
 
 export default function Demos() {
   const DEMOS = [
-    {href:'/demo/bella',   bg:'linear-gradient(135deg,#FFEAE8,#FFD0CB)', img:'/images/img_1.webp', alt:'Salon de beauté',   vertical:'Beauté',              name:'Salon de beauté',         desc:'Coupe, couleur, nail, soins. Roue de fidélité et offres flash.',                             live:true},
+    {href:'/demo/bella',   bg:'linear-gradient(135deg,#FFEAE8,#FFD0CB)', img:'/images/img_1.webp', alt:'Salon de beauté',   vertical:'Beauté',              name:'Salon de beauté',         desc:'Coupe, couleur, nail, soins. Roue de fidélité et offres flash.',},
     {href:'/demo/barber',  bg:'linear-gradient(135deg,#E8E4F0,#CFC8E8)', img:'/images/img_2.webp', alt:'Barber shop',       vertical:'Homme',               name:'Barber shop',             desc:'Coupe homme, barbe, soins. Interface moderne et masculine.'},
     {href:'/demo/spa',     bg:'linear-gradient(135deg,#E0F4F0,#B8E8E0)', img:'/images/img_3.webp', alt:'Spa',               vertical:'Bien-être',           name:'Spa & Massage',           desc:'Massages, soins corps. Carte de fidélité et roue intégrées.'},
     {href:'/demo/resto',   bg:'linear-gradient(135deg,#FFF5DC,#FFE8A0)', img:'/images/img_4.webp', alt:'Restaurant',        vertical:'Restauration',        name:'Restaurant & Café',       desc:'Menu, offres spéciales, fidélité pour les habitués.'},
@@ -39,7 +39,6 @@ export default function Demos() {
                   <div className="demo-desc">{d.desc}</div>
                   <div className="demo-footer">
                     <span className="demo-link">Voir l&rsquo;exemple</span>
-                    {d.live && <span className="demo-live">En ligne</span>}
                   </div>
                 </div>
               </a>
