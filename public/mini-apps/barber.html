@@ -1511,6 +1511,11 @@ document.head.appendChild(cs);
 window.addEventListener('DOMContentLoaded',()=>setTimeout(()=>drawWheel(wAngle),100));
 function openFlashModal(){ document.getElementById('flashModalBackdrop').style.display='flex'; }
 function closeFlashModal(){ document.getElementById('flashModalBackdrop').style.display='none'; }
+
+function showWelcomePopup() {
+  var bd = document.getElementById('welcomeBackdrop');
+  if (bd) bd.style.display = 'flex';
+}
 </script>
 
 <div style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:600;align-items:flex-end;justify-content:center;max-width:430px;margin:0 auto;" id="flashModalBackdrop" onclick="if(event.target.id==='flashModalBackdrop')closeFlashModal()">
