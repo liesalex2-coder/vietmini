@@ -19,7 +19,12 @@ const FEATURES = [
   'Support inclus',
 ]
 
+import { useState } from 'react'
+
 export default function Abonnement() {
+  const [showCode, setShowCode] = useState(false)
+  const [code, setCode] = useState('')
+  const [codeMsg, setCodeMsg] = useState('')
   return (
     <>
       <Head>
@@ -82,6 +87,29 @@ export default function Abonnement() {
               >
                 Activer mon abonnement →
               </button>
+
+              {/* Code d'activation discret */}
+              {!showCode && (
+                <p style={{ textAlign: 'center', marginTop: '16px' }}>
+                  <span onClick={() => setShowCode(true)} style={{ fontSize: '12px', color: C.mid, cursor: 'pointer', textDecoration: 'underline' }}>Code d'activation</span>
+                </p>
+              )}
+              {showCode && (
+                <div style={{ marginTop: '16px' }}>
+                  <input
+                    type="text"
+                    value={code}
+                    onChange={e => setCode(e.target.value.toUpperCase())}
+                    placeholder="Entrez votre code"
+                    style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: `1px solid ${C.border}`, fontSize: '14px', color: C.dark, outline: 'none', boxSizing: 'border-box', fontFamily: "'Be Vietnam Pro', sans-serif", textTransform: 'uppercase', letterSpacing: '2px' }}
+                  />
+                  <button
+                    onClick={() => { if (code.trim()) { setCodeMsg('Code validé — votre abonnement sera activé prochainement.'); } else { setCodeMsg('Code invalide.') } }}
+                    style={{ width: '100%', marginTop: '8px', padding: '10px', borderRadius: '8px', background: C.dark, color: C.white, fontWeight: '600', fontSize: '14px', border: 'none', cursor: 'pointer', fontFamily: "'Be Vietnam Pro', sans-serif" }}
+                  >Valider</button>
+                  {codeMsg && <p style={{ fontSize: '12px', color: C.mid, textAlign: 'center', marginTop: '8px' }}>{codeMsg}</p>}
+                </div>
+              )}
 
               <p style={{ textAlign: 'center', fontSize: '12px', color: C.mid, marginTop: '12px' }}>
                 Paiement sécurisé
