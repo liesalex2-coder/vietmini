@@ -35,9 +35,10 @@ export default function Abonnement() {
   const [validating, setValidating] = useState(false)
   const [appliedCode, setAppliedCode] = useState(null)
 
-  const finalPrice = appliedCode
-    ? Math.round(BASE_PRICE * (1 - appliedCode.discount_percentage / 100))
-    : BASE_PRICE
+  const discount = appliedCode
+    ? Math.round(BASE_PRICE * appliedCode.discount_percentage / 100)
+    : 0
+  const finalPrice = BASE_PRICE - discount
 
   async function handleValidate() {
     setCodeMsg('')
@@ -80,8 +81,9 @@ export default function Abonnement() {
         code: data.code,
         discount_percentage: data.discount_percentage
       })
-      setCodeMsg(`Code appliqué — réduction de ${data.discount_percentage}%`)
-      setCodeMsgType('success')
+      setCodeMsg('')
+      setCodeMsgType('')
+      setShowCode(false)
       setValidating(false)
     } catch (e) {
       setCodeMsg('Erreur de connexion.')
@@ -132,35 +134,9 @@ export default function Abonnement() {
             </div>
 
             <div style={{ padding: '32px 32px 28px' }}>
-              {/* Prix */}
-              <div style={{ textAlign: 'center', marginBottom: '28px' }}>
-                <div style={{ fontSize: '13px', color: C.mid, marginBottom: '4px' }}>Abonnement annuel</div>
-
-                {appliedCode && appliedCode.discount_percentage < 100 && (
-                  <div style={{ fontSize: '18px', color: C.mid, textDecoration: 'line-through', marginBottom: '2px', fontWeight: '600' }}>
-                    {formatVND(BASE_PRICE)} ₫
-                  </div>
-                )}
-
-                <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'center', gap: '4px' }}>
-                  <span style={{ fontSize: '48px', fontWeight: '900', color: appliedCode ? C.red : C.dark, lineHeight: 1 }}>
-                    {formatVND(finalPrice)}
-                  </span>
-                  <span style={{ fontSize: '18px', fontWeight: '700', color: C.mid, marginBottom: '6px' }}>₫ HT</span>
-                </div>
-
-                {appliedCode ? (
-                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(22,163,74,0.1)', color: '#16a34a', fontSize: '12px', fontWeight: '700', padding: '6px 12px', borderRadius: '20px', marginTop: '10px' }}>
-                    <span>Code {appliedCode.code} appliqué (−{appliedCode.discount_percentage}%)</span>
-                    <span onClick={handleRemoveCode} style={{ cursor: 'pointer', color: C.mid, fontWeight: '900' }}>×</span>
-                  </div>
-                ) : (
-                  <div style={{ fontSize: '13px', color: C.mid, marginTop: '4px' }}>soit ~167.000 ₫ / mois</div>
-                )}
-              </div>
 
               {/* Features */}
-              <div style={{ marginBottom: '28px' }}>
+              <div style={{ marginBottom: '24px' }}>
                 {FEATURES.map((f, i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '7px 0', borderBottom: i < FEATURES.length - 1 ? `1px solid ${C.border}` : 'none' }}>
                     <span style={{ color: '#16a34a', fontSize: '15px', flexShrink: 0 }}>✓</span>
@@ -168,15 +144,45 @@ export default function Abonnement() {
                   </div>
                 ))}
               </div>
+              <p style={{ fontSize: '13px', color: C.mid, fontStyle: 'italic', margin: '0 0 24px', textAlign: 'center' }}>… et bien d'autres fonctionnalités à venir.</p>
 
-              <p style={{ fontSize: '13px', color: C.mid, fontStyle: 'italic', margin: '0 0 20px', textAlign: 'center' }}>… et bien d'autres fonctionnalités à venir.</p>
+              {/* Bloc récap prix */}
+              <div style={{ background: C.bg, borderRadius: '12px', padding: '18px 20px', marginBottom: '20px' }}>
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: appliedCode ? '10px' : '0' }}>
+                  <span style={{ fontSize: '14px', color: C.dark, fontWeight: '500' }}>Abonnement annuel</span>
+                  <span style={{ fontSize: '15px', color: C.dark, fontWeight: '700' }}>{formatVND(BASE_PRICE)} ₫</span>
+                </div>
+
+                {appliedCode && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                    <span style={{ fontSize: '14px', color: '#16a34a', fontWeight: '500', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      Code {appliedCode.code}
+                      <span
+                        onClick={handleRemoveCode}
+                        style={{ cursor: 'pointer', color: C.mid, fontSize: '16px', fontWeight: '700', lineHeight: 1 }}
+                        title="Retirer le code"
+                      >×</span>
+                    </span>
+                    <span style={{ fontSize: '15px', color: '#16a34a', fontWeight: '700' }}>−{appliedCode.discount_percentage}%</span>
+                  </div>
+                )}
+
+                <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: '12px', marginTop: appliedCode ? '2px' : '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                  <span style={{ fontSize: '13px', color: C.mid, fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total à payer</span>
+                  <span>
+                    <span style={{ fontSize: '28px', fontWeight: '900', color: appliedCode ? C.red : C.dark }}>{formatVND(finalPrice)}</span>
+                    <span style={{ fontSize: '14px', color: C.mid, fontWeight: '700', marginLeft: '3px' }}>₫ HT</span>
+                  </span>
+                </div>
+              </div>
 
               {/* CTA */}
               <button
                 onClick={handlePay}
                 style={{ width: '100%', padding: '14px', borderRadius: '12px', background: C.red, color: C.white, fontWeight: '700', fontSize: '16px', border: 'none', cursor: 'pointer', fontFamily: "'Be Vietnam Pro', sans-serif" }}
               >
-                {appliedCode && finalPrice === 0
+                {finalPrice === 0
                   ? 'Activer mon abonnement →'
                   : `Payer ${formatVND(finalPrice)} ₫ →`}
               </button>
