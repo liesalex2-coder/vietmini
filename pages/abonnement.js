@@ -1,5 +1,8 @@
 import Head from 'next/head'
 import Link from 'next/link'
+import { useState } from 'react'
+import { useRouter } from 'next/router'
+import { supabase } from '../lib/supabaseClient'
 
 const C = {
   red: '#D0021B', gold: '#F5A623', dark: '#1A0A00',
@@ -19,12 +22,62 @@ const FEATURES = [
   'Support inclus',
 ]
 
-import { useState } from 'react'
-
 export default function Abonnement() {
+  const router = useRouter()
   const [showCode, setShowCode] = useState(false)
   const [code, setCode] = useState('')
   const [codeMsg, setCodeMsg] = useState('')
+  const [codeMsgType, setCodeMsgType] = useState('') // 'success' | 'error'
+  const [validating, setValidating] = useState(false)
+
+  async function handleValidate() {
+    setCodeMsg('')
+    setCodeMsgType('')
+
+    if (!code.trim()) {
+      setCodeMsg('Veuillez saisir un code.')
+      setCodeMsgType('error')
+      return
+    }
+
+    setValidating(true)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) {
+        setCodeMsg('Veuillez vous reconnecter.')
+        setCodeMsgType('error')
+        setValidating(false)
+        setTimeout(() => router.push('/login'), 1500)
+        return
+      }
+
+      const res = await fetch('/api/activate-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          code: code.trim(),
+          access_token: session.access_token
+        })
+      })
+      const data = await res.json()
+
+      if (!res.ok) {
+        setCodeMsg(data.error || 'Erreur inconnue')
+        setCodeMsgType('error')
+        setValidating(false)
+        return
+      }
+
+      setCodeMsg('Code validé — votre abonnement est activé.')
+      setCodeMsgType('success')
+      setTimeout(() => router.push('/dashboard'), 1800)
+    } catch (e) {
+      setCodeMsg('Erreur de connexion.')
+      setCodeMsgType('error')
+      setValidating(false)
+    }
+  }
+
   return (
     <>
       <Head>
@@ -80,6 +133,7 @@ export default function Abonnement() {
               </div>
 
               <p style={{ fontSize: '13px', color: C.mid, fontStyle: 'italic', margin: '0 0 20px', textAlign: 'center' }}>… et bien d'autres fonctionnalités à venir.</p>
+
               {/* CTA */}
               <button
                 onClick={() => alert('Paiement bientôt disponible — contactez-nous sur Zalo pour activer votre abonnement.')}
@@ -100,14 +154,21 @@ export default function Abonnement() {
                     type="text"
                     value={code}
                     onChange={e => setCode(e.target.value.toUpperCase())}
+                    onKeyDown={e => { if (e.key === 'Enter') handleValidate() }}
                     placeholder="Entrez votre code"
+                    disabled={validating}
                     style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: `1px solid ${C.border}`, fontSize: '14px', color: C.dark, outline: 'none', boxSizing: 'border-box', fontFamily: "'Be Vietnam Pro', sans-serif", textTransform: 'uppercase', letterSpacing: '2px' }}
                   />
                   <button
-                    onClick={() => { if (code.trim()) { setCodeMsg('Code validé — votre abonnement sera activé prochainement.'); } else { setCodeMsg('Code invalide.') } }}
-                    style={{ width: '100%', marginTop: '8px', padding: '10px', borderRadius: '8px', background: C.dark, color: C.white, fontWeight: '600', fontSize: '14px', border: 'none', cursor: 'pointer', fontFamily: "'Be Vietnam Pro', sans-serif" }}
-                  >Valider</button>
-                  {codeMsg && <p style={{ fontSize: '12px', color: C.mid, textAlign: 'center', marginTop: '8px' }}>{codeMsg}</p>}
+                    onClick={handleValidate}
+                    disabled={validating}
+                    style={{ width: '100%', marginTop: '8px', padding: '10px', borderRadius: '8px', background: validating ? C.mid : C.dark, color: C.white, fontWeight: '600', fontSize: '14px', border: 'none', cursor: validating ? 'wait' : 'pointer', fontFamily: "'Be Vietnam Pro', sans-serif" }}
+                  >{validating ? 'Vérification…' : 'Valider'}</button>
+                  {codeMsg && (
+                    <p style={{ fontSize: '12px', color: codeMsgType === 'success' ? '#16a34a' : C.red, textAlign: 'center', marginTop: '8px', fontWeight: codeMsgType === 'success' ? '600' : '400' }}>
+                      {codeMsg}
+                    </p>
+                  )}
                 </div>
               )}
 
