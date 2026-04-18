@@ -3,6 +3,19 @@ import { useRouter } from 'next/router'
 import Head from 'next/head'
 import { supabase } from '../../lib/supabaseClient'
 
+
+async function moderate(fields) {
+  try {
+    const res = await fetch('/api/moderate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fields: fields.filter(Boolean) })
+    })
+    const data = await res.json()
+    return data.ok
+  } catch { return true }
+}
+
 const C = {
   red: '#D0021B', gold: '#F5A623', cream: '#FDF6EE',
   dark: '#1A0A00', mid: '#7A4A2A', white: '#fff',
@@ -267,6 +280,7 @@ function SectionServices({ merchantId, toast }) {
 
   async function save() {
     if (!form.name) { toast('Nom requis', false); return }
+    if (!await moderate([form.name, form.description])) { toast('Contenu non autorisé', false); return }
     if (editing) { await supabase.from('services').update({ ...form, price: parseInt(form.price) || 0 }).eq('id', editing) }
     else { await supabase.from('services').insert({ ...form, price: parseInt(form.price) || 0, merchant_id: merchantId, display_order: services.length }) }
     setShowForm(false); load(); toast('Service enregistré', true)
@@ -276,6 +290,7 @@ function SectionServices({ merchantId, toast }) {
 
   async function addCategory() {
     if (!newCat.trim()) return
+    if (!await moderate([newCat.trim()])) { toast('Contenu non autorisé', false); return }
     await supabase.from('service_categories').insert({ merchant_id: merchantId, name: newCat.trim(), display_order: categories.length })
     setNewCat(''); setShowCatForm(false); load(); toast('Catégorie ajoutée', true)
   }
@@ -464,6 +479,8 @@ function SubRoue({ merchantId, toast }) {
     setConfig({ ...config, prizes })
   }
   async function savePrizes() {
+    const labels = (config.prizes || []).map(p => p.label)
+    if (!await moderate(labels)) { toast('Contenu non autorisé', false); return }
     await supabase.from('wheel_config').update({ prizes: config.prizes }).eq('id', config.id)
   }
 
@@ -535,6 +552,7 @@ function SubFlash({ merchantId, toast }) {
       update.recurring_start_time = null
       update.recurring_end_time = null
     }
+    if (!await moderate([update.service_name])) { toast('Contenu non autorisé', false); return }
     await supabase.from('flash_sales').update(update).eq('id', data.id)
     load(); toast('Flash sale enregistrée', true)
   }
@@ -602,6 +620,7 @@ function SubFidelite({ merchantId, toast }) {
 
   async function toggleEnabled() {
     const updated = { ...data, enabled: !data.enabled }
+    if (!await moderate([form.reward_text])) { toast('Contenu non autorisé', false); return }
     await supabase.from('loyalty_config').update({ enabled: updated.enabled }).eq('id', data.id)
     setData(updated); setForm(updated); toast(updated.enabled ? 'Carte fidélité activée' : 'Carte fidélité désactivée', true)
   }
@@ -760,6 +779,7 @@ function SubCoupons({ merchantId, toast }) {
 
   async function save() {
     if (!form.code) { toast('Code requis', false); return }
+    if (!await moderate([form.code, form.service_name])) { toast('Contenu non autorisé', false); return }
     await supabase.from('coupons').insert({ ...form, discount_value: parseInt(form.discount_value) || 0, merchant_id: merchantId, valid_until: form.valid_until || null })
     setShowForm(false); setForm({ code: '', discount_type: 'percent', discount_value: 10, valid_until: '', service_name: '', active: true }); load(); toast('Coupon créé', true)
   }
@@ -911,6 +931,7 @@ function SectionAvis({ merchantId, toast }) {
   useEffect(() => { if (merchantId) load() }, [merchantId])
   async function save() {
     if (!form.author_name) { toast('Nom requis', false); return }
+    if (!await moderate([form.author_name, form.content])) { toast('Contenu non autorisé', false); return }
     await supabase.from('reviews').insert({ ...form, merchant_id: merchantId })
     setShowForm(false); setForm({ author_name: '', content: '', rating: 5, visible: true }); load(); toast('Avis ajouté', true)
   }
@@ -993,6 +1014,7 @@ function SectionDiffusions({ merchantId, contactCount, toast }) {
   async function send() {
     if (!message.trim()) { toast('Message vide', false); return }
     setSending(true)
+    if (!await moderate([message.trim()])) { toast('Contenu non autorisé', false); return }
     await supabase.from('broadcasts').insert({ merchant_id: merchantId, message: message.trim(), recipient_count: contactCount, status: 'sent' })
     setMessage(''); setSending(false); load(); toast('Diffusion enregistrée', true)
   }
@@ -1059,6 +1081,7 @@ export default function Dashboard() {
   }
 
   async function saveMerchant(form) {
+    if (!await moderate([form.name, form.address, form.welcome_message])) { showToast('Contenu non autorisé', false); return }
     const { error } = await supabase.from('merchants').update(form).eq('id', merchant.id)
     if (error) { showToast('Erreur', false); return }
     setMerchant({ ...merchant, ...form }); showToast('Enregistré', true)
