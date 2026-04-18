@@ -1188,7 +1188,7 @@ function renderStamps() {}
         // Remplacer WP
         WP.length = 0;
         d.wheel.prizes.forEach((p, idx) => {
-          WP.push({ label: p.label, emoji: '🎁', detail: '', color: WHEEL_PALETTE[idx % WHEEL_PALETTE.length], weight: 15 });
+          WP.push({ label: p.label, emoji: '🎁', detail: '', color: WHEEL_PALETTE[idx % 6], weight: 15 });
         });
         // Recalculer
         const newTW = WP.reduce((s, p) => s + p.weight, 0);
@@ -1383,7 +1383,7 @@ function renderStamps() {}
   </div>
 </div>
 <script>
-const WHEEL_PALETTE=['#D0021B','#F5A623','#7A4A2A','#1A0A00','#E8873A','#A0522D'];
+const WHEEL_PALETTE=['#D0021B','#F5A623','#27AE60','#2980B9','#8E44AD','#E67E22'];
 const WP=[
   {label:'Giảm 20%',emoji:'🎤',detail:'Tất cả các phòng',color:'#7b2d8b',weight:20},
   {label:'May mắn',emoji:'⭐',detail:'Hẹn gặp lần sau!',color:'#9a4daa',weight:35},

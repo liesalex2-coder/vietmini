@@ -476,11 +476,12 @@ function SubRoue({ merchantId, toast }) {
       <Card>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
           <div style={{ fontWeight: '700', color: C.dark }}>Lots ({(config.prizes || []).length})</div>
-          <Btn small onClick={addPrize}>+ Ajouter</Btn>
+          <Btn small onClick={addPrize} disabled={(config.prizes || []).length >= 6}>+ Ajouter</Btn>
         </div>
         {(config.prizes || []).map((prize, i) => (
           <div key={i} style={{ display: 'flex', gap: '10px', alignItems: 'center', padding: '8px 0', borderBottom: `1px solid ${C.border}` }}>
-            <input type="color" value={prize.color || C.red} onChange={e => updatePrize(i, 'color', e.target.value)} style={{ width: '32px', height: '32px', borderRadius: '6px', border: `1px solid ${C.border}`, cursor: 'pointer', padding: '2px', flexShrink: 0 }} />
+
+            <div style={{ width: '20px', height: '20px', borderRadius: '4px', background: ['#D0021B','#F5A623','#27AE60','#2980B9','#8E44AD','#E67E22'][i % 6], flexShrink: 0 }} />
             <div style={{ flex: 1, position: 'relative' }}>
               <input type="text" value={prize.label || ''} maxLength={15} onChange={e => updatePrize(i, 'label', e.target.value)} style={{ width: '100%', padding: '7px 10px', borderRadius: '7px', border: `1px solid ${(prize.label || '').length >= 15 ? C.red : C.border}`, fontSize: '14px', color: C.dark, outline: 'none', fontFamily: "'Be Vietnam Pro', sans-serif", boxSizing: 'border-box' }} />
               <span style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', fontSize: '11px', color: (prize.label || '').length >= 15 ? C.red : C.mid }}>{(prize.label || '').length}/15</span>

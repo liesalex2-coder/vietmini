@@ -1303,8 +1303,8 @@ renderStamps();
       } else {
         // Remplacer WP
         WP.length = 0;
-        d.wheel.prizes.forEach(p => {
-          WP.push({ label: p.label, emoji: '🎁', detail: '', color: p.color || '#c0392b', weight: 15 });
+        d.wheel.prizes.forEach((p, idx) => {
+          WP.push({ label: p.label, emoji: '🎁', detail: '', color: WHEEL_PALETTE[idx % 6], weight: 15 });
         });
         // Recalculer
         const newTW = WP.reduce((s, p) => s + p.weight, 0);
@@ -1552,6 +1552,7 @@ renderStamps();
   </div>
 </div>
 <script>
+const WHEEL_PALETTE=['#D0021B','#F5A623','#27AE60','#2980B9','#8E44AD','#E67E22'];
 const WP=[
   {label:'Giảm 20%',emoji:'🎁',detail:'Áp dụng cho tất cả dịch vụ',color:'#c0392b',weight:20},
   {label:'Chúc may mắn',emoji:'🌸',detail:'Hẹn gặp lần sau nhé!',color:'#8e1a0e',weight:35},
