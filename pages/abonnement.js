@@ -149,32 +149,42 @@ export default function Abonnement() {
               {/* Bloc récap prix */}
               <div style={{ background: C.bg, borderRadius: '12px', padding: '18px 20px', marginBottom: '20px' }}>
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: appliedCode ? '10px' : '0' }}>
-                  <span style={{ fontSize: '14px', color: C.dark, fontWeight: '500' }}>Abonnement annuel</span>
-                  <span style={{ fontSize: '15px', color: C.dark, fontWeight: '700' }}>{formatVND(BASE_PRICE)} ₫</span>
-                </div>
+                {appliedCode ? (
+                  <>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                      <span style={{ fontSize: '14px', color: C.dark, fontWeight: '500' }}>Abonnement annuel</span>
+                      <span style={{ fontSize: '15px', color: C.dark, fontWeight: '700' }}>{formatVND(BASE_PRICE)} ₫</span>
+                    </div>
 
-                {appliedCode && (
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                    <span style={{ fontSize: '14px', color: '#16a34a', fontWeight: '500', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      Code {appliedCode.code}
-                      <span
-                        onClick={handleRemoveCode}
-                        style={{ cursor: 'pointer', color: C.mid, fontSize: '16px', fontWeight: '700', lineHeight: 1 }}
-                        title="Retirer le code"
-                      >×</span>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                      <span style={{ fontSize: '14px', color: '#16a34a', fontWeight: '500', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        Code {appliedCode.code}
+                        <span
+                          onClick={handleRemoveCode}
+                          style={{ cursor: 'pointer', color: C.mid, fontSize: '16px', fontWeight: '700', lineHeight: 1 }}
+                          title="Retirer le code"
+                        >×</span>
+                      </span>
+                      <span style={{ fontSize: '15px', color: '#16a34a', fontWeight: '700' }}>−{appliedCode.discount_percentage}%</span>
+                    </div>
+
+                    <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                      <span style={{ fontSize: '13px', color: C.mid, fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total à payer</span>
+                      <span>
+                        <span style={{ fontSize: '28px', fontWeight: '900', color: C.red }}>{formatVND(finalPrice)}</span>
+                        <span style={{ fontSize: '14px', color: C.mid, fontWeight: '700', marginLeft: '3px' }}>₫ HT</span>
+                      </span>
+                    </div>
+                  </>
+                ) : (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                    <span style={{ fontSize: '13px', color: C.mid, fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total à payer</span>
+                    <span>
+                      <span style={{ fontSize: '28px', fontWeight: '900', color: C.dark }}>{formatVND(BASE_PRICE)}</span>
+                      <span style={{ fontSize: '14px', color: C.mid, fontWeight: '700', marginLeft: '3px' }}>₫ HT</span>
                     </span>
-                    <span style={{ fontSize: '15px', color: '#16a34a', fontWeight: '700' }}>−{appliedCode.discount_percentage}%</span>
                   </div>
                 )}
-
-                <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: '12px', marginTop: appliedCode ? '2px' : '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                  <span style={{ fontSize: '13px', color: C.mid, fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total à payer</span>
-                  <span>
-                    <span style={{ fontSize: '28px', fontWeight: '900', color: appliedCode ? C.red : C.dark }}>{formatVND(finalPrice)}</span>
-                    <span style={{ fontSize: '14px', color: C.mid, fontWeight: '700', marginLeft: '3px' }}>₫ HT</span>
-                  </span>
-                </div>
               </div>
 
               {/* CTA */}
