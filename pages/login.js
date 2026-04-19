@@ -3,6 +3,7 @@ import { useRouter } from 'next/router'
 import Head from 'next/head'
 import Link from 'next/link'
 import { supabase } from '../lib/supabaseClient'
+import LegalFooterLine from '../components/LegalFooterLine'
 
 const inp = {
   width: '100%', padding: '10px 14px', borderRadius: '8px',
@@ -109,6 +110,8 @@ export default function Login() {
             Pas encore de compte ?{' '}
             <Link href="/register" style={{ color: '#D0021B', fontWeight: '600' }}>Créer mon compte</Link>
           </p>
+
+          <LegalFooterLine />
         </div>
       </div>
     </>

@@ -3,6 +3,7 @@ import { useRouter } from 'next/router'
 import Head from 'next/head'
 import Link from 'next/link'
 import { supabase } from '../lib/supabaseClient'
+import LegalFooterLine from '../components/LegalFooterLine'
 
 const VERTICALS = [
   { id: 'salon',      label: 'Salon de beauté',  icon: '💅' },
@@ -171,6 +172,8 @@ export default function Register() {
             Déjà un compte ?{' '}
             <Link href="/login" style={{ color: '#D0021B', fontWeight: '600' }}>Se connecter</Link>
           </p>
+
+          <LegalFooterLine />
         </div>
       </div>
     </>
