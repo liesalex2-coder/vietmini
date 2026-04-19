@@ -1130,14 +1130,16 @@ export default function Dashboard() {
             <div style={{ fontWeight: '700', color: C.dark, fontSize: '15px' }}>{TABS.find(t => t.id === activeTab)?.label}</div>
             <div style={{ width: '24px' }} />
           </div>
-          {/* Bandeau abonnement */}
-          <div style={{ background: 'linear-gradient(135deg, #1A0A00, #2D1200)', padding: '12px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <span style={{ fontSize: '16px' }}>⚡</span>
-              <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.8)', fontWeight: '500' }}>Votre app est en <strong style={{ color: '#F5A623' }}>mode aperçu</strong> — vos clients ne peuvent pas encore y accéder.</span>
+          {/* Bandeau abonnement — affiché uniquement si pas encore abonné */}
+          {!merchant.subscription_active && (
+            <div style={{ background: 'linear-gradient(135deg, #1A0A00, #2D1200)', padding: '12px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <span style={{ fontSize: '16px' }}>⚡</span>
+                <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.8)', fontWeight: '500' }}>Votre app est en <strong style={{ color: '#F5A623' }}>mode aperçu</strong> — vos clients ne peuvent pas encore y accéder.</span>
+              </div>
+              <a href="/abonnement" style={{ flexShrink: 0, background: '#F5A623', color: '#1A0A00', fontWeight: '700', fontSize: '13px', padding: '8px 16px', borderRadius: '8px', textDecoration: 'none', whiteSpace: 'nowrap' }}>Activer mon abonnement →</a>
             </div>
-            <a href="/abonnement" style={{ flexShrink: 0, background: '#F5A623', color: '#1A0A00', fontWeight: '700', fontSize: '13px', padding: '8px 16px', borderRadius: '8px', textDecoration: 'none', whiteSpace: 'nowrap' }}>Activer mon abonnement →</a>
-          </div>
+          )}
           <div style={{ padding: '28px 24px', maxWidth: '800px' }}>
             {activeTab === 'apercu'     && <SectionApercu merchant={merchant} contacts={contacts} broadcasts={broadcasts} onChangeVertical={async () => { if (window.confirm("Changer d'activité ? Toutes vos données de configuration seront réinitialisées.")) { await supabase.from('merchants').update({ vertical: null }).eq('id', merchant.id); router.push('/onboarding') } }} />}
             {activeTab === 'profil'     && <SectionProfil merchant={merchant} onSave={saveMerchant} merchantId={merchant.id} toast={showToast} />}
