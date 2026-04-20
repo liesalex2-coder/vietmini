@@ -12,15 +12,15 @@ const C = {
 const BASE_PRICE = 2000000
 
 const FEATURES = [
-  'Mini App Zalo personnalisée à votre image',
-  'Roue de la chance & offres flash',
-  'Carte de fidélité numérique',
-  'Coupons & offre de bienvenue',
-  'Contacts clients illimités',
-  'Tableau de bord marchand complet',
-  'Accès immédiat — app disponible le jour même',
-  'Mises à jour incluses',
-  'Support inclus',
+  'Mini App Zalo mang đậm dấu ấn thương hiệu',
+  'Vòng quay may mắn & ưu đãi chớp nhoáng',
+  'Thẻ khách hàng thân thiết điện tử',
+  'Mã giảm giá & ưu đãi chào mừng',
+  'Không giới hạn liên hệ khách hàng',
+  'Bảng điều khiển quản lý đầy đủ',
+  'Truy cập ngay — app sẵn sàng trong ngày',
+  'Đã bao gồm các bản cập nhật',
+  'Đã bao gồm hỗ trợ',
 ]
 
 function formatVND(n) {
@@ -45,7 +45,7 @@ export default function Abonnement() {
     setCodeMsgType('')
 
     if (!code.trim()) {
-      setCodeMsg('Veuillez saisir un code.')
+      setCodeMsg('Vui lòng nhập mã.')
       setCodeMsgType('error')
       return
     }
@@ -54,7 +54,7 @@ export default function Abonnement() {
     try {
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) {
-        setCodeMsg('Veuillez vous reconnecter.')
+        setCodeMsg('Vui lòng đăng nhập lại.')
         setCodeMsgType('error')
         setValidating(false)
         return
@@ -71,7 +71,7 @@ export default function Abonnement() {
       const data = await res.json()
 
       if (!res.ok) {
-        setCodeMsg(data.error || 'Erreur inconnue')
+        setCodeMsg(data.error || 'Lỗi không xác định')
         setCodeMsgType('error')
         setValidating(false)
         return
@@ -86,7 +86,7 @@ export default function Abonnement() {
       setShowCode(false)
       setValidating(false)
     } catch (e) {
-      setCodeMsg('Erreur de connexion.')
+      setCodeMsg('Lỗi kết nối.')
       setCodeMsgType('error')
       setValidating(false)
     }
@@ -101,13 +101,13 @@ export default function Abonnement() {
   }
 
   function handlePay() {
-    alert('Paiement bientôt disponible — contactez-nous sur Zalo pour activer votre abonnement.')
+    alert('Thanh toán sẽ sớm khả dụng — liên hệ với chúng tôi qua Zalo để kích hoạt thuê bao.')
   }
 
   return (
     <>
       <Head>
-        <title>Abonnement — VietMini</title>
+        <title>Gói thuê bao — VietMini</title>
         <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;900&display=swap" rel="stylesheet" />
       </Head>
       <div style={{ minHeight: '100vh', background: C.bg, fontFamily: "'Be Vietnam Pro', sans-serif" }}>
@@ -117,20 +117,20 @@ export default function Abonnement() {
             <div style={{ width: '32px', height: '32px', background: C.red, borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.white, fontWeight: '700', fontSize: '16px' }}>V</div>
             <span style={{ fontWeight: '700', fontSize: '16px', color: C.dark }}>VietMini</span>
           </Link>
-          <Link href="/dashboard" style={{ fontSize: '13px', color: C.mid, textDecoration: 'none' }}>← Retour au dashboard</Link>
+          <Link href="/dashboard" style={{ fontSize: '13px', color: C.mid, textDecoration: 'none' }}>← Quay lại bảng điều khiển</Link>
         </div>
 
         <div style={{ textAlign: 'center', padding: '60px 24px 40px' }}>
-          <div style={{ display: 'inline-block', background: 'rgba(208,2,27,0.08)', color: C.red, fontSize: '11px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1.5px', padding: '4px 12px', borderRadius: '20px', marginBottom: '16px' }}>Abonnement annuel</div>
-          <h1 style={{ fontSize: 'clamp(28px,4vw,44px)', fontWeight: '900', color: C.dark, letterSpacing: '-1px', lineHeight: 1.1, margin: '0 0 12px' }}>Activez votre Mini App Zalo</h1>
-          <p style={{ fontSize: '16px', color: C.mid, maxWidth: '480px', margin: '0 auto' }}>Votre app est prête — vos clients n'attendent que vous.</p>
+          <div style={{ display: 'inline-block', background: 'rgba(208,2,27,0.08)', color: C.red, fontSize: '11px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1.5px', padding: '4px 12px', borderRadius: '20px', marginBottom: '16px' }}>Thuê bao hằng năm</div>
+          <h1 style={{ fontSize: 'clamp(28px,4vw,44px)', fontWeight: '900', color: C.dark, letterSpacing: '-1px', lineHeight: 1.1, margin: '0 0 12px' }}>Kích hoạt Mini App Zalo của bạn</h1>
+          <p style={{ fontSize: '16px', color: C.mid, maxWidth: '480px', margin: '0 auto' }}>App của bạn đã sẵn sàng — khách hàng chỉ chờ bạn thôi.</p>
         </div>
 
         <div style={{ maxWidth: '480px', margin: '0 auto 60px', padding: '0 24px' }}>
           <div style={{ background: C.white, borderRadius: '20px', boxShadow: '0 8px 40px rgba(26,10,0,0.1)', overflow: 'hidden', border: `2px solid ${C.gold}` }}>
 
             <div style={{ background: C.gold, padding: '8px 24px', textAlign: 'center' }}>
-              <span style={{ fontSize: '12px', fontWeight: '700', color: C.dark, textTransform: 'uppercase', letterSpacing: '1px' }}>Tout inclus — sans surprise</span>
+              <span style={{ fontSize: '12px', fontWeight: '700', color: C.dark, textTransform: 'uppercase', letterSpacing: '1px' }}>Đã bao gồm tất cả — không phát sinh</span>
             </div>
 
             <div style={{ padding: '32px 32px 28px' }}>
@@ -144,7 +144,7 @@ export default function Abonnement() {
                   </div>
                 ))}
               </div>
-              <p style={{ fontSize: '13px', color: C.mid, fontStyle: 'italic', margin: '0 0 24px', textAlign: 'center' }}>… et bien d'autres fonctionnalités à venir.</p>
+              <p style={{ fontSize: '13px', color: C.mid, fontStyle: 'italic', margin: '0 0 24px', textAlign: 'center' }}>… và nhiều tính năng khác đang phát triển.</p>
 
               {/* Bloc récap prix */}
               <div style={{ background: C.bg, borderRadius: '12px', padding: '18px 20px', marginBottom: '20px' }}>
@@ -152,36 +152,36 @@ export default function Abonnement() {
                 {appliedCode ? (
                   <>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                      <span style={{ fontSize: '14px', color: C.dark, fontWeight: '500' }}>Abonnement annuel</span>
+                      <span style={{ fontSize: '14px', color: C.dark, fontWeight: '500' }}>Thuê bao hằng năm</span>
                       <span style={{ fontSize: '15px', color: C.dark, fontWeight: '700' }}>{formatVND(BASE_PRICE)} ₫</span>
                     </div>
 
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
                       <span style={{ fontSize: '14px', color: '#16a34a', fontWeight: '500', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        Code {appliedCode.code}
+                        Mã {appliedCode.code}
                         <span
                           onClick={handleRemoveCode}
                           style={{ cursor: 'pointer', color: C.mid, fontSize: '16px', fontWeight: '700', lineHeight: 1 }}
-                          title="Retirer le code"
+                          title="Xóa mã"
                         >×</span>
                       </span>
                       <span style={{ fontSize: '15px', color: '#16a34a', fontWeight: '700' }}>−{appliedCode.discount_percentage}%</span>
                     </div>
 
                     <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                      <span style={{ fontSize: '13px', color: C.mid, fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total à payer</span>
+                      <span style={{ fontSize: '13px', color: C.mid, fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Tổng thanh toán</span>
                       <span>
                         <span style={{ fontSize: '28px', fontWeight: '900', color: C.red }}>{formatVND(finalPrice)}</span>
-                        <span style={{ fontSize: '14px', color: C.mid, fontWeight: '700', marginLeft: '3px' }}>₫ HT</span>
+                        <span style={{ fontSize: '14px', color: C.mid, fontWeight: '700', marginLeft: '3px' }}>₫ chưa VAT</span>
                       </span>
                     </div>
                   </>
                 ) : (
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                    <span style={{ fontSize: '13px', color: C.mid, fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total à payer</span>
+                    <span style={{ fontSize: '13px', color: C.mid, fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Tổng thanh toán</span>
                     <span>
                       <span style={{ fontSize: '28px', fontWeight: '900', color: C.dark }}>{formatVND(BASE_PRICE)}</span>
-                      <span style={{ fontSize: '14px', color: C.mid, fontWeight: '700', marginLeft: '3px' }}>₫ HT</span>
+                      <span style={{ fontSize: '14px', color: C.mid, fontWeight: '700', marginLeft: '3px' }}>₫ chưa VAT</span>
                     </span>
                   </div>
                 )}
@@ -193,14 +193,14 @@ export default function Abonnement() {
                 style={{ width: '100%', padding: '14px', borderRadius: '12px', background: C.red, color: C.white, fontWeight: '700', fontSize: '16px', border: 'none', cursor: 'pointer', fontFamily: "'Be Vietnam Pro', sans-serif" }}
               >
                 {finalPrice === 0
-                  ? 'Activer mon abonnement →'
-                  : `Payer ${formatVND(finalPrice)} ₫ →`}
+                  ? 'Kích hoạt thuê bao →'
+                  : `Thanh toán ${formatVND(finalPrice)} ₫ →`}
               </button>
 
               {/* Code d'activation discret */}
               {!appliedCode && !showCode && (
                 <p style={{ textAlign: 'center', marginTop: '16px' }}>
-                  <span onClick={() => setShowCode(true)} style={{ fontSize: '12px', color: C.mid, cursor: 'pointer', textDecoration: 'underline' }}>Code d'activation</span>
+                  <span onClick={() => setShowCode(true)} style={{ fontSize: '12px', color: C.mid, cursor: 'pointer', textDecoration: 'underline' }}>Mã kích hoạt</span>
                 </p>
               )}
               {!appliedCode && showCode && (
@@ -210,7 +210,7 @@ export default function Abonnement() {
                     value={code}
                     onChange={e => setCode(e.target.value.toUpperCase())}
                     onKeyDown={e => { if (e.key === 'Enter') handleValidate() }}
-                    placeholder="Entrez votre code"
+                    placeholder="Nhập mã của bạn"
                     disabled={validating}
                     style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: `1px solid ${C.border}`, fontSize: '14px', color: C.dark, outline: 'none', boxSizing: 'border-box', fontFamily: "'Be Vietnam Pro', sans-serif", textTransform: 'uppercase', letterSpacing: '2px' }}
                   />
@@ -218,7 +218,7 @@ export default function Abonnement() {
                     onClick={handleValidate}
                     disabled={validating}
                     style={{ width: '100%', marginTop: '8px', padding: '10px', borderRadius: '8px', background: validating ? C.mid : C.dark, color: C.white, fontWeight: '600', fontSize: '14px', border: 'none', cursor: validating ? 'wait' : 'pointer', fontFamily: "'Be Vietnam Pro', sans-serif" }}
-                  >{validating ? 'Vérification…' : 'Appliquer'}</button>
+                  >{validating ? 'Đang kiểm tra…' : 'Áp dụng'}</button>
                   {codeMsg && (
                     <p style={{ fontSize: '12px', color: codeMsgType === 'success' ? '#16a34a' : C.red, textAlign: 'center', marginTop: '8px', fontWeight: codeMsgType === 'success' ? '600' : '400' }}>
                       {codeMsg}
@@ -228,7 +228,7 @@ export default function Abonnement() {
               )}
 
               <p style={{ textAlign: 'center', fontSize: '12px', color: C.mid, marginTop: '12px' }}>
-                Paiement sécurisé
+                Thanh toán an toàn
               </p>
             </div>
           </div>

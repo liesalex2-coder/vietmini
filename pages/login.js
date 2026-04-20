@@ -34,7 +34,7 @@ export default function Login() {
     e.preventDefault()
     setError(''); setLoading(true)
     const { error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) { setError('Email ou mot de passe incorrect.'); setLoading(false) }
+    if (error) { setError('Email hoặc mật khẩu không đúng.'); setLoading(false) }
     else { router.push('/dashboard') }
   }
 
@@ -48,7 +48,7 @@ export default function Login() {
   return (
     <>
       <Head>
-        <title>Connexion — VietMini</title>
+        <title>Đăng nhập — VietMini</title>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet" />
       </Head>
@@ -62,33 +62,33 @@ export default function Login() {
           </div>
 
           <div style={{ background: '#fff', borderRadius: '16px', padding: '40px', boxShadow: '0 4px 24px rgba(26,10,0,0.08)' }}>
-            <h1 style={{ fontSize: '22px', fontWeight: '700', color: '#1A0A00', margin: '0 0 8px' }}>Connexion</h1>
-            <p style={{ fontSize: '14px', color: '#7A4A2A', margin: '0 0 24px' }}>Accédez à votre tableau de bord</p>
+            <h1 style={{ fontSize: '22px', fontWeight: '700', color: '#1A0A00', margin: '0 0 8px' }}>Đăng nhập</h1>
+            <p style={{ fontSize: '14px', color: '#7A4A2A', margin: '0 0 24px' }}>Truy cập bảng điều khiển của bạn</p>
 
             {/* Google */}
             <button onClick={signInWithGoogle} style={{ width: '100%', padding: '11px', borderRadius: '8px', border: '1px solid #e5d9ce', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', fontSize: '14px', fontWeight: '600', color: '#1A0A00', cursor: 'pointer', marginBottom: '16px', fontFamily: "'Be Vietnam Pro', sans-serif" }}>
-              <GoogleIcon /> Continuer avec Google
+              <GoogleIcon /> Tiếp tục với Google
             </button>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
               <div style={{ flex: 1, height: '1px', background: '#e5d9ce' }} />
-              <span style={{ fontSize: '12px', color: '#7A4A2A' }}>ou</span>
+              <span style={{ fontSize: '12px', color: '#7A4A2A' }}>hoặc</span>
               <div style={{ flex: 1, height: '1px', background: '#e5d9ce' }} />
             </div>
 
             <form onSubmit={handleSubmit}>
-              <div style={{ marginBottom: '16px' }}><label style={lbl}>Email</label><input type="email" value={email} onChange={e => setEmail(e.target.value)} required placeholder="votre@email.com" style={inp} /></div>
-              <div style={{ marginBottom: '24px' }}><label style={lbl}>Mot de passe</label><input type="password" value={password} onChange={e => setPassword(e.target.value)} required placeholder="••••••••" style={inp} /></div>
+              <div style={{ marginBottom: '16px' }}><label style={lbl}>Email</label><input type="email" value={email} onChange={e => setEmail(e.target.value)} required placeholder="ban@email.com" style={inp} /></div>
+              <div style={{ marginBottom: '24px' }}><label style={lbl}>Mật khẩu</label><input type="password" value={password} onChange={e => setPassword(e.target.value)} required placeholder="••••••••" style={inp} /></div>
               {error && <div style={{ background: '#fff0f0', border: '1px solid #ffcccc', borderRadius: '8px', padding: '10px 14px', fontSize: '13px', color: '#D0021B', marginBottom: '16px' }}>{error}</div>}
               <button type="submit" disabled={loading} style={{ width: '100%', padding: '12px', borderRadius: '8px', background: loading ? '#e5d9ce' : '#D0021B', color: '#fff', fontWeight: '700', fontSize: '15px', border: 'none', cursor: loading ? 'default' : 'pointer', fontFamily: "'Be Vietnam Pro', sans-serif" }}>
-                {loading ? 'Connexion…' : 'Se connecter'}
+                {loading ? 'Đang đăng nhập…' : 'Đăng nhập'}
               </button>
             </form>
           </div>
 
           <p style={{ textAlign: 'center', fontSize: '14px', color: '#7A4A2A', marginTop: '24px' }}>
-            Pas encore de compte ?{' '}
-            <Link href="/register" style={{ color: '#D0021B', fontWeight: '600' }}>Créer mon compte</Link>
+            Chưa có tài khoản?{' '}
+            <Link href="/register" style={{ color: '#D0021B', fontWeight: '600' }}>Tạo tài khoản</Link>
           </p>
 
           <LegalFooterLine />
