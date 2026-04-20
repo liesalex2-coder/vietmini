@@ -1045,3 +1045,132 @@ img {
     font-size: 2.4rem;
   }
 }
+/* ============================================================
+   Responsive — site marketing (home + pages Layout)
+   Ces règles sont dans globals.css plutôt que dans
+   <style jsx global> de Layout.js pour garantir leur
+   application en production (évite les edge cases
+   de styled-jsx avec les @media globales).
+   ============================================================ */
+
+@media (max-width: 960px) {
+  section {
+    padding: 72px 24px;
+  }
+  .hero {
+    padding: 60px 24px;
+  }
+  .hero-inner {
+    grid-template-columns: 1fr;
+    gap: 48px;
+  }
+  .hero-visual {
+    display: none;
+  }
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
+  .feature-card.big {
+    grid-column: span 1;
+    grid-template-columns: 1fr;
+  }
+  .steps {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+  .step:first-child {
+    border-radius: 16px 16px 0 0;
+  }
+  .step:last-child {
+    border-radius: 0 0 16px 16px;
+  }
+  .step-arrow {
+    display: none;
+  }
+  nav {
+    padding: 0 24px;
+  }
+  .nav-links {
+    display: none;
+  }
+  footer {
+    padding: 40px 24px;
+  }
+  .cta-final {
+    padding: 72px 24px;
+  }
+  .fichier-grid {
+    grid-template-columns: 1fr;
+  }
+  .fichier-clients,
+  .why-zalo {
+    padding: 72px 24px;
+  }
+  .dashboard-layout {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+  .dash-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  section {
+    padding: 56px 20px;
+  }
+  .hero {
+    padding: 48px 20px;
+  }
+  .hero-tag {
+    font-size: 11px;
+    padding: 5px 14px;
+    margin-bottom: 20px;
+  }
+  h1 {
+    font-size: 32px;
+    line-height: 1.15;
+    letter-spacing: -1px;
+  }
+  h2 {
+    font-size: 26px;
+    line-height: 1.2;
+    letter-spacing: -0.5px;
+  }
+  .hero-sub {
+    font-size: 16px;
+  }
+  .hero-insight {
+    padding: 14px 16px;
+    margin: 20px 0 28px;
+  }
+  .hero-insight p {
+    font-size: 14px;
+  }
+  .hero-cta {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  .btn-hero {
+    padding: 14px 24px;
+    width: 100%;
+    text-align: center;
+    font-size: 15px;
+  }
+  .hero-link {
+    text-align: center;
+  }
+  .feature-card {
+    padding: 24px 20px;
+  }
+  .feature-card h3 {
+    font-size: 18px;
+  }
+  .feature-card p {
+    font-size: 14px;
+  }
+  .nav-actions .btn-ghost {
+    display: none;
+  }
+}

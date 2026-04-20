@@ -2,7 +2,7 @@ import Head from 'next/head';
 import Header from './Header';
 import Footer from './Footer';
 
-export default function Layout({ children, title = 'VietMini — Votre commerce sur Zalo', description = 'VietMini installe votre commerce sur Zalo en quelques minutes.' }) {
+export default function Layout({ children, title = 'VietMini — Cửa hàng của bạn trên Zalo', description = 'VietMini đưa cửa hàng của bạn lên Zalo chỉ trong vài phút.' }) {
   return (
     <>
       <Head>
@@ -293,34 +293,8 @@ export default function Layout({ children, title = 'VietMini — Votre commerce 
         .dash-footer-txt { font-size: 10px; color: var(--mid); }
         .dash-footer-btn { padding: 6px 14px; font-size: 10px; font-weight: 700; background: linear-gradient(135deg, var(--red), var(--orange)); color: white; border: none; border-radius: 6px; cursor: pointer; }
 
-        @media (max-width: 960px) {
-          nav { padding: 0 24px; }
-          .nav-links { display: none; }
-          .hero-inner { grid-template-columns: 1fr; }
-          .hero-visual { display: none; }
-          .steps { grid-template-columns: 1fr; gap: 4px; }
-          .step:first-child { border-radius: 16px 16px 0 0; }
-          .step:last-child { border-radius: 0 0 16px 16px; }
-          .step-arrow { display: none; }
-          .features-grid { grid-template-columns: 1fr; }
-          .feature-card.big { grid-column: span 1; grid-template-columns: 1fr; }
-          .fichier-grid { grid-template-columns: 1fr; }
-          .fichier-clients { padding: 72px 24px; }
-          .why-zalo { padding: 72px 24px; }
-          section { padding: 72px 24px; }
-          .hero { padding: 60px 24px; }
-          .cta-final { padding: 72px 24px; }
-          footer { padding: 40px 24px; }
-          .dashboard-layout { grid-template-columns: 1fr; gap: 40px; }
-          .dash-grid { grid-template-columns: repeat(2, 1fr); }
-        }
-        @media (max-width: 600px) {
-          .demos-grid { grid-template-columns: 1fr; }
-          .nav-actions .btn-ghost { display: none; }
-          .dash-grid { grid-template-columns: repeat(2, 1fr); }
-        }
-
-
+        /* Responsive déplacé dans styles/globals.css pour fiabilité
+           (évite edge cases styled-jsx avec @media globales) */
       `}</style>
       <Header />
       {children}

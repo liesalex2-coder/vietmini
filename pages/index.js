@@ -46,8 +46,8 @@ export default function Home() {
             <div className="feature-card big">
               <div>
                 <div className="feature-icon">🏪</div>
-                <h3>Votre page Zalo,<br />à votre image.</h3>
-                <p>Vos clients vous trouvent sur Zalo. Ils voient votre nom, vos services, vos tarifs, vos photos. Ils peuvent vous contacter en un tap. C&rsquo;est votre commerce dans la poche de chacun de vos clients, sans qu&rsquo;ils aient rien à télécharger.</p>
+                <h3>Trang Zalo của bạn,<br />đúng phong cách của bạn.</h3>
+                <p>Khách hàng tìm thấy bạn trên Zalo. Họ thấy tên, dịch vụ, bảng giá, hình ảnh của bạn. Họ có thể liên hệ chỉ bằng một chạm. Cửa hàng của bạn nằm gọn trong điện thoại của từng khách hàng, không cần tải gì cả.</p>
               </div>
               <div className="feature-visual">
                 <div style={{fontSize:'11px',fontWeight:800,color:'var(--red)',textTransform:'uppercase',letterSpacing:'1px',marginBottom:'10px'}}>Bella Salon — Phan Thiết</div>
