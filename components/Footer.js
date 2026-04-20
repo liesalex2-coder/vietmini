@@ -24,7 +24,7 @@ export default function Footer() {
   }
 
   return (
-    <footer style={{ background: '#1A0A00', padding: '56px 48px 24px 48px', fontFamily: "'Be Vietnam Pro', sans-serif" }}>
+    <footer className="site-footer" style={{ background: '#1A0A00', fontFamily: "'Be Vietnam Pro', sans-serif" }}>
 
       {/* 4 colonnes */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '40px', maxWidth: '1200px', margin: '0 auto' }}>

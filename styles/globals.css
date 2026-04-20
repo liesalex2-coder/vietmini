@@ -1173,4 +1173,110 @@ img {
   .nav-actions .btn-ghost {
     display: none;
   }
+  .plan {
+    padding: 32px 20px;
+  }
+  .plan-price .num {
+    font-size: 32px;
+    letter-spacing: -1px;
+  }
+  .step {
+    padding: 24px 20px;
+  }
+}
+
+/* ============================================================
+   Classes utilitaires pour les pages marketing
+   Remplace les styles inline "padding: 80px 48px" pour
+   rendre les pages responsive via du CSS standard.
+   ============================================================ */
+
+/* En-tête de page (hero court avec label + h1 + sous-titre) */
+.page-hero {
+  padding: 80px 48px 48px;
+  text-align: center;
+}
+
+/* Section standard (plan, formulaire, cartes) */
+.page-section {
+  padding: 80px 48px;
+}
+
+/* Section avec plus de bottom (pricing + FAQ, formulaire long) */
+.page-section-lg {
+  padding: 64px 48px 96px;
+}
+
+/* Section compacte (grid de demos) */
+.page-section-sm {
+  padding: 48px;
+}
+
+/* CTA final avec fond dégradé foncé */
+.page-cta-dark {
+  background: linear-gradient(135deg, #2D1200 0%, #4A1800 100%);
+  padding: 100px 48px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.page-cta-dark::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(245,166,35,0.07) 1.5px, transparent 1.5px);
+  background-size: 32px 32px;
+  pointer-events: none;
+}
+
+.page-cta-dark > * {
+  position: relative;
+}
+
+/* Footer marketing */
+.site-footer {
+  padding: 56px 48px 24px;
+}
+
+@media (max-width: 960px) {
+  .page-hero {
+    padding: 60px 24px 36px;
+  }
+  .page-section {
+    padding: 64px 24px;
+  }
+  .page-section-lg {
+    padding: 56px 24px 80px;
+  }
+  .page-section-sm {
+    padding: 40px 24px;
+  }
+  .page-cta-dark {
+    padding: 80px 24px;
+  }
+  .site-footer {
+    padding: 48px 24px 20px;
+  }
+}
+
+@media (max-width: 600px) {
+  .page-hero {
+    padding: 48px 20px 28px;
+  }
+  .page-section {
+    padding: 48px 20px;
+  }
+  .page-section-lg {
+    padding: 44px 20px 64px;
+  }
+  .page-section-sm {
+    padding: 32px 20px;
+  }
+  .page-cta-dark {
+    padding: 64px 20px;
+  }
+  .site-footer {
+    padding: 40px 20px 16px;
+  }
 }

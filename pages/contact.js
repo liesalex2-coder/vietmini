@@ -15,7 +15,7 @@ export default function Contact() {
     <Layout title="Liên hệ — VietMini">
 
       {/* Header */}
-      <div style={{background:'#fff', padding:'80px 48px 48px', textAlign:'center', borderBottom:'1px solid rgba(122,74,42,0.08)'}}>
+      <div className="page-hero" style={{background:'#fff', borderBottom:'1px solid rgba(122,74,42,0.08)'}}>
         <div style={{maxWidth:'700px', margin:'0 auto'}}>
           <div style={{display:'inline-flex', alignItems:'center', gap:'8px', marginBottom:'20px'}}>
             <span style={{display:'block', width:'24px', height:'2px', background:'#D0021B'}}></span>
@@ -27,7 +27,7 @@ export default function Contact() {
       </div>
 
       {/* Formulaire */}
-      <div style={{background:'#FDF6EE', padding:'64px 48px 96px'}}>
+      <div className="page-section-lg" style={{background:'#FDF6EE'}}>
         <div style={{maxWidth:'560px', margin:'0 auto'}}>
           {sent ? (
             <div style={{background:'#fff', borderRadius:'20px', padding:'48px', textAlign:'center', boxShadow:'0 2px 24px rgba(26,10,0,0.06)'}}>

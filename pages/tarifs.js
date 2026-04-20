@@ -12,7 +12,7 @@ export default function Tarifs() {
   return (
     <Layout title="Bảng giá — VietMini">
 
-      <div style={{background:'var(--cream)',padding:'80px 48px 48px',textAlign:'center'}}>
+      <div className="page-hero" style={{background:'var(--cream)'}}>
         <div style={{maxWidth:'700px',margin:'0 auto'}}>
           <div style={{display:'inline-flex',alignItems:'center',gap:'8px',marginBottom:'20px'}}>
             <span style={{display:'block',width:'24px',height:'2px',background:'var(--red)'}}></span>
@@ -23,7 +23,7 @@ export default function Tarifs() {
         </div>
       </div>
 
-      <section style={{padding:'64px 48px 96px',background:'var(--cream-2)'}}>
+      <section className="page-section-lg" style={{background:'var(--cream-2)'}}>
         <div style={{maxWidth:'520px',margin:'0 auto'}}>
           <div className="plan plan-popular" style={{textAlign:'center'}}>
             <div className="plan-name">Thuê bao hằng năm</div>
@@ -57,9 +57,8 @@ export default function Tarifs() {
         </div>
       </section>
 
-      <div style={{background:'linear-gradient(135deg,#2D1200 0%,#4A1800 100%)',padding:'100px 48px',textAlign:'center',position:'relative',overflow:'hidden'}}>
-        <div style={{position:'absolute',inset:0,backgroundImage:'radial-gradient(circle, rgba(245,166,35,0.07) 1.5px, transparent 1.5px)',backgroundSize:'32px 32px',pointerEvents:'none'}}></div>
-        <div style={{position:'relative'}}>
+      <div className="page-cta-dark">
+        <div>
           <h2 style={{color:'white',marginBottom:'16px',fontSize:'clamp(28px,3.5vw,48px)',fontWeight:900,letterSpacing:'-1px',lineHeight:1.1}}>Khách hàng của bạn đang trên Zalo. Hãy đến với họ.</h2>
           <p style={{fontSize:'18px',color:'rgba(255,255,255,0.45)',marginBottom:'44px'}}>Trang Zalo của bạn sẵn sàng trong chưa đầy 5 phút.</p>
           <a href="/register" className="btn-hero" style={{display:'inline-block'}}>Tạo tài khoản miễn phí &rarr;</a>
