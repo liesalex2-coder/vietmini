@@ -27,7 +27,7 @@ export default function Footer() {
     <footer className="site-footer" style={{ background: '#1A0A00', fontFamily: "'Be Vietnam Pro', sans-serif" }}>
 
       {/* 4 colonnes */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '40px', maxWidth: '1200px', margin: '0 auto' }}>
+      <div className="footer-grid" style={{ maxWidth: '1200px', margin: '0 auto' }}>
 
         {/* Colonne 1 : Về VietMini */}
         <div>

@@ -1527,6 +1527,13 @@ footer { background: var(--dark); padding: 44px 48px; display: flex; align-items
   padding: 56px 48px 24px;
 }
 
+/* Grille des 4 colonnes du footer */
+.footer-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 40px;
+}
+
 @media (max-width: 960px) {
   .page-hero {
     padding: 60px 24px 36px;
@@ -1545,6 +1552,10 @@ footer { background: var(--dark); padding: 44px 48px; display: flex; align-items
   }
   .site-footer {
     padding: 48px 24px 20px;
+  }
+  .footer-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 32px;
   }
 }
 
@@ -1566,5 +1577,8 @@ footer { background: var(--dark); padding: 44px 48px; display: flex; align-items
   }
   .site-footer {
     padding: 40px 20px 16px;
+  }
+  .footer-grid {
+    gap: 24px;
   }
 }
