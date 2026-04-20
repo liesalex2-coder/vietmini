@@ -23,21 +23,21 @@ const C = {
 }
 
 const TABS = [
-  { id: 'apercu',     icon: '📊', label: 'Aperçu' },
-  { id: 'profil',     icon: '🏪', label: 'Ma page' },
+  { id: 'apercu',     icon: '📊', label: 'Tổng quan' },
+  { id: 'profil',     icon: '🏪', label: 'Trang của tôi' },
   { id: 'marketing',  icon: '🎯', label: 'Marketing' },
-  { id: 'avis',       icon: '⭐', label: 'Avis' },
-  { id: 'contacts',   icon: '👥', label: 'Contacts' },
-  { id: 'diffusions', icon: '📢', label: 'Diffusions' },
+  { id: 'avis',       icon: '⭐', label: 'Đánh giá' },
+  { id: 'contacts',   icon: '👥', label: 'Khách hàng' },
+  { id: 'diffusions', icon: '📢', label: 'Gửi tin' },
 ]
 
 const MARKETING_TABS = [
-  { id: 'roue',       label: '🎡 Roue' },
+  { id: 'roue',       label: '🎡 Vòng quay' },
   { id: 'flash',      label: '⚡ Flash sale' },
-  { id: 'fidelite',   label: '⭐ Fidélité' },
-  { id: 'parrainage', label: '🤝 Parrainage' },
-  { id: 'coupons',    label: '🎟 Coupons' },
-  { id: 'bienvenue',  label: '🎁 Bienvenue' },
+  { id: 'fidelite',   label: '⭐ Thân thiết' },
+  { id: 'parrainage', label: '🤝 Giới thiệu' },
+  { id: 'coupons',    label: '🎟 Mã giảm giá' },
+  { id: 'bienvenue',  label: '🎁 Chào mừng' },
 ]
 
 // ─── Compression WebP qualité 82 ─────────────────────────────
@@ -82,7 +82,7 @@ function Btn({ onClick, children, variant = 'primary', small, disabled, style })
   const variants = { primary: { background: C.red, color: C.white }, secondary: { background: C.bg, color: C.dark }, danger: { background: '#fff0f0', color: C.red }, ghost: { background: 'transparent', color: C.mid, border: `1px solid ${C.border}` } }
   return <button onClick={onClick} disabled={disabled} style={{ ...base, ...variants[variant], opacity: disabled ? 0.5 : 1 }}>{children}</button>
 }
-function SaveBtn({ onClick, children = 'Enregistrer', small, style }) {
+function SaveBtn({ onClick, children = 'Lưu', small, style }) {
   const [state, setState] = React.useState('idle')
   async function handle() {
     setState('saving')
@@ -91,7 +91,7 @@ function SaveBtn({ onClick, children = 'Enregistrer', small, style }) {
     setTimeout(() => setState('idle'), 2000)
   }
   const bg = state === 'saved' ? '#16a34a' : C.red
-  const label = state === 'saving' ? 'Enregistrement…' : state === 'saved' ? '✓ Enregistré' : children
+  const label = state === 'saving' ? 'Đang lưu…' : state === 'saved' ? '✓ Đã lưu' : children
   return <button onClick={handle} disabled={state === 'saving'} style={{ padding: small ? '7px 14px' : '10px 20px', borderRadius: '8px', fontWeight: '600', fontSize: small ? '13px' : '14px', border: 'none', cursor: state === 'saving' ? 'default' : 'pointer', fontFamily: "'Be Vietnam Pro', sans-serif", background: bg, color: C.white, transition: 'background .3s', ...style }}>{label}</button>
 }
 function Toggle({ enabled, onToggle }) {
@@ -132,9 +132,9 @@ function SectionApercu({ merchant, contacts, broadcasts, onChangeVertical }) {
   const thisMonth = contacts.filter(c => { const d = new Date(c.captured_at); return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear() }).length
   return (
     <div>
-      <SectionTitle>Vue d'ensemble</SectionTitle>
+      <SectionTitle>Tổng quan</SectionTitle>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '24px' }}>
-        {[{ label: 'Contacts total', value: contacts.length, icon: '👥' }, { label: 'Nouveaux ce mois', value: thisMonth, icon: '✨' }, { label: 'Diffusions envoyées', value: broadcasts.length, icon: '📢' }].map(s => (
+        {[{ label: 'Tổng số khách hàng', value: contacts.length, icon: '👥' }, { label: 'Mới trong tháng', value: thisMonth, icon: '✨' }, { label: 'Tin đã gửi', value: broadcasts.length, icon: '📢' }].map(s => (
           <Card key={s.label}><div style={{ fontSize: '28px', marginBottom: '8px' }}>{s.icon}</div><div style={{ fontSize: '32px', fontWeight: '700', color: C.dark }}>{s.value}</div><div style={{ fontSize: '13px', color: C.mid, marginTop: '4px' }}>{s.label}</div></Card>
         ))}
       </div>
@@ -143,11 +143,11 @@ function SectionApercu({ merchant, contacts, broadcasts, onChangeVertical }) {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
               <div style={{ width: '52px', height: '52px', borderRadius: '12px', background: merchant.primary_color || C.red, display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.white, fontWeight: '700', fontSize: '22px' }}>{(merchant.name || '?')[0]}</div>
-              <div><div style={{ fontWeight: '700', fontSize: '16px', color: C.dark }}>{merchant.name || 'Mon établissement'}</div><div style={{ fontSize: '13px', color: C.mid }}>{merchant.vertical || '—'}</div></div>
+              <div><div style={{ fontWeight: '700', fontSize: '16px', color: C.dark }}>{merchant.name || 'Cửa hàng của tôi'}</div><div style={{ fontSize: '13px', color: C.mid }}>{merchant.vertical || '—'}</div></div>
             </div>
             <div style={{ display: 'flex', gap: '8px' }}>
               <Btn variant="primary" small onClick={() => window.open(`/preview/${merchant.id}`, '_blank')}>👁 Voir mon app</Btn>
-              <Btn variant="ghost" small onClick={onChangeVertical}>Changer d'activité →</Btn>
+              <Btn variant="ghost" small onClick={onChangeVertical}>Đổi ngành nghề →</Btn>
             </div>
           </div>
         </Card>
@@ -158,9 +158,9 @@ function SectionApercu({ merchant, contacts, broadcasts, onChangeVertical }) {
 
 // ─── Section Profil ───────────────────────────────────────────
 const PROFIL_TABS = [
-  { id: 'infos',    label: '📋 Infos' },
-  { id: 'hero',     label: '🖼 Photo d\'accueil' },
-  { id: 'services', label: '✂️ Services' },
+  { id: 'infos',    label: '📋 Thông tin' },
+  { id: 'hero',     label: '🖼 Ảnh trang chính' },
+  { id: 'services', label: '✂️ Dịch vụ' },
 ]
 
 function ProfilNav({ active, onSelect }) {
@@ -182,29 +182,29 @@ function SubInfos({ merchant, onSave }) {
   return (
     <Card>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-        <FieldGroup label="Nom"><Input value={form.name} onChange={f('name')} placeholder="Bella Beauty Salon" /></FieldGroup>
-        <FieldGroup label="Type"><Input value={form.vertical} onChange={f('vertical')} placeholder="Salon de beauté" /></FieldGroup>
+        <FieldGroup label="Tên"><Input value={form.name} onChange={f('name')} placeholder="Bella Beauty Salon" /></FieldGroup>
+        <FieldGroup label="Loại"><Input value={form.vertical} onChange={f('vertical')} placeholder="Salon làm đẹp" /></FieldGroup>
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-        <FieldGroup label="Téléphone"><Input value={form.phone} onChange={f('phone')} placeholder="0901 234 567" /></FieldGroup>
-        <FieldGroup label="Adresse"><Input value={form.address} onChange={f('address')} placeholder="123 Đường Lê Lợi" /></FieldGroup>
+        <FieldGroup label="Số điện thoại"><Input value={form.phone} onChange={f('phone')} placeholder="0901 234 567" /></FieldGroup>
+        <FieldGroup label="Địa chỉ"><Input value={form.address} onChange={f('address')} placeholder="123 Đường Lê Lợi" /></FieldGroup>
       </div>
-      <FieldGroup label="Horaires"><Input value={form.hours} onChange={f('hours')} placeholder="Lun–Sam : 8h–20h" /></FieldGroup>
+      <FieldGroup label="Giờ mở cửa"><Input value={form.hours} onChange={f('hours')} placeholder="T2–T7: 8h–20h" /></FieldGroup>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
-        <FieldGroup label="Couleur principale">
+        <FieldGroup label="Màu chính">
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
             <input type="color" value={form.primary_color || '#D0021B'} onChange={f('primary_color')} style={{ width: '40px', height: '36px', borderRadius: '6px', border: `1px solid ${C.border}`, cursor: 'pointer', padding: '2px' }} />
             <Input value={form.primary_color || '#D0021B'} onChange={f('primary_color')} style={{ flex: 1 }} />
           </div>
         </FieldGroup>
-        <FieldGroup label="Couleur secondaire">
+        <FieldGroup label="Màu phụ">
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
             <input type="color" value={form.secondary_color || '#F5A623'} onChange={f('secondary_color')} style={{ width: '40px', height: '36px', borderRadius: '6px', border: `1px solid ${C.border}`, cursor: 'pointer', padding: '2px' }} />
             <Input value={form.secondary_color || '#F5A623'} onChange={f('secondary_color')} style={{ flex: 1 }} />
           </div>
         </FieldGroup>
       </div>
-      <SaveBtn onClick={() => onSave(form)}>Enregistrer les modifications</SaveBtn>
+      <SaveBtn onClick={() => onSave(form)}>Lưu thay đổi</SaveBtn>
     </Card>
   )
 }
@@ -217,7 +217,7 @@ function SubHero({ merchant, onSave }) {
   async function handleFile(e) {
     const file = e.target.files[0]
     if (!file) return
-    if (file.size > 5 * 1024 * 1024) { alert('Fichier trop lourd (max 5 Mo)'); return }
+    if (file.size > 5 * 1024 * 1024) { alert('File quá nặng (tối đa 5 MB)'); return }
     setUploading(true)
     const base64 = await compressToWebP(file, 1200)
     setPreview(base64)
@@ -227,8 +227,8 @@ function SubHero({ merchant, onSave }) {
 
   return (
     <Card>
-      <div style={{ fontWeight: '700', fontSize: '15px', color: C.dark, marginBottom: '6px' }}>Photo d'accueil</div>
-      <div style={{ fontSize: '13px', color: C.mid, marginBottom: '20px' }}>Cette photo s'affiche en bannière principale dans votre app. Format recommandé : 800×400px.</div>
+      <div style={{ fontWeight: '700', fontSize: '15px', color: C.dark, marginBottom: '6px' }}>Ảnh trang chính</div>
+      <div style={{ fontSize: '13px', color: C.mid, marginBottom: '20px' }}>Ảnh này sẽ hiển thị làm banner chính trên app của bạn. Định dạng khuyên dùng: 800×400px.</div>
       {preview ? (
         <div style={{ marginBottom: '16px' }}>
           <img src={preview} alt="Hero" style={{ width: '100%', maxHeight: '220px', objectFit: 'cover', borderRadius: '10px', border: `1px solid ${C.border}` }} />
@@ -239,7 +239,7 @@ function SubHero({ merchant, onSave }) {
         </div>
       )}
       <input ref={fileRef} type="file" accept="image/*" onChange={handleFile} style={{ display: 'none' }} />
-      <Btn onClick={() => fileRef.current.click()} disabled={uploading}>{uploading ? 'Envoi…' : preview ? '🔄 Changer la photo' : '📷 Uploader une photo'}</Btn>
+      <Btn onClick={() => fileRef.current.click()} disabled={uploading}>{uploading ? 'Đang gửi…' : preview ? '🔄 Changer la photo' : '📷 Uploader une photo'}</Btn>
     </Card>
   )
 }
@@ -279,24 +279,24 @@ function SectionServices({ merchantId, toast }) {
   function openEdit(s) { setForm({ name: s.name, price: s.price, description: s.description, category: s.category || '', image_base64: s.image_base64 || '', active: s.active }); setEditing(s.id); setShowForm(true) }
 
   async function save() {
-    if (!form.name) { toast('Nom requis', false); return }
-    if (!await moderate([form.name, form.description])) { toast('Contenu non autorisé', false); return }
+    if (!form.name) { toast('Yêu cầu tên', false); return }
+    if (!await moderate([form.name, form.description])) { toast('Nội dung không được phép', false); return }
     if (editing) { await supabase.from('services').update({ ...form, price: parseInt(form.price) || 0 }).eq('id', editing) }
     else { await supabase.from('services').insert({ ...form, price: parseInt(form.price) || 0, merchant_id: merchantId, display_order: services.length }) }
-    setShowForm(false); load(); toast('Service enregistré', true)
+    setShowForm(false); load(); toast('Đã lưu dịch vụ', true)
   }
-  async function remove(id) { if (!confirm('Supprimer ?')) return; await supabase.from('services').delete().eq('id', id); load(); toast('Supprimé', true) }
+  async function remove(id) { if (!confirm('Xóa?')) return; await supabase.from('services').delete().eq('id', id); load(); toast('Đã xóa', true) }
   async function toggleActive(s) { await supabase.from('services').update({ active: !s.active }).eq('id', s.id); load() }
 
   async function addCategory() {
     if (!newCat.trim()) return
-    if (!await moderate([newCat.trim()])) { toast('Contenu non autorisé', false); return }
+    if (!await moderate([newCat.trim()])) { toast('Nội dung không được phép', false); return }
     await supabase.from('service_categories').insert({ merchant_id: merchantId, name: newCat.trim(), display_order: categories.length })
-    setNewCat(''); setShowCatForm(false); load(); toast('Catégorie ajoutée', true)
+    setNewCat(''); setShowCatForm(false); load(); toast('Đã thêm danh mục', true)
   }
   async function removeCategory(id) {
-    if (!confirm('Supprimer cette catégorie ?')) return
-    await supabase.from('service_categories').delete().eq('id', id); load(); toast('Catégorie supprimée', true)
+    if (!confirm('Xóa danh mục này?')) return
+    await supabase.from('service_categories').delete().eq('id', id); load(); toast('Đã xóa danh mục', true)
   }
 
   const f = field => e => setForm(p => ({ ...p, [field]: e.target.value }))
@@ -318,7 +318,7 @@ function SectionServices({ merchantId, toast }) {
           {s.description && <div style={{ fontSize: '12px', color: C.mid, marginTop: '2px' }}>{s.description}</div>}
         </div>
         <div style={{ fontWeight: '700', color: C.dark, fontSize: '14px', whiteSpace: 'nowrap' }}>{s.price ? s.price.toLocaleString('vi-VN') + ' ₫' : '—'}</div>
-        <div style={{ padding: '3px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: '600', background: s.active ? '#f0fff4' : '#f5f5f5', color: s.active ? '#1a6b3a' : C.mid, cursor: 'pointer' }} onClick={() => toggleActive(s)}>{s.active ? 'Actif' : 'Masqué'}</div>
+        <div style={{ padding: '3px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: '600', background: s.active ? '#f0fff4' : '#f5f5f5', color: s.active ? '#1a6b3a' : C.mid, cursor: 'pointer' }} onClick={() => toggleActive(s)}>{s.active ? 'Đang hoạt động' : 'Ẩn'}</div>
         <Btn variant="ghost" small onClick={() => openEdit(s)}>✏️</Btn>
         <Btn variant="danger" small onClick={() => remove(s.id)}>🗑</Btn>
       </Card>
@@ -329,9 +329,9 @@ function SectionServices({ merchantId, toast }) {
     <div>
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <SectionTitle>Services</SectionTitle>
+        <SectionTitle>Dịch vụ</SectionTitle>
         <div style={{ display: 'flex', gap: '8px' }}>
-          <Btn variant="ghost" small onClick={() => setShowCatForm(v => !v)}>+ Catégorie</Btn>
+          <Btn variant="ghost" small onClick={() => setShowCatForm(v => !v)}>+ Danh mục</Btn>
           <Btn onClick={openNew}>+ Service</Btn>
         </div>
       </div>
@@ -339,11 +339,11 @@ function SectionServices({ merchantId, toast }) {
       {/* Formulaire nouvelle catégorie */}
       {showCatForm && (
         <Card style={{ marginBottom: '16px', border: `1px solid ${C.border}` }}>
-          <div style={{ fontWeight: '700', color: C.dark, marginBottom: '12px' }}>Nouvelle catégorie</div>
+          <div style={{ fontWeight: '700', color: C.dark, marginBottom: '12px' }}>Danh mục mới</div>
           <div style={{ display: 'flex', gap: '8px' }}>
-            <Input value={newCat} onChange={e => setNewCat(e.target.value)} placeholder="Ex : Coiffure, Ongles, Soins…" style={{ flex: 1 }} />
-            <Btn onClick={addCategory}>Ajouter</Btn>
-            <Btn variant="ghost" onClick={() => setShowCatForm(false)}>Annuler</Btn>
+            <Input value={newCat} onChange={e => setNewCat(e.target.value)} placeholder="Ví dụ: Cắt tóc, Nail, Chăm sóc…" style={{ flex: 1 }} />
+            <Btn onClick={addCategory}>Thêm</Btn>
+            <Btn variant="ghost" onClick={() => setShowCatForm(false)}>Hủy</Btn>
           </div>
           {/* Liste des catégories existantes */}
           {categories.length > 0 && (
@@ -362,44 +362,44 @@ function SectionServices({ merchantId, toast }) {
       {/* Formulaire nouveau/modifier service */}
       {showForm && (
         <Card style={{ marginBottom: '16px', border: `1px solid ${C.border}` }}>
-          <div style={{ fontWeight: '700', color: C.dark, marginBottom: '16px' }}>{editing ? 'Modifier' : 'Nouveau service'}</div>
+          <div style={{ fontWeight: '700', color: C.dark, marginBottom: '16px' }}>{editing ? 'Chỉnh sửa' : 'Dịch vụ mới'}</div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
-            <FieldGroup label="Nom"><Input value={form.name} onChange={f('name')} placeholder="Coupe femme" /></FieldGroup>
-            <FieldGroup label="Prix (₫)"><Input value={form.price} onChange={f('price')} placeholder="150000" type="number" /></FieldGroup>
-            <FieldGroup label="Catégorie">
+            <FieldGroup label="Tên"><Input value={form.name} onChange={f('name')} placeholder="Cắt tóc nữ" /></FieldGroup>
+            <FieldGroup label="Giá (₫)"><Input value={form.price} onChange={f('price')} placeholder="150000" type="number" /></FieldGroup>
+            <FieldGroup label="Danh mục">
               {categories.length > 0 ? (
                 <select value={form.category} onChange={f('category')} style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: `1px solid ${C.border}`, fontSize: '14px', color: C.dark, outline: 'none', fontFamily: "'Be Vietnam Pro', sans-serif" }}>
-                  <option value="">Sans catégorie</option>
+                  <option value="">Không có danh mục</option>
                   {categories.map(cat => <option key={cat.id} value={cat.name}>{cat.name}</option>)}
                 </select>
               ) : (
-                <div style={{ fontSize: '12px', color: C.mid, paddingTop: '10px' }}>Aucune catégorie — créez-en une d'abord</div>
+                <div style={{ fontSize: '12px', color: C.mid, paddingTop: '10px' }}>Chưa có danh mục — hãy tạo một danh mục trước</div>
               )}
             </FieldGroup>
           </div>
-          <FieldGroup label="Description"><Textarea value={form.description} onChange={f('description')} placeholder="Description courte…" rows={2} /></FieldGroup>
-          <FieldGroup label="Photo du service">
+          <FieldGroup label="Mô tả"><Textarea value={form.description} onChange={f('description')} placeholder="Mô tả ngắn…" rows={2} /></FieldGroup>
+          <FieldGroup label="Ảnh dịch vụ">
             <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
               {form.image_base64 && <img src={form.image_base64} alt="" style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px', border: `1px solid ${C.border}` }} />}
               <label style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '8px', border: `1px solid ${C.border}`, cursor: 'pointer', fontSize: '13px', color: C.mid, background: C.white }}>
-                📷 {form.image_base64 ? 'Changer' : 'Ajouter une photo'}
+                📷 {form.image_base64 ? 'Đổi' : 'Thêm ảnh'}
                 <input type="file" accept="image/*" style={{ display: 'none' }} onChange={async e => {
                   const file = e.target.files[0]; if (!file) return
                   const base64 = await compressToWebP(file, 400)
                   setForm(p => ({ ...p, image_base64: base64 }))
                 }} />
               </label>
-              {form.image_base64 && <span onClick={() => setForm(p => ({ ...p, image_base64: '' }))} style={{ fontSize: '12px', color: C.red, cursor: 'pointer' }}>Supprimer</span>}
+              {form.image_base64 && <span onClick={() => setForm(p => ({ ...p, image_base64: '' }))} style={{ fontSize: '12px', color: C.red, cursor: 'pointer' }}>Xóa</span>}
             </div>
           </FieldGroup>
-          <div style={{ display: 'flex', gap: '8px' }}><SaveBtn onClick={save} /><Btn variant="ghost" onClick={() => setShowForm(false)}>Annuler</Btn></div>
+          <div style={{ display: 'flex', gap: '8px' }}><SaveBtn onClick={save} /><Btn variant="ghost" onClick={() => setShowForm(false)}>Hủy</Btn></div>
         </Card>
       )}
 
-      {loading ? <div style={{ color: C.mid }}>Chargement…</div> : services.length === 0 ? (
+      {loading ? <div style={{ color: C.mid }}>Đang tải…</div> : services.length === 0 ? (
         <Card style={{ textAlign: 'center', color: C.mid }}>
           <div style={{ fontSize: '32px', marginBottom: '8px' }}>✂️</div>
-          <div>Aucun service. Commencez par créer une catégorie puis ajoutez vos services.</div>
+          <div>Chưa có dịch vụ. Hãy bắt đầu bằng cách tạo một danh mục rồi thêm dịch vụ.</div>
         </Card>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -410,7 +410,7 @@ function SectionServices({ merchantId, toast }) {
                 {cat.image_base64 ? (
                   <img src={cat.image_base64} alt={cat.name} style={{ width: '36px', height: '36px', objectFit: 'cover', borderRadius: '6px', border: `1px solid ${C.border}` }} />
                 ) : (
-                  <label style={{ width: '36px', height: '36px', borderRadius: '6px', border: `2px dashed ${C.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '16px', flexShrink: 0, background: C.bg }} title="Ajouter une photo de catégorie">
+                  <label style={{ width: '36px', height: '36px', borderRadius: '6px', border: `2px dashed ${C.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '16px', flexShrink: 0, background: C.bg }} title="Thêm ảnh danh mục">
                     📷
                     <input type="file" accept="image/*" style={{ display: 'none' }} onChange={async e => {
                       const file = e.target.files[0]; if (!file) return
@@ -422,7 +422,7 @@ function SectionServices({ merchantId, toast }) {
                 )}
                 <div style={{ fontSize: '13px', fontWeight: '700', color: C.mid, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{cat.name}</div>
                 {cat.image_base64 && (
-                  <label style={{ cursor: 'pointer', fontSize: '11px', color: C.mid }} title="Changer la photo">
+                  <label style={{ cursor: 'pointer', fontSize: '11px', color: C.mid }} title="Đổi ảnh">
                     ✏️
                     <input type="file" accept="image/*" style={{ display: 'none' }} onChange={async e => {
                       const file = e.target.files[0]; if (!file) return
@@ -442,7 +442,7 @@ function SectionServices({ merchantId, toast }) {
           {uncategorized.length > 0 && (
             <div>
               <div style={{ fontSize: '13px', fontWeight: '700', color: C.mid, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px', paddingLeft: '4px' }}>
-                Sans catégorie
+                Không có danh mục
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                 {uncategorized.map(s => <ServiceRow key={s.id} s={s} />)}
@@ -464,14 +464,14 @@ function SubRoue({ merchantId, toast }) {
   async function toggleEnabled() {
     const updated = { ...config, enabled: !config.enabled }
     await supabase.from('wheel_config').update({ enabled: updated.enabled }).eq('id', config.id)
-    setConfig(updated); toast(updated.enabled ? 'Roue activée' : 'Roue désactivée', true)
+    setConfig(updated); toast(updated.enabled ? 'Đã bật vòng quay' : 'Đã tắt vòng quay', true)
   }
   async function updatePrize(i, field, value) {
     const prizes = [...(config.prizes || [])]; prizes[i] = { ...prizes[i], [field]: value }
     setConfig({ ...config, prizes })
   }
   async function addPrize() {
-    const prizes = [...(config.prizes || []), { label: 'Nouveau lot', color: C.red }]
+    const prizes = [...(config.prizes || []), { label: 'Đợt mới', color: C.red }]
     setConfig({ ...config, prizes })
   }
   async function removePrize(i) {
@@ -480,20 +480,20 @@ function SubRoue({ merchantId, toast }) {
   }
   async function savePrizes() {
     const labels = (config.prizes || []).map(p => p.label)
-    if (!await moderate(labels)) { toast('Contenu non autorisé', false); return }
+    if (!await moderate(labels)) { toast('Nội dung không được phép', false); return }
     await supabase.from('wheel_config').update({ prizes: config.prizes }).eq('id', config.id)
   }
 
-  if (!config) return <div style={{ color: C.mid }}>Chargement…</div>
+  if (!config) return <div style={{ color: C.mid }}>Đang tải…</div>
   return (
     <div>
       <Card style={{ marginBottom: '16px' }}>
-        <FeatureHeader title="Vòng Quay May Mắn" subtitle="Affichée sur la page d'accueil de votre Mini App" enabled={config.enabled} onToggle={toggleEnabled} />
+        <FeatureHeader title="Vòng Quay May Mắn" subtitle="Hiển thị trên trang chính của Mini App" enabled={config.enabled} onToggle={toggleEnabled} />
       </Card>
       <Card>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
           <div style={{ fontWeight: '700', color: C.dark }}>Lots ({(config.prizes || []).length})</div>
-          <Btn small onClick={addPrize} disabled={(config.prizes || []).length >= 6}>+ Ajouter</Btn>
+          <Btn small onClick={addPrize} disabled={(config.prizes || []).length >= 6}>+ Thêm</Btn>
         </div>
         {(config.prizes || []).map((prize, i) => (
           <div key={i} style={{ display: 'flex', gap: '10px', alignItems: 'center', padding: '8px 0', borderBottom: `1px solid ${C.border}` }}>
@@ -515,7 +515,7 @@ function SubRoue({ merchantId, toast }) {
 }
 
 // ─── Marketing : Flash sale ───────────────────────────────────
-const DAYS_FR = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam']
+const DAYS_FR = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7']
 const DAYS_VI = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7']
 
 function SubFlash({ merchantId, toast }) {
@@ -530,7 +530,7 @@ function SubFlash({ merchantId, toast }) {
   async function toggleEnabled() {
     const updated = { ...data, enabled: !data.enabled }
     await supabase.from('flash_sales').update({ enabled: updated.enabled }).eq('id', data.id)
-    setData(updated); setForm(updated); toast(updated.enabled ? 'Flash sale activée' : 'Flash sale désactivée', true)
+    setData(updated); setForm(updated); toast(updated.enabled ? 'Đã bật flash sale' : 'Đã tắt flash sale', true)
   }
   async function save() {
     const isRecurring = form.recurring || false
@@ -552,9 +552,9 @@ function SubFlash({ merchantId, toast }) {
       update.recurring_start_time = null
       update.recurring_end_time = null
     }
-    if (!await moderate([update.service_name])) { toast('Contenu non autorisé', false); return }
+    if (!await moderate([update.service_name])) { toast('Nội dung không được phép', false); return }
     await supabase.from('flash_sales').update(update).eq('id', data.id)
-    load(); toast('Flash sale enregistrée', true)
+    load(); toast('Đã lưu flash sale', true)
   }
   const f = field => e => setForm(p => ({ ...p, [field]: e.target.value }))
   const toggleDay = (day) => {
@@ -563,28 +563,28 @@ function SubFlash({ merchantId, toast }) {
     setForm(p => ({ ...p, recurring_days: newDays }))
   }
 
-  if (!data) return <div style={{ color: C.mid }}>Chargement…</div>
+  if (!data) return <div style={{ color: C.mid }}>Đang tải…</div>
   return (
     <Card>
-      <FeatureHeader title="Flash Sale" subtitle="Promotion limitée dans le temps avec compte à rebours" enabled={data.enabled} onToggle={toggleEnabled} />
+      <FeatureHeader title="Flash Sale" subtitle="Khuyến mãi giới hạn thời gian với đồng hồ đếm ngược" enabled={data.enabled} onToggle={toggleEnabled} />
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-        <FieldGroup label="Réduction (%)"><Input value={form.discount_value} onChange={f('discount_value')} type="number" placeholder="20" /></FieldGroup>
-        <FieldGroup label="Service concerné"><Input value={form.service_name} onChange={f('service_name')} placeholder="Tous les services" /></FieldGroup>
+        <FieldGroup label="Giảm giá (%)"><Input value={form.discount_value} onChange={f('discount_value')} type="number" placeholder="20" /></FieldGroup>
+        <FieldGroup label="Dịch vụ áp dụng"><Input value={form.service_name} onChange={f('service_name')} placeholder="Tất cả dịch vụ" /></FieldGroup>
       </div>
-      <div style={{ margin: '12px 0 4px', fontSize: '12px', fontWeight: '600', color: C.mid, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Type de programmation</div>
+      <div style={{ margin: '12px 0 4px', fontSize: '12px', fontWeight: '600', color: C.mid, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Loại lịch</div>
       <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
         <button onClick={() => setForm(p => ({ ...p, recurring: false }))} style={{ flex: 1, padding: '9px', borderRadius: '8px', border: `2px solid ${!form.recurring ? C.red : C.border}`, background: !form.recurring ? '#fff5f5' : '#fff', color: !form.recurring ? C.red : C.mid, fontWeight: '600', fontSize: '13px', cursor: 'pointer', fontFamily: "'Be Vietnam Pro', sans-serif" }}>📅 Ponctuel</button>
-        <button onClick={() => setForm(p => ({ ...p, recurring: true }))} style={{ flex: 1, padding: '9px', borderRadius: '8px', border: `2px solid ${form.recurring ? C.red : C.border}`, background: form.recurring ? '#fff5f5' : '#fff', color: form.recurring ? C.red : C.mid, fontWeight: '600', fontSize: '13px', cursor: 'pointer', fontFamily: "'Be Vietnam Pro', sans-serif" }}>🔁 Récurrent</button>
+        <button onClick={() => setForm(p => ({ ...p, recurring: true }))} style={{ flex: 1, padding: '9px', borderRadius: '8px', border: `2px solid ${form.recurring ? C.red : C.border}`, background: form.recurring ? '#fff5f5' : '#fff', color: form.recurring ? C.red : C.mid, fontWeight: '600', fontSize: '13px', cursor: 'pointer', fontFamily: "'Be Vietnam Pro', sans-serif" }}>🔁 Định kỳ</button>
       </div>
       {!form.recurring ? (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-          <FieldGroup label="Début (date et heure)"><Input value={form.start_time ? form.start_time.slice(0, 16) : ''} onChange={f('start_time')} type="datetime-local" /></FieldGroup>
-          <FieldGroup label="Fin (date et heure)"><Input value={form.end_time ? form.end_time.slice(0, 16) : ''} onChange={f('end_time')} type="datetime-local" /></FieldGroup>
+          <FieldGroup label="Bắt đầu (ngày và giờ)"><Input value={form.start_time ? form.start_time.slice(0, 16) : ''} onChange={f('start_time')} type="datetime-local" /></FieldGroup>
+          <FieldGroup label="Kết thúc (ngày và giờ)"><Input value={form.end_time ? form.end_time.slice(0, 16) : ''} onChange={f('end_time')} type="datetime-local" /></FieldGroup>
         </div>
       ) : (
         <div>
           <div style={{ marginBottom: '12px' }}>
-            <div style={{ fontSize: '12px', fontWeight: '600', color: C.mid, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>Jours de la semaine</div>
+            <div style={{ fontSize: '12px', fontWeight: '600', color: C.mid, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>Ngày trong tuần</div>
             <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
               {[0,1,2,3,4,5,6].map(d => {
                 const selected = (form.recurring_days || []).includes(d)
@@ -593,8 +593,8 @@ function SubFlash({ merchantId, toast }) {
             </div>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-            <FieldGroup label="Heure début"><Input value={form.recurring_start_time || ''} onChange={f('recurring_start_time')} type="time" /></FieldGroup>
-            <FieldGroup label="Heure fin"><Input value={form.recurring_end_time || ''} onChange={f('recurring_end_time')} type="time" /></FieldGroup>
+            <FieldGroup label="Giờ bắt đầu"><Input value={form.recurring_start_time || ''} onChange={f('recurring_start_time')} type="time" /></FieldGroup>
+            <FieldGroup label="Giờ kết thúc"><Input value={form.recurring_end_time || ''} onChange={f('recurring_end_time')} type="time" /></FieldGroup>
           </div>
         </div>
       )}
@@ -620,38 +620,38 @@ function SubFidelite({ merchantId, toast }) {
 
   async function toggleEnabled() {
     const updated = { ...data, enabled: !data.enabled }
-    if (!await moderate([form.reward_text])) { toast('Contenu non autorisé', false); return }
+    if (!await moderate([form.reward_text])) { toast('Nội dung không được phép', false); return }
     await supabase.from('loyalty_config').update({ enabled: updated.enabled }).eq('id', data.id)
-    setData(updated); setForm(updated); toast(updated.enabled ? 'Carte fidélité activée' : 'Carte fidélité désactivée', true)
+    setData(updated); setForm(updated); toast(updated.enabled ? 'Đã bật thẻ thân thiết' : 'Đã tắt thẻ thân thiết', true)
   }
   async function save() {
     const pin = (form.pin_code || '').replace(/\D/g, '').slice(0, 4)
-    if (pin.length !== 4) { toast('Le code PIN doit faire 4 chiffres', false); return }
+    if (pin.length !== 4) { toast('Mã PIN phải có 4 chữ số', false); return }
     await supabase.from('loyalty_config').update({
       visits_required: parseInt(form.visits_required) || 10,
       reward_text: form.reward_text || '',
       pin_code: pin
     }).eq('id', data.id)
-    load(); toast('Carte fidélité enregistrée', true)
+    load(); toast('Đã lưu thẻ thân thiết', true)
   }
   const f = field => e => setForm(p => ({ ...p, [field]: e.target.value }))
 
-  if (!data) return <div style={{ color: C.mid }}>Chargement…</div>
+  if (!data) return <div style={{ color: C.mid }}>Đang tải…</div>
 
   const visitsRequired = parseInt(form.visits_required) || 10
 
   return (
     <div>
       <Card style={{ marginBottom: '16px' }}>
-        <FeatureHeader title="Carte de fidélité" subtitle="Récompensez les clients après X visites" enabled={data.enabled} onToggle={toggleEnabled} />
+        <FeatureHeader title="Thẻ khách hàng thân thiết" subtitle="Thưởng cho khách hàng sau X lần ghé" enabled={data.enabled} onToggle={toggleEnabled} />
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
-          <FieldGroup label="Visites requises">
+          <FieldGroup label="Số lần ghé yêu cầu">
             <Input value={form.visits_required} onChange={f('visits_required')} type="number" placeholder="10" />
           </FieldGroup>
-          <FieldGroup label="Récompense">
-            <Input value={form.reward_text} onChange={f('reward_text')} placeholder="1 soin offert" />
+          <FieldGroup label="Phần thưởng">
+            <Input value={form.reward_text} onChange={f('reward_text')} placeholder="Tặng 1 lần chăm sóc" />
           </FieldGroup>
-          <FieldGroup label="Code PIN (4 chiffres)">
+          <FieldGroup label="Mã PIN (4 chữ số)">
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <input
                 type={showPin ? 'text' : 'password'}
@@ -689,7 +689,7 @@ function SubFidelite({ merchantId, toast }) {
       {cards.length === 0 ? (
         <Card style={{ textAlign: 'center', color: C.mid }}>
           <div style={{ fontSize: '28px', marginBottom: '8px' }}>🎫</div>
-          <div>Aucun client n'a encore utilisé sa carte.</div>
+          <div>Chưa có khách hàng nào sử dụng thẻ.</div>
         </Card>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -709,7 +709,7 @@ function SubFidelite({ merchantId, toast }) {
                       {card.visit_count} / {visitsRequired}
                     </div>
                     <div style={{ fontSize: '11px', color: C.mid, marginTop: '2px' }}>
-                      {pct >= 100 ? '🎁 Récompense disponible' : `${visitsRequired - card.visit_count} visite${visitsRequired - card.visit_count > 1 ? 's' : ''} restante${visitsRequired - card.visit_count > 1 ? 's' : ''}`}
+                      {pct >= 100 ? '🎁 Có phần thưởng' : `Còn ${visitsRequired - card.visit_count} lần ghé`}
                     </div>
                   </div>
                 </div>
@@ -735,29 +735,29 @@ function SubParrainage({ merchantId, toast }) {
   async function toggleEnabled() {
     const updated = { ...data, enabled: !data.enabled }
     await supabase.from('referral_config').update({ enabled: updated.enabled }).eq('id', data.id)
-    setData(updated); setForm(updated); toast(updated.enabled ? 'Parrainage activé' : 'Parrainage désactivé', true)
+    setData(updated); setForm(updated); toast(updated.enabled ? 'Đã bật giới thiệu' : 'Đã tắt giới thiệu', true)
   }
   async function save() {
     await supabase.from('referral_config').update({ discount_referrer: parseInt(form.discount_referrer) || 0, discount_referred: parseInt(form.discount_referred) || 0, valid_days: parseInt(form.valid_days) || 30 }).eq('id', data.id)
-    load(); toast('Parrainage enregistré', true)
+    load(); toast('Đã lưu giới thiệu', true)
   }
   const f = field => e => setForm(p => ({ ...p, [field]: e.target.value }))
 
-  if (!data) return <div style={{ color: C.mid }}>Chargement…</div>
+  if (!data) return <div style={{ color: C.mid }}>Đang tải…</div>
   return (
     <Card>
-      <FeatureHeader title="Parrainage" subtitle="Invite une amie via Zalo — vous gagnez toutes les deux" enabled={data.enabled} onToggle={toggleEnabled} />
+      <FeatureHeader title="Giới thiệu bạn bè" subtitle="Mời bạn qua Zalo — cả hai cùng được thưởng" enabled={data.enabled} onToggle={toggleEnabled} />
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
-        <FieldGroup label="Réduction marraine (%)"><Input value={form.discount_referrer} onChange={f('discount_referrer')} type="number" placeholder="15" /></FieldGroup>
-        <FieldGroup label="Réduction filleule (%)"><Input value={form.discount_referred} onChange={f('discount_referred')} type="number" placeholder="15" /></FieldGroup>
-        <FieldGroup label="Valide (jours)"><Input value={form.valid_days} onChange={f('valid_days')} type="number" placeholder="30" /></FieldGroup>
+        <FieldGroup label="Giảm cho người giới thiệu (%)"><Input value={form.discount_referrer} onChange={f('discount_referrer')} type="number" placeholder="15" /></FieldGroup>
+        <FieldGroup label="Giảm cho người được giới thiệu (%)"><Input value={form.discount_referred} onChange={f('discount_referred')} type="number" placeholder="15" /></FieldGroup>
+        <FieldGroup label="Hiệu lực (ngày)"><Input value={form.valid_days} onChange={f('valid_days')} type="number" placeholder="30" /></FieldGroup>
       </div>
       {/* Flow visuel */}
       <div style={{ margin: '16px 0', padding: '16px', background: C.bg, borderRadius: '10px', fontSize: '13px', color: C.mid }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-          <span style={{ background: C.white, padding: '6px 12px', borderRadius: '8px', color: C.dark, fontWeight: '600' }}>👩 Marraine</span>
+          <span style={{ background: C.white, padding: '6px 12px', borderRadius: '8px', color: C.dark, fontWeight: '600' }}>👩 Người giới thiệu</span>
           <span>partage un lien Zalo →</span>
-          <span style={{ background: C.white, padding: '6px 12px', borderRadius: '8px', color: C.dark, fontWeight: '600' }}>👩 Filleule</span>
+          <span style={{ background: C.white, padding: '6px 12px', borderRadius: '8px', color: C.dark, fontWeight: '600' }}>👩 Người được giới thiệu</span>
           <span>ouvre la Mini App →</span>
           <span style={{ background: '#f0fff4', padding: '6px 12px', borderRadius: '8px', color: '#1a6b3a', fontWeight: '600' }}>Toutes les deux reçoivent −{form.discount_referrer || 15}%</span>
         </div>
@@ -778,40 +778,40 @@ function SubCoupons({ merchantId, toast }) {
   useEffect(() => { if (merchantId) load() }, [merchantId])
 
   async function save() {
-    if (!form.code) { toast('Code requis', false); return }
-    if (!await moderate([form.code, form.service_name])) { toast('Contenu non autorisé', false); return }
+    if (!form.code) { toast('Yêu cầu mã', false); return }
+    if (!await moderate([form.code, form.service_name])) { toast('Nội dung không được phép', false); return }
     await supabase.from('coupons').insert({ ...form, discount_value: parseInt(form.discount_value) || 0, merchant_id: merchantId, valid_until: form.valid_until || null })
-    setShowForm(false); setForm({ code: '', discount_type: 'percent', discount_value: 10, valid_until: '', service_name: '', active: true }); load(); toast('Coupon créé', true)
+    setShowForm(false); setForm({ code: '', discount_type: 'percent', discount_value: 10, valid_until: '', service_name: '', active: true }); load(); toast('Đã tạo mã giảm giá', true)
   }
   async function toggleActive(c) { await supabase.from('coupons').update({ active: !c.active }).eq('id', c.id); load() }
-  async function remove(id) { if (!confirm('Supprimer ?')) return; await supabase.from('coupons').delete().eq('id', id); load(); toast('Supprimé', true) }
+  async function remove(id) { if (!confirm('Xóa?')) return; await supabase.from('coupons').delete().eq('id', id); load(); toast('Đã xóa', true) }
   const f = field => e => setForm(p => ({ ...p, [field]: e.target.value }))
 
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-        <div style={{ fontWeight: '700', fontSize: '15px', color: C.dark }}>Coupons de réduction</div>
-        <Btn onClick={() => setShowForm(v => !v)}>+ Créer</Btn>
+        <div style={{ fontWeight: '700', fontSize: '15px', color: C.dark }}>Mã giảm giá</div>
+        <Btn onClick={() => setShowForm(v => !v)}>+ Tạo</Btn>
       </div>
       {showForm && (
         <Card style={{ marginBottom: '16px', border: `1px solid ${C.border}` }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-            <FieldGroup label="Code promo"><Input value={form.code} onChange={f('code')} placeholder="BIENVENUE10" /></FieldGroup>
-            <FieldGroup label="Type">
+            <FieldGroup label="Mã khuyến mãi"><Input value={form.code} onChange={f('code')} placeholder="CHAOMUNG10" /></FieldGroup>
+            <FieldGroup label="Loại">
               <select value={form.discount_type} onChange={f('discount_type')} style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: `1px solid ${C.border}`, fontSize: '14px', color: C.dark, outline: 'none', fontFamily: "'Be Vietnam Pro', sans-serif" }}>
-                <option value="percent">Pourcentage (%)</option>
-                <option value="amount">Montant fixe (₫)</option>
+                <option value="percent">Phần trăm (%)</option>
+                <option value="amount">Số tiền cố định (₫)</option>
               </select>
             </FieldGroup>
-            <FieldGroup label="Réduction"><Input value={form.discount_value} onChange={f('discount_value')} type="number" /></FieldGroup>
-            <FieldGroup label="Valide jusqu'au"><Input value={form.valid_until} onChange={f('valid_until')} type="date" /></FieldGroup>
-            <FieldGroup label="Service concerné" style={{ gridColumn: '1 / -1' }}><Input value={form.service_name} onChange={f('service_name')} placeholder="Ex: Nail Gel, Cắt tóc… (laisser vide = tous les services)" /></FieldGroup>
+            <FieldGroup label="Giảm giá"><Input value={form.discount_value} onChange={f('discount_value')} type="number" /></FieldGroup>
+            <FieldGroup label="Có hiệu lực đến"><Input value={form.valid_until} onChange={f('valid_until')} type="date" /></FieldGroup>
+            <FieldGroup label="Dịch vụ áp dụng" style={{ gridColumn: '1 / -1' }}><Input value={form.service_name} onChange={f('service_name')} placeholder="Ví dụ: Nail Gel, Cắt tóc… (để trống = tất cả dịch vụ)" /></FieldGroup>
           </div>
-          <div style={{ display: 'flex', gap: '8px' }}><Btn onClick={save}>Créer</Btn><Btn variant="ghost" onClick={() => setShowForm(false)}>Annuler</Btn></div>
+          <div style={{ display: 'flex', gap: '8px' }}><Btn onClick={save}>Tạo</Btn><Btn variant="ghost" onClick={() => setShowForm(false)}>Hủy</Btn></div>
         </Card>
       )}
-      {loading ? <div style={{ color: C.mid }}>Chargement…</div> : coupons.length === 0 ? (
-        <Card style={{ textAlign: 'center', color: C.mid }}><div style={{ fontSize: '32px', marginBottom: '8px' }}>🎟</div><div>Aucun coupon.</div></Card>
+      {loading ? <div style={{ color: C.mid }}>Đang tải…</div> : coupons.length === 0 ? (
+        <Card style={{ textAlign: 'center', color: C.mid }}><div style={{ fontSize: '32px', marginBottom: '8px' }}>🎟</div><div>Chưa có mã giảm giá.</div></Card>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           {coupons.map(c => (
@@ -824,7 +824,7 @@ function SubCoupons({ merchantId, toast }) {
                   {c.valid_until ? ` · jusqu'au ${new Date(c.valid_until).toLocaleDateString('fr-FR')}` : ''}
                 </div>
               </div>
-              <div style={{ padding: '3px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: '600', background: c.active ? '#f0fff4' : '#f5f5f5', color: c.active ? '#1a6b3a' : C.mid, cursor: 'pointer' }} onClick={() => toggleActive(c)}>{c.active ? 'Actif' : 'Désactivé'}</div>
+              <div style={{ padding: '3px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: '600', background: c.active ? '#f0fff4' : '#f5f5f5', color: c.active ? '#1a6b3a' : C.mid, cursor: 'pointer' }} onClick={() => toggleActive(c)}>{c.active ? 'Đang hoạt động' : 'Đã tắt'}</div>
               <Btn variant="danger" small onClick={() => remove(c.id)}>🗑</Btn>
             </Card>
           ))}
@@ -841,9 +841,9 @@ function SubBienvenue({ merchant, onSave }) {
   const f = field => e => setForm(p => ({ ...p, [field]: e.target.value }))
   return (
     <Card>
-      <FeatureHeader title="Offre de bienvenue" subtitle="Affichée automatiquement à la première visite" enabled={form.welcome_enabled} onToggle={() => setForm(p => ({ ...p, welcome_enabled: !p.welcome_enabled }))} />
-      <FieldGroup label="Message d'accueil"><Textarea value={form.welcome_message} onChange={f('welcome_message')} placeholder="Bienvenue ! Profitez de 10% de réduction sur votre première visite." rows={3} /></FieldGroup>
-      <FieldGroup label="Réduction offerte (%)"><Input value={form.welcome_discount} onChange={f('welcome_discount')} type="number" style={{ width: '120px' }} /></FieldGroup>
+      <FeatureHeader title="Ưu đãi chào mừng" subtitle="Tự động hiển thị cho lần ghé đầu tiên" enabled={form.welcome_enabled} onToggle={() => setForm(p => ({ ...p, welcome_enabled: !p.welcome_enabled }))} />
+      <FieldGroup label="Tin nhắn chào mừng"><Textarea value={form.welcome_message} onChange={f('welcome_message')} placeholder="Chào mừng bạn! Nhận ngay 10% giảm giá cho lần ghé đầu tiên." rows={3} /></FieldGroup>
+      <FieldGroup label="Giảm giá tặng (%)"><Input value={form.welcome_discount} onChange={f('welcome_discount')} type="number" style={{ width: '120px' }} /></FieldGroup>
       <SaveBtn onClick={() => onSave(form)} />
     </Card>
   )
@@ -862,27 +862,27 @@ function SubGalerie({ merchantId, toast }) {
   async function handleFile(e) {
     const file = e.target.files[0]
     if (!file) return
-    if (file.size > 5 * 1024 * 1024) { toast('Fichier trop lourd (max 5 Mo)', false); return }
+    if (file.size > 5 * 1024 * 1024) { toast('File quá nặng (tối đa 5 MB)', false); return }
     setUploading(true)
     const base64 = await compressToWebP(file, 800)
     await supabase.from('gallery').insert({ merchant_id: merchantId, image_url: base64, display_order: photos.length, active: true })
-    load(); setUploading(false); toast('Photo ajoutée', true)
+    load(); setUploading(false); toast('Đã thêm ảnh', true)
   }
 
   async function toggleActive(p) { await supabase.from('gallery').update({ active: !p.active }).eq('id', p.id); load() }
-  async function remove(id) { if (!confirm('Supprimer ?')) return; await supabase.from('gallery').delete().eq('id', id); load(); toast('Photo supprimée', true) }
+  async function remove(id) { if (!confirm('Xóa?')) return; await supabase.from('gallery').delete().eq('id', id); load(); toast('Đã xóa ảnh', true) }
 
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-        <div style={{ fontWeight: '700', fontSize: '15px', color: C.dark }}>Galerie réalisations</div>
+        <div style={{ fontWeight: '700', fontSize: '15px', color: C.dark }}>Thư viện hình ảnh</div>
         <div>
           <input ref={fileRef} type="file" accept="image/*" onChange={handleFile} style={{ display: 'none' }} />
-          <Btn onClick={() => fileRef.current.click()} disabled={uploading}>{uploading ? 'Envoi…' : '+ Ajouter une photo'}</Btn>
+          <Btn onClick={() => fileRef.current.click()} disabled={uploading}>{uploading ? 'Đang gửi…' : '+ Thêm ảnh'}</Btn>
         </div>
       </div>
-      {loading ? <div style={{ color: C.mid }}>Chargement…</div> : photos.length === 0 ? (
-        <Card style={{ textAlign: 'center', color: C.mid }}><div style={{ fontSize: '32px', marginBottom: '8px' }}>📸</div><div>Aucune photo. Ajoutez vos réalisations.</div></Card>
+      {loading ? <div style={{ color: C.mid }}>Đang tải…</div> : photos.length === 0 ? (
+        <Card style={{ textAlign: 'center', color: C.mid }}><div style={{ fontSize: '32px', marginBottom: '8px' }}>📸</div><div>Chưa có ảnh. Hãy thêm hình ảnh thành quả của bạn.</div></Card>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '12px' }}>
           {photos.map(p => (
@@ -891,7 +891,7 @@ function SubGalerie({ merchantId, toast }) {
                 <img src={p.image_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: p.active ? 1 : 0.4 }} />
               </div>
               <div style={{ padding: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div style={{ padding: '2px 8px', borderRadius: '12px', fontSize: '10px', fontWeight: '600', background: p.active ? '#f0fff4' : '#f5f5f5', color: p.active ? '#1a6b3a' : C.mid, cursor: 'pointer' }} onClick={() => toggleActive(p)}>{p.active ? 'Visible' : 'Masqué'}</div>
+                <div style={{ padding: '2px 8px', borderRadius: '12px', fontSize: '10px', fontWeight: '600', background: p.active ? '#f0fff4' : '#f5f5f5', color: p.active ? '#1a6b3a' : C.mid, cursor: 'pointer' }} onClick={() => toggleActive(p)}>{p.active ? 'Hiển thị' : 'Ẩn'}</div>
                 <Btn variant="danger" small onClick={() => remove(p.id)}>🗑</Btn>
               </div>
             </div>
@@ -930,30 +930,30 @@ function SectionAvis({ merchantId, toast }) {
   async function load() { const { data } = await supabase.from('reviews').select('*').eq('merchant_id', merchantId).order('created_at', { ascending: false }); setReviews(data || []); setLoading(false) }
   useEffect(() => { if (merchantId) load() }, [merchantId])
   async function save() {
-    if (!form.author_name) { toast('Nom requis', false); return }
-    if (!await moderate([form.author_name, form.content])) { toast('Contenu non autorisé', false); return }
+    if (!form.author_name) { toast('Yêu cầu tên', false); return }
+    if (!await moderate([form.author_name, form.content])) { toast('Nội dung không được phép', false); return }
     await supabase.from('reviews').insert({ ...form, merchant_id: merchantId })
-    setShowForm(false); setForm({ author_name: '', content: '', rating: 5, visible: true }); load(); toast('Avis ajouté', true)
+    setShowForm(false); setForm({ author_name: '', content: '', rating: 5, visible: true }); load(); toast('Đã thêm đánh giá', true)
   }
   async function toggleVisible(r) { await supabase.from('reviews').update({ visible: !r.visible }).eq('id', r.id); load() }
-  async function remove(id) { if (!confirm('Supprimer ?')) return; await supabase.from('reviews').delete().eq('id', id); load(); toast('Supprimé', true) }
+  async function remove(id) { if (!confirm('Xóa?')) return; await supabase.from('reviews').delete().eq('id', id); load(); toast('Đã xóa', true) }
   const f = field => e => setForm(p => ({ ...p, [field]: e.target.value }))
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}><SectionTitle>Avis clients</SectionTitle><Btn onClick={() => setShowForm(v => !v)}>+ Ajouter</Btn></div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}><SectionTitle>Đánh giá của khách</SectionTitle><Btn onClick={() => setShowForm(v => !v)}>+ Thêm</Btn></div>
       {showForm && (
         <Card style={{ marginBottom: '16px', border: `1px solid ${C.border}` }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-            <FieldGroup label="Nom"><Input value={form.author_name} onChange={f('author_name')} placeholder="Nguyễn Thị Lan" /></FieldGroup>
-            <FieldGroup label="Note (1–5)"><Input value={form.rating} onChange={f('rating')} type="number" /></FieldGroup>
+            <FieldGroup label="Tên"><Input value={form.author_name} onChange={f('author_name')} placeholder="Nguyễn Thị Lan" /></FieldGroup>
+            <FieldGroup label="Đánh giá (1–5)"><Input value={form.rating} onChange={f('rating')} type="number" /></FieldGroup>
           </div>
-          <FieldGroup label="Commentaire"><Textarea value={form.content} onChange={f('content')} placeholder="Très bon service…" /></FieldGroup>
-          <div style={{ display: 'flex', gap: '8px' }}><SaveBtn onClick={save} /><Btn variant="ghost" onClick={() => setShowForm(false)}>Annuler</Btn></div>
+          <FieldGroup label="Bình luận"><Textarea value={form.content} onChange={f('content')} placeholder="Dịch vụ rất tốt…" /></FieldGroup>
+          <div style={{ display: 'flex', gap: '8px' }}><SaveBtn onClick={save} /><Btn variant="ghost" onClick={() => setShowForm(false)}>Hủy</Btn></div>
         </Card>
       )}
-      {loading ? <div style={{ color: C.mid }}>Chargement…</div> : reviews.length === 0 ? (
-        <Card style={{ textAlign: 'center', color: C.mid }}><div style={{ fontSize: '32px', marginBottom: '8px' }}>⭐</div><div>Aucun avis.</div></Card>
+      {loading ? <div style={{ color: C.mid }}>Đang tải…</div> : reviews.length === 0 ? (
+        <Card style={{ textAlign: 'center', color: C.mid }}><div style={{ fontSize: '32px', marginBottom: '8px' }}>⭐</div><div>Chưa có đánh giá.</div></Card>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           {reviews.map(r => (
@@ -964,7 +964,7 @@ function SectionAvis({ merchantId, toast }) {
                   {r.content && <div style={{ fontSize: '13px', color: C.mid }}>{r.content}</div>}
                 </div>
                 <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
-                  <div style={{ padding: '3px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: '600', cursor: 'pointer', background: r.visible ? '#f0fff4' : '#f5f5f5', color: r.visible ? '#1a6b3a' : C.mid }} onClick={() => toggleVisible(r)}>{r.visible ? 'Visible' : 'Masqué'}</div>
+                  <div style={{ padding: '3px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: '600', cursor: 'pointer', background: r.visible ? '#f0fff4' : '#f5f5f5', color: r.visible ? '#1a6b3a' : C.mid }} onClick={() => toggleVisible(r)}>{r.visible ? 'Hiển thị' : 'Ẩn'}</div>
                   <Btn variant="danger" small onClick={() => remove(r.id)}>🗑</Btn>
                 </div>
               </div>
@@ -987,12 +987,12 @@ function SectionContacts({ merchantId }) {
   return (
     <div>
       <SectionTitle>Contacts Zalo ({contacts.length})</SectionTitle>
-      {loading ? <div style={{ color: C.mid }}>Chargement…</div> : contacts.length === 0 ? (
-        <Card style={{ textAlign: 'center', color: C.mid }}><div style={{ fontSize: '32px', marginBottom: '8px' }}>👥</div><div>Aucun contact.</div><div style={{ fontSize: '12px', marginTop: '6px' }}>Les contacts apparaissent dès qu'un client ouvre votre Mini App.</div></Card>
+      {loading ? <div style={{ color: C.mid }}>Đang tải…</div> : contacts.length === 0 ? (
+        <Card style={{ textAlign: 'center', color: C.mid }}><div style={{ fontSize: '32px', marginBottom: '8px' }}>👥</div><div>Chưa có khách hàng.</div><div style={{ fontSize: '12px', marginTop: '6px' }}>Khách hàng sẽ xuất hiện ngay khi có người mở Mini App của bạn.</div></Card>
       ) : (
         <Card style={{ padding: 0, overflow: 'hidden' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
-            <thead><tr style={{ background: C.bg }}>{['Nom', 'Téléphone', 'Zalo ID', 'Capturé le'].map(h => <th key={h} style={{ padding: '10px 16px', textAlign: 'left', fontWeight: '600', color: C.mid }}>{h}</th>)}</tr></thead>
+            <thead><tr style={{ background: C.bg }}>{['Tên', 'Số điện thoại', 'Zalo ID', 'Đã ghi nhận'].map(h => <th key={h} style={{ padding: '10px 16px', textAlign: 'left', fontWeight: '600', color: C.mid }}>{h}</th>)}</tr></thead>
             <tbody>{contacts.map((c, i) => (<tr key={c.id} style={{ borderTop: `1px solid ${C.border}`, background: i % 2 === 0 ? C.white : C.cream }}><td style={{ padding: '10px 16px', color: C.dark }}>{c.display_name || '—'}</td><td style={{ padding: '10px 16px', color: C.mid }}>{c.phone || '—'}</td><td style={{ padding: '10px 16px', color: C.mid, fontFamily: 'monospace', fontSize: '11px' }}>{c.zalo_id || '—'}</td><td style={{ padding: '10px 16px', color: C.mid }}>{new Date(c.captured_at).toLocaleDateString('fr-FR')}</td></tr>))}</tbody>
           </table>
         </Card>
@@ -1012,27 +1012,27 @@ function SectionDiffusions({ merchantId, contactCount, toast }) {
   useEffect(() => { if (merchantId) load() }, [merchantId])
 
   async function send() {
-    if (!message.trim()) { toast('Message vide', false); return }
+    if (!message.trim()) { toast('Tin nhắn trống', false); return }
     setSending(true)
-    if (!await moderate([message.trim()])) { toast('Contenu non autorisé', false); return }
+    if (!await moderate([message.trim()])) { toast('Nội dung không được phép', false); return }
     await supabase.from('broadcasts').insert({ merchant_id: merchantId, message: message.trim(), recipient_count: contactCount, status: 'sent' })
-    setMessage(''); setSending(false); load(); toast('Diffusion enregistrée', true)
+    setMessage(''); setSending(false); load(); toast('Đã lưu thông báo', true)
   }
 
   return (
     <div>
-      <SectionTitle>Diffusions ZNS</SectionTitle>
+      <SectionTitle>Gửi tin ZNS</SectionTitle>
       <Card style={{ marginBottom: '20px' }}>
-        <div style={{ fontWeight: '700', color: C.dark, marginBottom: '12px' }}>Nouvelle diffusion <span style={{ fontSize: '12px', fontWeight: '400', color: C.mid, marginLeft: '8px' }}>{contactCount} contact{contactCount > 1 ? 's' : ''}</span></div>
-        <Textarea value={message} onChange={e => setMessage(e.target.value)} placeholder="Écrivez votre message promotionnel…" rows={4} />
+        <div style={{ fontWeight: '700', color: C.dark, marginBottom: '12px' }}>Tin mới <span style={{ fontSize: '12px', fontWeight: '400', color: C.mid, marginLeft: '8px' }}>{contactCount} contact{contactCount > 1 ? 's' : ''}</span></div>
+        <Textarea value={message} onChange={e => setMessage(e.target.value)} placeholder="Viết tin khuyến mãi của bạn…" rows={4} />
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '12px' }}>
           <div style={{ fontSize: '12px', color: C.mid }}>{message.length}/500</div>
-          <Btn onClick={send} disabled={sending || !message.trim()}>{sending ? 'Envoi…' : '📢 Envoyer'}</Btn>
+          <Btn onClick={send} disabled={sending || !message.trim()}>{sending ? 'Đang gửi…' : '📢 Gửi'}</Btn>
         </div>
       </Card>
-      <div style={{ fontWeight: '700', color: C.dark, marginBottom: '12px' }}>Historique</div>
-      {loading ? <div style={{ color: C.mid }}>Chargement…</div> : broadcasts.length === 0 ? (
-        <Card style={{ textAlign: 'center', color: C.mid }}><div style={{ fontSize: '32px', marginBottom: '8px' }}>📭</div><div>Aucune diffusion.</div></Card>
+      <div style={{ fontWeight: '700', color: C.dark, marginBottom: '12px' }}>Lịch sử</div>
+      {loading ? <div style={{ color: C.mid }}>Đang tải…</div> : broadcasts.length === 0 ? (
+        <Card style={{ textAlign: 'center', color: C.mid }}><div style={{ fontSize: '32px', marginBottom: '8px' }}>📭</div><div>Chưa có tin nào.</div></Card>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           {broadcasts.map(b => (
@@ -1081,22 +1081,22 @@ export default function Dashboard() {
   }
 
   async function saveMerchant(form) {
-    if (!await moderate([form.name, form.address, form.welcome_message])) { showToast('Contenu non autorisé', false); return }
+    if (!await moderate([form.name, form.address, form.welcome_message])) { showToast('Nội dung không được phép', false); return }
     const { error } = await supabase.from('merchants').update(form).eq('id', merchant.id)
-    if (error) { showToast('Erreur', false); return }
-    setMerchant({ ...merchant, ...form }); showToast('Enregistré', true)
+    if (error) { showToast('Lỗi', false); return }
+    setMerchant({ ...merchant, ...form }); showToast('Đã lưu', true)
   }
 
   async function logout() { await supabase.auth.signOut(); router.push('/login') }
 
   if (!user || !merchant) {
-    return <div style={{ minHeight: '100vh', background: C.cream, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Be Vietnam Pro', sans-serif" }}><div style={{ textAlign: 'center', color: C.mid }}><div style={{ fontSize: '32px', marginBottom: '12px' }}>⏳</div><div>Chargement…</div></div></div>
+    return <div style={{ minHeight: '100vh', background: C.cream, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Be Vietnam Pro', sans-serif" }}><div style={{ textAlign: 'center', color: C.mid }}><div style={{ fontSize: '32px', marginBottom: '12px' }}>⏳</div><div>Đang tải…</div></div></div>
   }
 
   return (
     <>
       <Head>
-        <title>Dashboard — VietMini</title>
+        <title>Bảng điều khiển — VietMini</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -1109,7 +1109,7 @@ export default function Dashboard() {
               <div style={{ width: '34px', height: '34px', background: C.red, borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.white, fontWeight: '700', fontSize: '17px' }}>V</div>
               <span style={{ color: C.white, fontWeight: '700', fontSize: '16px' }}>VietMini</span>
             </div>
-            <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', marginTop: '4px', paddingLeft: '44px' }}>{merchant.name || 'Mon établissement'}</div>
+            <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', marginTop: '4px', paddingLeft: '44px' }}>{merchant.name || 'Cửa hàng của tôi'}</div>
           </div>
           <nav style={{ flex: 1, padding: '12px 0', overflowY: 'auto' }}>
             {TABS.map(t => (
@@ -1121,7 +1121,7 @@ export default function Dashboard() {
           </nav>
           <div style={{ padding: '16px 20px', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
             <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', marginBottom: '10px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.email}</div>
-            <button onClick={logout} style={{ width: '100%', padding: '8px', borderRadius: '7px', background: 'rgba(255,255,255,0.08)', border: 'none', color: 'rgba(255,255,255,0.6)', fontSize: '13px', cursor: 'pointer', fontFamily: "'Be Vietnam Pro', sans-serif" }}>Déconnexion</button>
+            <button onClick={logout} style={{ width: '100%', padding: '8px', borderRadius: '7px', background: 'rgba(255,255,255,0.08)', border: 'none', color: 'rgba(255,255,255,0.6)', fontSize: '13px', cursor: 'pointer', fontFamily: "'Be Vietnam Pro', sans-serif" }}>Đăng xuất</button>
           </div>
         </aside>
         <main className="main-content" style={{ flex: 1, marginLeft: '0', minHeight: '100vh' }}>
@@ -1135,9 +1135,9 @@ export default function Dashboard() {
             <div style={{ background: 'linear-gradient(135deg, #1A0A00, #2D1200)', padding: '12px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <span style={{ fontSize: '16px' }}>⚡</span>
-                <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.8)', fontWeight: '500' }}>Votre app est en <strong style={{ color: '#F5A623' }}>mode aperçu</strong> — vos clients ne peuvent pas encore y accéder.</span>
+                <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.8)', fontWeight: '500' }}>App của bạn đang ở <strong style={{ color: '#F5A623' }}>chế độ xem thử</strong> — khách hàng chưa thể truy cập.</span>
               </div>
-              <a href="/abonnement" style={{ flexShrink: 0, background: '#F5A623', color: '#1A0A00', fontWeight: '700', fontSize: '13px', padding: '8px 16px', borderRadius: '8px', textDecoration: 'none', whiteSpace: 'nowrap' }}>Activer mon abonnement →</a>
+              <a href="/abonnement" style={{ flexShrink: 0, background: '#F5A623', color: '#1A0A00', fontWeight: '700', fontSize: '13px', padding: '8px 16px', borderRadius: '8px', textDecoration: 'none', whiteSpace: 'nowrap' }}>Kích hoạt thuê bao →</a>
             </div>
           )}
           <div style={{ padding: '28px 24px', maxWidth: '800px' }}>
