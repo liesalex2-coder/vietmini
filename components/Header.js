@@ -3,11 +3,11 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 
 const NAV = [
-  { label: 'Comment ça marche', href: '/comment-ca-marche' },
-  { label: 'Démos', href: '/demos' },
-  { label: 'Tarifs', href: '/tarifs' },
-  { label: 'Contact', href: '/contact' },
-  { label: 'Se connecter', href: '/login' },
+  { label: 'Cách hoạt động', href: '/comment-ca-marche' },
+  { label: 'Demo', href: '/demos' },
+  { label: 'Bảng giá', href: '/tarifs' },
+  { label: 'Liên hệ', href: '/contact' },
+  { label: 'Đăng nhập', href: '/login' },
 ];
 
 export default function Header() {
@@ -56,7 +56,7 @@ export default function Header() {
 
           {/* CTA + hamburger */}
           <div className="actions">
-            <Link href="/register" className="cta-btn">Créer un compte</Link>
+            <Link href="/register" className="cta-btn">Tạo tài khoản</Link>
             <button
               className={`hamburger${open ? ' open' : ''}`}
               onClick={() => setOpen(!open)}
@@ -78,8 +78,8 @@ export default function Header() {
               {item.label}
             </Link>
           ))}
-          <Link href="/login" className="mobile-link">Se connecter</Link>
-          <Link href="/register" className="mobile-cta">Créer un compte</Link>
+          <Link href="/login" className="mobile-link">Đăng nhập</Link>
+          <Link href="/register" className="mobile-cta">Tạo tài khoản</Link>
         </div>
       </header>
 

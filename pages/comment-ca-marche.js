@@ -2,16 +2,16 @@ import Layout from '../components/Layout';
 
 export default function CommentCaMarche() {
   return (
-    <Layout title="Comment ça marche — VietMini">
+    <Layout title="Cách hoạt động — VietMini">
 
       <div style={{background:'var(--cream)',padding:'80px 48px 48px',textAlign:'center'}}>
         <div style={{maxWidth:'700px',margin:'0 auto'}}>
           <div style={{display:'inline-flex',alignItems:'center',gap:'8px',marginBottom:'20px'}}>
             <span style={{display:'block',width:'24px',height:'2px',background:'var(--red)'}}></span>
-            <span style={{fontSize:'11px',fontWeight:800,color:'var(--red)',textTransform:'uppercase',letterSpacing:'1.5px'}}>Comment ça marche</span>
+            <span style={{fontSize:'11px',fontWeight:800,color:'var(--red)',textTransform:'uppercase',letterSpacing:'1.5px'}}>Cách hoạt động</span>
           </div>
-          <h1 style={{fontSize:'clamp(32px,4vw,52px)',fontWeight:900,lineHeight:1.1,letterSpacing:'-1px',marginBottom:'20px',color:'#1A0A00'}}>Votre page Zalo<br />est prête le jour même.</h1>
-          <p style={{fontSize:'17px',color:'var(--mid)',lineHeight:1.7,maxWidth:'560px',margin:'0 auto'}}>Pas besoin de savoir comment Zalo fonctionne. Pas besoin de compétences techniques. On s&rsquo;occupe de tout.</p>
+          <h1 style={{fontSize:'clamp(32px,4vw,52px)',fontWeight:900,lineHeight:1.1,letterSpacing:'-1px',marginBottom:'20px',color:'#1A0A00'}}>Trang Zalo của bạn<br />sẵn sàng ngay trong ngày.</h1>
+          <p style={{fontSize:'17px',color:'var(--mid)',lineHeight:1.7,maxWidth:'560px',margin:'0 auto'}}>Không cần biết Zalo hoạt động thế nào. Không cần kỹ năng công nghệ. Chúng tôi lo hết.</p>
         </div>
       </div>
 
@@ -20,20 +20,20 @@ export default function CommentCaMarche() {
           <div className="steps">
             <div className="step">
               <div className="step-num">1</div>
-              <h3>Vous créez votre compte</h3>
-              <p>Vous choisissez votre type de commerce, vous ajoutez votre nom, votre logo, vos services. C&rsquo;est tout.</p>
+              <h3>Bạn tạo tài khoản</h3>
+              <p>Chọn loại hình kinh doanh, thêm tên, logo, dịch vụ của bạn. Chỉ vậy thôi.</p>
               <div className="step-arrow">&rarr;</div>
             </div>
             <div className="step">
               <div className="step-num">2</div>
-              <h3>Vos clients rejoignent votre liste en un geste</h3>
-              <p>Dès qu&rsquo;un client passe dans votre commerce, il peut vous suivre sur Zalo en quelques secondes. Votre liste de contacts grandit automatiquement, sans effort de votre part.</p>
+              <h3>Khách hàng tham gia danh sách chỉ trong một thao tác</h3>
+              <p>Ngay khi khách ghé cửa hàng, họ có thể theo dõi bạn trên Zalo chỉ trong vài giây. Danh sách liên hệ của bạn tự động tăng lên, không tốn công sức.</p>
               <div className="step-arrow">&rarr;</div>
             </div>
             <div className="step">
               <div className="step-num">3</div>
-              <h3>Vous gérez depuis votre téléphone</h3>
-              <p>Envoyez une promo, activez une offre flash, regardez qui a rejoint — tout depuis votre tableau de bord, aussi simple que WhatsApp.</p>
+              <h3>Bạn quản lý từ điện thoại</h3>
+              <p>Gửi khuyến mãi, kích hoạt ưu đãi chớp nhoáng, xem ai đã tham gia — tất cả từ bảng điều khiển, đơn giản như dùng WhatsApp.</p>
             </div>
           </div>
         </div>
@@ -43,12 +43,12 @@ export default function CommentCaMarche() {
         <div style={{maxWidth:'1200px',margin:'0 auto'}}>
           <div style={{display:'flex',alignItems:'center',gap:'8px',marginBottom:'16px'}}>
             <span style={{display:'block',width:'24px',height:'2px',background:'#F5A623'}}></span>
-            <span style={{fontSize:'11px',fontWeight:800,color:'#F5A623',textTransform:'uppercase',letterSpacing:'1.5px'}}>Pourquoi Zalo</span>
+            <span style={{fontSize:'11px',fontWeight:800,color:'#F5A623',textTransform:'uppercase',letterSpacing:'1.5px'}}>Vì sao chọn Zalo</span>
           </div>
-          <h2 style={{fontSize:'clamp(28px,3.5vw,46px)',fontWeight:900,color:'#fff',lineHeight:1.1,letterSpacing:'-1px',marginBottom:'20px'}}>Le seul canal où vous parlez<br />vraiment à vos clients.</h2>
-          <p style={{fontSize:'16px',color:'rgba(255,255,255,0.5)',maxWidth:'620px',lineHeight:1.7,marginBottom:'48px'}}>Au Vietnam, Zalo c&rsquo;est la messagerie de tout le monde — famille, amis, collègues. Quand vous envoyez un message, il arrive dans la même appli qu&rsquo;ils utilisent toute la journée.</p>
+          <h2 style={{fontSize:'clamp(28px,3.5vw,46px)',fontWeight:900,color:'#fff',lineHeight:1.1,letterSpacing:'-1px',marginBottom:'20px'}}>Kênh duy nhất giúp bạn<br />thật sự nói chuyện với khách hàng.</h2>
+          <p style={{fontSize:'16px',color:'rgba(255,255,255,0.5)',maxWidth:'620px',lineHeight:1.7,marginBottom:'48px'}}>Ở Việt Nam, Zalo là ứng dụng nhắn tin của tất cả mọi người — gia đình, bạn bè, đồng nghiệp. Khi bạn gửi tin nhắn, nó đến ngay trong ứng dụng họ dùng cả ngày.</p>
           <div style={{display:'flex',gap:'48px',marginBottom:'48px',padding:'32px 40px',background:'rgba(255,255,255,0.04)',border:'1px solid rgba(255,255,255,0.08)',borderRadius:'20px',flexWrap:'wrap'}}>
-            {[['74M','Vietnamiens utilisent Zalo chaque jour'],['#1','Application de messagerie au Vietnam'],['~80%','des messages envoyés sont lus par les clients']].map(([n,l],i) => (
+            {[['74Tr','người Việt dùng Zalo mỗi ngày'],['#1','Ứng dụng nhắn tin tại Việt Nam'],['~80%','tin nhắn gửi đi được khách hàng đọc']].map(([n,l],i) => (
               <div key={i} style={{flex:1,minWidth:'140px'}}>
                 <div style={{fontSize:'38px',fontWeight:900,color:'#F5A623',letterSpacing:'-1.5px',lineHeight:1,marginBottom:'8px'}}>{n}</div>
                 <div style={{fontSize:'13px',color:'rgba(255,255,255,0.45)',lineHeight:1.5,fontWeight:500}}>{l}</div>
@@ -58,8 +58,8 @@ export default function CommentCaMarche() {
           <div style={{background:'rgba(245,166,35,0.1)',border:'1px solid rgba(245,166,35,0.25)',borderRadius:'16px',padding:'28px 36px',display:'flex',gap:'20px',alignItems:'flex-start'}}>
             <span style={{fontSize:'28px',flexShrink:0}}>💬</span>
             <div>
-              <p style={{color:'#fff',fontWeight:700,fontSize:'16px',marginBottom:'8px'}}>Zalo arrive directement dans la boîte de messages de votre client.</p>
-              <p style={{color:'rgba(255,255,255,0.5)',fontSize:'14px',lineHeight:1.7,margin:0}}>Pas dans un fil d&rsquo;actualité. Pas dans les spams. Dans la même conversation que sa famille et ses amis.</p>
+              <p style={{color:'#fff',fontWeight:700,fontSize:'16px',marginBottom:'8px'}}>Zalo đến thẳng hộp tin nhắn của khách hàng.</p>
+              <p style={{color:'rgba(255,255,255,0.5)',fontSize:'14px',lineHeight:1.7,margin:0}}>Không phải trong bảng tin. Không phải trong thư rác. Ngay trong cùng cuộc trò chuyện với gia đình và bạn bè của họ.</p>
             </div>
           </div>
         </div>
@@ -68,9 +68,9 @@ export default function CommentCaMarche() {
       <div style={{background:'linear-gradient(135deg,#2D1200 0%,#4A1800 100%)',padding:'100px 48px',textAlign:'center',position:'relative',overflow:'hidden'}}>
         <div style={{position:'absolute',inset:0,backgroundImage:'radial-gradient(circle, rgba(245,166,35,0.07) 1.5px, transparent 1.5px)',backgroundSize:'32px 32px',pointerEvents:'none'}}></div>
         <div style={{position:'relative'}}>
-          <h2 style={{color:'white',marginBottom:'16px',fontSize:'clamp(28px,3.5vw,48px)',fontWeight:900,letterSpacing:'-1px',lineHeight:1.1}}>Prêt à démarrer ?</h2>
-          <p style={{fontSize:'18px',color:'rgba(255,255,255,0.45)',marginBottom:'44px'}}>Votre page Zalo est opérationnelle en moins de 5 minutes.</p>
-          <a href="/register" className="btn-hero" style={{display:'inline-block'}}>Créer mon compte gratuitement &rarr;</a>
+          <h2 style={{color:'white',marginBottom:'16px',fontSize:'clamp(28px,3.5vw,48px)',fontWeight:900,letterSpacing:'-1px',lineHeight:1.1}}>Sẵn sàng bắt đầu?</h2>
+          <p style={{fontSize:'18px',color:'rgba(255,255,255,0.45)',marginBottom:'44px'}}>Trang Zalo của bạn sẵn sàng trong chưa đầy 5 phút.</p>
+          <a href="/register" className="btn-hero" style={{display:'inline-block'}}>Tạo tài khoản miễn phí &rarr;</a>
         </div>
       </div>
 

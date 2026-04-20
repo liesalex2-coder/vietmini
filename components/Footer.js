@@ -44,9 +44,9 @@ export default function Footer() {
         {/* Colonne 2 : Sản phẩm */}
         <div>
           <div style={colTitle}>Sản phẩm</div>
-          <a href="/comment-ca-marche" style={link}>Comment ça marche</a>
-          <a href="/demos" style={link}>Démos</a>
-          <a href="/tarifs" style={link}>Tarifs</a>
+          <a href="/comment-ca-marche" style={link}>Cách hoạt động</a>
+          <a href="/demos" style={link}>Demo</a>
+          <a href="/tarifs" style={link}>Bảng giá</a>
         </div>
 
         {/* Colonne 3 : Hỗ trợ */}
@@ -93,7 +93,7 @@ export default function Footer() {
 
         <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
           <div style={{ fontSize: '12px', color: C.dim }}>
-            © 2026 Leading Star AI. Tous droits réservés.
+            © 2026 Leading Star AI. Mọi quyền được bảo lưu.
           </div>
           {/* Emplacement futur : logo "Đã thông báo Bộ Công Thương" */}
         </div>
