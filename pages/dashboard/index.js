@@ -146,7 +146,7 @@ function SectionApercu({ merchant, contacts, broadcasts, onChangeVertical }) {
               <div><div style={{ fontWeight: '700', fontSize: '16px', color: C.dark }}>{merchant.name || 'Cửa hàng của tôi'}</div><div style={{ fontSize: '13px', color: C.mid }}>{merchant.vertical || '—'}</div></div>
             </div>
             <div style={{ display: 'flex', gap: '8px' }}>
-              <Btn variant="primary" small onClick={() => window.open(`/preview/${merchant.id}`, '_blank')}>👁 Voir mon app</Btn>
+              <Btn variant="primary" small onClick={() => window.open(`/preview/${merchant.id}`, '_blank')}>👁 Xem app của tôi</Btn>
               <Btn variant="ghost" small onClick={onChangeVertical}>Đổi ngành nghề →</Btn>
             </div>
           </div>
@@ -1111,7 +1111,7 @@ export default function Dashboard() {
             </div>
             <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', marginTop: '4px', paddingLeft: '44px' }}>{merchant.name || 'Cửa hàng của tôi'}</div>
           </div>
-          <nav style={{ flex: 1, padding: '12px 0', overflowY: 'auto' }}>
+          <nav style={{ flex: 1, padding: '12px 0', overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
             {TABS.map(t => (
               <button key={t.id} onClick={() => { setActiveTab(t.id); setSidebarOpen(false) }} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 20px', background: activeTab === t.id ? 'rgba(208,2,27,0.25)' : 'transparent', border: 'none', cursor: 'pointer', textAlign: 'left', borderLeft: activeTab === t.id ? `3px solid ${C.red}` : '3px solid transparent', fontFamily: "'Be Vietnam Pro', sans-serif", transition: 'background .15s' }}>
                 <span style={{ fontSize: '16px', width: '22px', textAlign: 'center' }}>{t.icon}</span>
@@ -1141,7 +1141,7 @@ export default function Dashboard() {
             </div>
           )}
           <div style={{ padding: '28px 24px', maxWidth: '800px' }}>
-            {activeTab === 'apercu'     && <SectionApercu merchant={merchant} contacts={contacts} broadcasts={broadcasts} onChangeVertical={async () => { if (window.confirm("Changer d'activité ? Toutes vos données de configuration seront réinitialisées.")) { await supabase.from('merchants').update({ vertical: null }).eq('id', merchant.id); router.push('/onboarding') } }} />}
+            {activeTab === 'apercu'     && <SectionApercu merchant={merchant} contacts={contacts} broadcasts={broadcasts} onChangeVertical={async () => { if (window.confirm("Đổi ngành nghề? Tất cả dữ liệu cấu hình sẽ được thiết lập lại.")) { await supabase.from('merchants').update({ vertical: null }).eq('id', merchant.id); router.push('/onboarding') } }} />}
             {activeTab === 'profil'     && <SectionProfil merchant={merchant} onSave={saveMerchant} merchantId={merchant.id} toast={showToast} />}
             {activeTab === 'marketing'  && <SectionMarketing merchantId={merchant.id} merchant={merchant} onSaveMerchant={saveMerchant} toast={showToast} />}
             {activeTab === 'avis'       && <SectionAvis merchantId={merchant.id} toast={showToast} />}
