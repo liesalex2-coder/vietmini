@@ -18,26 +18,33 @@ export default async function handler(req, res) {
       { data: wheel },
       { data: loyalty },
       { data: flash },
+      { data: referral },
       { data: reviews },
       { data: coupons },
+      { data: gallery },
     ] = await Promise.all([
-      supabase.from('merchants').select('*').eq('id', merchantId).single(),
+      supabase.from('merchants').select('*').eq('id', merchantId).maybeSingle(),
       supabase.from('services').select('*').eq('merchant_id', merchantId).eq('active', true).order('display_order'),
       supabase.from('service_categories').select('*').eq('merchant_id', merchantId).order('display_order'),
-      supabase.from('wheel_config').select('*').eq('merchant_id', merchantId).single(),
-      supabase.from('loyalty_config').select('*').eq('merchant_id', merchantId).single(),
-      supabase.from('flash_sales').select('*').eq('merchant_id', merchantId).single(),
-      supabase.from('reviews').select('*').eq('merchant_id', merchantId).eq('visible', true).order('created_at', { ascending: false }).limit(10),
+      supabase.from('wheel_config').select('*').eq('merchant_id', merchantId).maybeSingle(),
+      supabase.from('loyalty_config').select('*').eq('merchant_id', merchantId).maybeSingle(),
+      supabase.from('flash_sales').select('*').eq('merchant_id', merchantId).maybeSingle(),
+      supabase.from('referral_config').select('*').eq('merchant_id', merchantId).maybeSingle(),
+      supabase.from('reviews').select('*').eq('merchant_id', merchantId).eq('visible', true).order('created_at', { ascending: false }).limit(20),
       supabase.from('coupons').select('*').eq('merchant_id', merchantId).eq('active', true),
+      supabase.from('gallery').select('*').eq('merchant_id', merchantId).eq('active', true).order('display_order'),
     ])
 
     if (!merchant) return res.status(404).json({ error: 'Marchand introuvable' })
 
-    // Grouper les services par catégorie
-    const servicesByCategory = (categories || []).map(cat => ({
+    // Grouper les services par catégorie (sans perdre les orphelins)
+    const categoriesList = categories || []
+    const servicesList = services || []
+
+    const grouped = categoriesList.map(cat => ({
       name: cat.name,
       image: cat.image_base64 || null,
-      items: (services || [])
+      items: servicesList
         .filter(s => s.category === cat.name)
         .map(s => ({
           id: s.id,
@@ -46,7 +53,26 @@ export default async function handler(req, res) {
           description: s.description || '',
           image: s.image_base64 || null,
         }))
-    })).filter(cat => cat.items.length > 0)
+    }))
+
+    const knownCategoryNames = new Set(categoriesList.map(c => c.name))
+    const orphanServices = servicesList.filter(s => !knownCategoryNames.has(s.category))
+
+    if (orphanServices.length > 0) {
+      grouped.push({
+        name: 'Khác',
+        image: null,
+        items: orphanServices.map(s => ({
+          id: s.id,
+          name: s.name,
+          price: s.price,
+          description: s.description || '',
+          image: s.image_base64 || null,
+        }))
+      })
+    }
+
+    const servicesByCategory = grouped.filter(cat => cat.items.length > 0)
 
     res.setHeader('Access-Control-Allow-Origin', '*')
     res.setHeader('Cache-Control', 'no-store')
@@ -61,12 +87,21 @@ export default async function handler(req, res) {
         hours: merchant.hours || '',
         primary_color: merchant.primary_color || '#D0021B',
         secondary_color: merchant.secondary_color || '#F5A623',
+        logo_url: merchant.logo_url || null,
         hero_image: merchant.hero_image || null,
+        zalo_oa_id: merchant.zalo_oa_id || null,
         welcome_enabled: merchant.welcome_enabled || false,
         welcome_discount: merchant.welcome_discount || 0,
         welcome_message: merchant.welcome_message || '',
+        subscription_active: merchant.subscription_active || false,
+        subscription_expires_at: merchant.subscription_expires_at || null,
       },
       services: servicesByCategory,
+      gallery: (gallery || []).map(g => ({
+        id: g.id,
+        image_url: g.image_url,
+        caption: g.caption || '',
+      })),
       wheel: wheel ? {
         enabled: wheel.enabled,
         prizes: wheel.prizes || [],
@@ -88,20 +123,29 @@ export default async function handler(req, res) {
         start_time: flash.start_time || null,
         end_time: flash.end_time || null,
       } : { enabled: false },
+      referral: referral ? {
+        enabled: referral.enabled,
+        discount_referrer: referral.discount_referrer || 0,
+        discount_referred: referral.discount_referred || 0,
+        valid_days: referral.valid_days || 30,
+      } : { enabled: false, discount_referrer: 0, discount_referred: 0, valid_days: 30 },
       reviews: (reviews || []).map(r => ({
         id: r.id,
-        author: r.author || 'Client',
+        author: r.author_name || 'Khách hàng',
         rating: r.rating || 5,
-        text: r.text || '',
+        text: r.content || '',
+        created_at: r.created_at,
       })),
-      coupons: (coupons || []).filter(c => !c.valid_until || new Date(c.valid_until) > new Date()).map(c => ({
-        id: c.id,
-        code: c.code,
-        discount_type: c.discount_type,
-        discount_value: c.discount_value,
-        service_name: c.service_name || '',
-        valid_until: c.valid_until || null,
-      })),
+      coupons: (coupons || [])
+        .filter(c => !c.valid_until || new Date(c.valid_until) > new Date())
+        .map(c => ({
+          id: c.id,
+          code: c.code,
+          discount_type: c.discount_type,
+          discount_value: c.discount_value,
+          service_name: c.service_name || '',
+          valid_until: c.valid_until || null,
+        })),
     })
   } catch (e) {
     console.error(e)
