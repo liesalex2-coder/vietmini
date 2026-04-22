@@ -39,6 +39,7 @@ const MARKETING_TABS = [
   { id: 'coupons',    label: '🎟 Mã giảm giá' },
   { id: 'bienvenue',  label: '🎁 Chào mừng' },
   { id: 'thongbao',   label: '📢 Thông báo' },
+  { id: 'review',     label: '✍️ Khuyến khích đánh giá' },
 ]
 
 // ─── Compression WebP qualité 82 ─────────────────────────────
@@ -1038,6 +1039,71 @@ function SubThongBao({ merchantId, toast }) {
   )
 }
 
+// ─── Marketing : Khuyến khích đánh giá ───────────────────────
+function SubReviewIncentive({ merchantId, toast }) {
+  const [config, setConfig] = useState({ enabled: false, reward_percent: 10, cooldown_days: 60 })
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    if (!merchantId) return
+    ;(async () => {
+      const { data } = await supabase.from('review_config').select('*').eq('merchant_id', merchantId).maybeSingle()
+      if (data) setConfig({ enabled: data.enabled, reward_percent: data.reward_percent, cooldown_days: data.cooldown_days })
+      setLoading(false)
+    })()
+  }, [merchantId])
+
+  async function save() {
+    const percent = Math.max(5, Math.min(30, parseInt(config.reward_percent) || 10))
+    const cooldown = Math.max(30, Math.min(180, parseInt(config.cooldown_days) || 60))
+    const payload = { merchant_id: merchantId, enabled: config.enabled, reward_percent: percent, cooldown_days: cooldown }
+    await supabase.from('review_config').upsert(payload, { onConflict: 'merchant_id' })
+    setConfig(p => ({ ...p, reward_percent: percent, cooldown_days: cooldown }))
+    toast('Đã lưu', true)
+  }
+
+  async function toggleEnabled() {
+    const newEnabled = !config.enabled
+    setConfig(p => ({ ...p, enabled: newEnabled }))
+    await supabase.from('review_config').upsert({ merchant_id: merchantId, enabled: newEnabled, reward_percent: config.reward_percent, cooldown_days: config.cooldown_days }, { onConflict: 'merchant_id' })
+    toast(newEnabled ? 'Đã bật khuyến khích đánh giá' : 'Đã tắt khuyến khích đánh giá', true)
+  }
+
+  const f = field => e => setConfig(p => ({ ...p, [field]: e.target.value }))
+
+  if (loading) return <div style={{ color: C.mid }}>Đang tải…</div>
+
+  return (
+    <Card>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+        <div>
+          <div style={{ fontWeight: '700', fontSize: '15px', color: C.dark }}>Khuyến khích đánh giá bằng giảm giá</div>
+          <div style={{ fontSize: '13px', color: C.mid, marginTop: '4px' }}>Khách hàng đã điểm danh thẻ thân thiết gần đây sẽ nhận mã giảm giá khi viết đánh giá.</div>
+        </div>
+        <div onClick={toggleEnabled} style={{ cursor: 'pointer', width: '44px', height: '24px', borderRadius: '12px', background: config.enabled ? C.red : '#ccc', position: 'relative', flexShrink: 0, transition: 'background .15s' }}>
+          <div style={{ position: 'absolute', top: '2px', left: config.enabled ? '22px' : '2px', width: '20px', height: '20px', borderRadius: '50%', background: C.white, transition: 'left .15s' }} />
+        </div>
+      </div>
+      {config.enabled && (
+        <>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
+            <FieldGroup label="Giảm giá (%)">
+              <input type="number" min="5" max="30" value={config.reward_percent ?? ''} onChange={f('reward_percent')} style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: `1px solid ${C.border}`, fontSize: '14px', color: C.dark, outline: 'none', boxSizing: 'border-box', background: C.white, fontFamily: "'Be Vietnam Pro', sans-serif" }} />
+            </FieldGroup>
+            <FieldGroup label="Thời gian giữa 2 đánh giá (ngày)">
+              <input type="number" min="30" max="180" value={config.cooldown_days ?? ''} onChange={f('cooldown_days')} style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: `1px solid ${C.border}`, fontSize: '14px', color: C.dark, outline: 'none', boxSizing: 'border-box', background: C.white, fontFamily: "'Be Vietnam Pro', sans-serif" }} />
+            </FieldGroup>
+          </div>
+          <div style={{ fontSize: '12px', color: C.mid, marginBottom: '16px', padding: '12px', background: C.bg, borderRadius: '8px' }}>
+            💡 Giảm giá: 5-30%. Thời gian: 30-180 ngày (mặc định 60). Khách hàng chỉ nhận 1 mã giảm giá mỗi khoảng thời gian này.
+          </div>
+          <SaveBtn onClick={save} />
+        </>
+      )}
+    </Card>
+  )
+}
+
 // ─── Section Marketing ────────────────────────────────────────
 function SectionMarketing({ merchantId, merchant, onSaveMerchant, toast }) {
   const [sub, setSub] = useState('roue')
@@ -1052,6 +1118,7 @@ function SectionMarketing({ merchantId, merchant, onSaveMerchant, toast }) {
       {sub === 'coupons'    && <SubCoupons merchantId={merchantId} toast={toast} />}
       {sub === 'bienvenue'  && <SubBienvenue merchant={merchant} onSave={onSaveMerchant} />}
       {sub === 'thongbao'   && <SubThongBao merchantId={merchantId} toast={toast} />}
+      {sub === 'review'     && <SubReviewIncentive merchantId={merchantId} toast={toast} />}
     </div>
   )
 }
@@ -1062,8 +1129,17 @@ function SectionAvis({ merchantId, toast }) {
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState({ author_name: '', content: '', rating: 5, visible: true })
+  const [showReviews, setShowReviews] = useState(true)
 
-  async function load() { const { data } = await supabase.from('reviews').select('*').eq('merchant_id', merchantId).order('created_at', { ascending: false }); setReviews(data || []); setLoading(false) }
+  async function load() {
+    const [{ data: reviewsData }, { data: merchantData }] = await Promise.all([
+      supabase.from('reviews').select('*').eq('merchant_id', merchantId).order('created_at', { ascending: false }),
+      supabase.from('merchants').select('show_reviews').eq('id', merchantId).maybeSingle(),
+    ])
+    setReviews(reviewsData || [])
+    if (merchantData) setShowReviews(merchantData.show_reviews !== false)
+    setLoading(false)
+  }
   useEffect(() => { if (merchantId) load() }, [merchantId])
   async function save() {
     if (!form.author_name) { toast('Yêu cầu tên', false); return }
@@ -1072,12 +1148,27 @@ function SectionAvis({ merchantId, toast }) {
     setShowForm(false); setForm({ author_name: '', content: '', rating: 5, visible: true }); load(); toast('Đã thêm đánh giá', true)
   }
   async function toggleVisible(r) { await supabase.from('reviews').update({ visible: !r.visible }).eq('id', r.id); load() }
+  async function toggleShowReviews() {
+    const newVal = !showReviews
+    setShowReviews(newVal)
+    await supabase.from('merchants').update({ show_reviews: newVal }).eq('id', merchantId)
+    toast(newVal ? 'Phần đánh giá được hiển thị' : 'Phần đánh giá đã ẩn', true)
+  }
   async function remove(id) { if (!confirm('Xóa?')) return; await supabase.from('reviews').delete().eq('id', id); load(); toast('Đã xóa', true) }
   const f = field => e => setForm(p => ({ ...p, [field]: e.target.value }))
 
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}><SectionTitle>Đánh giá của khách</SectionTitle><Btn onClick={() => setShowForm(v => !v)}>+ Thêm</Btn></div>
+      <Card style={{ marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div>
+          <div style={{ fontWeight: '600', fontSize: '14px', color: C.dark }}>Hiện phần đánh giá trên Mini App</div>
+          <div style={{ fontSize: '12px', color: C.mid, marginTop: '2px' }}>Tắt nếu bạn không muốn khách hàng thấy và gửi đánh giá.</div>
+        </div>
+        <div onClick={toggleShowReviews} style={{ cursor: 'pointer', width: '44px', height: '24px', borderRadius: '12px', background: showReviews ? C.red : '#ccc', position: 'relative', flexShrink: 0, transition: 'background .15s' }}>
+          <div style={{ position: 'absolute', top: '2px', left: showReviews ? '22px' : '2px', width: '20px', height: '20px', borderRadius: '50%', background: C.white, transition: 'left .15s' }} />
+        </div>
+      </Card>
       {showForm && (
         <Card style={{ marginBottom: '16px', border: `1px solid ${C.border}` }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
@@ -1096,7 +1187,13 @@ function SectionAvis({ merchantId, toast }) {
             <Card key={r.id} style={{ padding: '14px 18px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <div style={{ flex: 1 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}><span style={{ fontWeight: '700', fontSize: '14px', color: C.dark }}>{r.author_name}</span><span style={{ fontSize: '13px', color: C.gold }}>{'★'.repeat(r.rating)}{'☆'.repeat(5 - r.rating)}</span></div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px', flexWrap: 'wrap' }}>
+                    <span style={{ fontWeight: '700', fontSize: '14px', color: C.dark }}>{r.author_name}</span>
+                    <span style={{ fontSize: '13px', color: C.gold }}>{'★'.repeat(r.rating)}{'☆'.repeat(5 - r.rating)}</span>
+                    {r.verified && (
+                      <span style={{ fontSize: '10px', fontWeight: '600', padding: '2px 8px', borderRadius: '20px', background: '#e8f5e9', color: '#1a6b3a' }}>✓ Đã xác minh</span>
+                    )}
+                  </div>
                   {r.content && <div style={{ fontSize: '13px', color: C.mid }}>{r.content}</div>}
                 </div>
                 <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
