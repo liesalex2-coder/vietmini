@@ -22,6 +22,8 @@ export default async function handler(req, res) {
       { data: reviews },
       { data: coupons },
       { data: gallery },
+      { data: announcements },
+      { data: reviewConfig },
     ] = await Promise.all([
       supabase.from('merchants').select('*').eq('id', merchantId).maybeSingle(),
       supabase.from('services').select('*').eq('merchant_id', merchantId).eq('active', true).order('display_order'),
@@ -33,6 +35,8 @@ export default async function handler(req, res) {
       supabase.from('reviews').select('*').eq('merchant_id', merchantId).eq('visible', true).order('created_at', { ascending: false }).limit(20),
       supabase.from('coupons').select('*').eq('merchant_id', merchantId).eq('active', true),
       supabase.from('gallery').select('*').eq('merchant_id', merchantId).eq('active', true).order('display_order'),
+      supabase.from('announcements').select('*').eq('merchant_id', merchantId).eq('active', true).order('created_at', { ascending: false }),
+      supabase.from('review_config').select('*').eq('merchant_id', merchantId).maybeSingle(),
     ])
 
     if (!merchant) return res.status(404).json({ error: 'Marchand introuvable' })
@@ -93,6 +97,7 @@ export default async function handler(req, res) {
         welcome_enabled: merchant.welcome_enabled || false,
         welcome_discount: merchant.welcome_discount || 0,
         welcome_message: merchant.welcome_message || '',
+        show_reviews: merchant.show_reviews !== false,
         subscription_active: merchant.subscription_active || false,
         subscription_expires_at: merchant.subscription_expires_at || null,
       },
@@ -129,13 +134,26 @@ export default async function handler(req, res) {
         discount_referred: referral.discount_referred || 0,
         valid_days: referral.valid_days || 30,
       } : { enabled: false, discount_referrer: 0, discount_referred: 0, valid_days: 30 },
-      reviews: (reviews || []).map(r => ({
+      reviews: (merchant.show_reviews !== false ? (reviews || []) : []).map(r => ({
         id: r.id,
         author: r.author_name || 'Khách hàng',
         rating: r.rating || 5,
         text: r.content || '',
+        verified: r.verified || false,
         created_at: r.created_at,
       })),
+      announcements: (announcements || [])
+        .filter(a => !a.valid_until || new Date(a.valid_until) > new Date())
+        .map(a => ({
+          id: a.id,
+          text: a.text,
+          valid_until: a.valid_until || null,
+        })),
+      review_config: reviewConfig ? {
+        enabled: reviewConfig.enabled,
+        reward_percent: reviewConfig.reward_percent || 10,
+        cooldown_days: reviewConfig.cooldown_days || 60,
+      } : { enabled: false, reward_percent: 10, cooldown_days: 60 },
       coupons: (coupons || [])
         .filter(c => !c.valid_until || new Date(c.valid_until) > new Date())
         .map(c => ({
