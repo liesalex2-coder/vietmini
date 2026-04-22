@@ -1104,24 +1104,24 @@ export default function Dashboard() {
       <div style={{ display: 'flex', minHeight: '100vh', background: C.bg, fontFamily: "'Be Vietnam Pro', sans-serif" }}>
         {sidebarOpen && <div onClick={() => setSidebarOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 40 }} />}
         <aside className="sidebar" style={{ width: '220px', background: C.dark, display: 'flex', flexDirection: 'column', position: 'fixed', top: 0, left: sidebarOpen ? 0 : '-220px', height: '100vh', zIndex: 50, transition: 'left .25s ease' }}>
-          <div style={{ padding: '24px 20px 20px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <div style={{ width: '34px', height: '34px', background: C.red, borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.white, fontWeight: '700', fontSize: '17px' }}>V</div>
-              <span style={{ color: C.white, fontWeight: '700', fontSize: '16px' }}>VietMini</span>
+          <div style={{ height: '48px', padding: '0 20px', background: 'linear-gradient(135deg, #1A0A00, #2D1200)', display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
+            <div style={{ width: '28px', height: '28px', background: C.red, borderRadius: '7px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.white, fontWeight: '700', fontSize: '14px', flexShrink: 0 }}>V</div>
+            <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0, flex: 1 }}>
+              <span style={{ color: C.white, fontWeight: '700', fontSize: '14px', lineHeight: '1.1' }}>VietMini</span>
+              <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.7)', lineHeight: '1.1', marginTop: '2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{merchant.name || 'Cửa hàng của tôi'}</span>
             </div>
-            <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', marginTop: '4px', paddingLeft: '44px' }}>{merchant.name || 'Cửa hàng của tôi'}</div>
           </div>
           <nav style={{ flex: 1, padding: '12px 0', overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
             {TABS.map(t => (
               <button key={t.id} onClick={() => { setActiveTab(t.id); setSidebarOpen(false) }} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 20px', background: activeTab === t.id ? 'rgba(208,2,27,0.25)' : 'transparent', border: 'none', cursor: 'pointer', textAlign: 'left', borderLeft: activeTab === t.id ? `3px solid ${C.red}` : '3px solid transparent', fontFamily: "'Be Vietnam Pro', sans-serif", transition: 'background .15s' }}>
                 <span style={{ fontSize: '16px', width: '22px', textAlign: 'center' }}>{t.icon}</span>
-                <span style={{ fontSize: '14px', fontWeight: activeTab === t.id ? '600' : '400', color: activeTab === t.id ? C.white : 'rgba(255,255,255,0.6)' }}>{t.label}</span>
+                <span style={{ fontSize: '14px', fontWeight: activeTab === t.id ? '600' : '400', color: activeTab === t.id ? C.white : 'rgba(255,255,255,0.85)' }}>{t.label}</span>
               </button>
             ))}
           </nav>
           <div style={{ padding: '16px 20px', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
-            <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', marginBottom: '10px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.email}</div>
-            <button onClick={logout} style={{ width: '100%', padding: '8px', borderRadius: '7px', background: 'rgba(255,255,255,0.08)', border: 'none', color: 'rgba(255,255,255,0.6)', fontSize: '13px', cursor: 'pointer', fontFamily: "'Be Vietnam Pro', sans-serif" }}>Đăng xuất</button>
+            <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.7)', marginBottom: '10px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.email}</div>
+            <button onClick={logout} style={{ width: '100%', padding: '8px', borderRadius: '7px', background: 'rgba(255,255,255,0.08)', border: 'none', color: 'rgba(255,255,255,0.85)', fontSize: '13px', cursor: 'pointer', fontFamily: "'Be Vietnam Pro', sans-serif" }}>Đăng xuất</button>
           </div>
         </aside>
         <main className="main-content" style={{ flex: 1, marginLeft: '0', minHeight: '100vh' }}>
