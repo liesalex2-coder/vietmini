@@ -1104,18 +1104,18 @@ export default function Dashboard() {
       <div style={{ display: 'flex', minHeight: '100vh', background: C.bg, fontFamily: "'Be Vietnam Pro', sans-serif" }}>
         {sidebarOpen && <div onClick={() => setSidebarOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 40 }} />}
         <aside className="sidebar" style={{ width: '220px', background: C.dark, display: 'flex', flexDirection: 'column', position: 'fixed', top: 0, left: sidebarOpen ? 0 : '-220px', height: '100vh', zIndex: 50, transition: 'left .25s ease' }}>
-          <div style={{ height: '48px', padding: '0 20px', background: 'linear-gradient(135deg, #1A0A00, #2D1200)', display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
+          <div style={{ minHeight: '64px', padding: '12px 20px', background: 'linear-gradient(135deg, #1A0A00, #2D1200)', display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
             <div style={{ width: '28px', height: '28px', background: C.red, borderRadius: '7px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.white, fontWeight: '700', fontSize: '14px', flexShrink: 0 }}>V</div>
             <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0, flex: 1 }}>
               <span style={{ color: C.white, fontWeight: '700', fontSize: '14px', lineHeight: '1.1' }}>VietMini</span>
               <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.7)', lineHeight: '1.1', marginTop: '2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{merchant.name || 'Cửa hàng của tôi'}</span>
             </div>
           </div>
-          <nav style={{ flex: 1, padding: '12px 0', overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
+          <nav style={{ flex: 1, padding: '12px 0', overflowY: 'auto', display: 'flex', flexDirection: 'column', background: C.dark }}>
             {TABS.map(t => (
               <button key={t.id} onClick={() => { setActiveTab(t.id); setSidebarOpen(false) }} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 20px', background: activeTab === t.id ? 'rgba(208,2,27,0.25)' : 'transparent', border: 'none', cursor: 'pointer', textAlign: 'left', borderLeft: activeTab === t.id ? `3px solid ${C.red}` : '3px solid transparent', fontFamily: "'Be Vietnam Pro', sans-serif", transition: 'background .15s' }}>
                 <span style={{ fontSize: '16px', width: '22px', textAlign: 'center' }}>{t.icon}</span>
-                <span style={{ fontSize: '14px', fontWeight: activeTab === t.id ? '600' : '400', color: activeTab === t.id ? C.white : 'rgba(255,255,255,0.85)' }}>{t.label}</span>
+                <span style={{ fontSize: '14px', fontWeight: activeTab === t.id ? '600' : '500', color: activeTab === t.id ? C.white : '#D4D4D4' }}>{t.label}</span>
               </button>
             ))}
           </nav>
@@ -1132,7 +1132,7 @@ export default function Dashboard() {
           </div>
           {/* Bandeau abonnement — affiché uniquement si pas encore abonné */}
           {!merchant.subscription_active && (
-            <div style={{ background: 'linear-gradient(135deg, #1A0A00, #2D1200)', padding: '12px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
+            <div style={{ minHeight: '64px', background: 'linear-gradient(135deg, #1A0A00, #2D1200)', padding: '12px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <span style={{ fontSize: '16px' }}>⚡</span>
                 <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.8)', fontWeight: '500' }}>App của bạn đang ở <strong style={{ color: '#F5A623' }}>chế độ xem thử</strong> — khách hàng chưa thể truy cập.</span>
