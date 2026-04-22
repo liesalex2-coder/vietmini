@@ -974,7 +974,7 @@ function SubThongBao({ merchantId, toast }) {
             <textarea
               value={form.text}
               onChange={f('text')}
-              placeholder="Ví dụ: Nhạc sống tối thứ sáu 19h-22h"
+              placeholder="Ví dụ: Nhạc sống tối thứ sáu 19:00-22:00"
               rows={3}
               maxLength={200}
               style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: `1px solid ${C.border}`, fontSize: '14px', color: C.dark, outline: 'none', fontFamily: "'Be Vietnam Pro', sans-serif", resize: 'vertical' }}
