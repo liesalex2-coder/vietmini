@@ -38,6 +38,7 @@ const MARKETING_TABS = [
   { id: 'parrainage', label: '🤝 Giới thiệu' },
   { id: 'coupons',    label: '🎟 Mã giảm giá' },
   { id: 'bienvenue',  label: '🎁 Chào mừng' },
+  { id: 'thongbao',   label: '📢 Thông báo' },
 ]
 
 // ─── Compression WebP qualité 82 ─────────────────────────────
@@ -821,7 +822,7 @@ function SubCoupons({ merchantId, toast }) {
                 <div style={{ fontSize: '12px', color: C.mid, marginTop: '2px' }}>
                   {c.discount_type === 'percent' ? `−${c.discount_value}%` : `−${c.discount_value.toLocaleString('vi-VN')} ₫`}
                   {c.service_name ? ` · ${c.service_name}` : ' · Tất cả dịch vụ'}
-                  {c.valid_until ? ` · jusqu'au ${new Date(c.valid_until).toLocaleDateString('fr-FR')}` : ''}
+                  {c.valid_until ? ` · đến ${new Date(c.valid_until).toLocaleDateString('vi-VN')}` : ''}
                 </div>
               </div>
               <div style={{ padding: '3px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: '600', background: c.active ? '#f0fff4' : '#f5f5f5', color: c.active ? '#1a6b3a' : C.mid, cursor: 'pointer' }} onClick={() => toggleActive(c)}>{c.active ? 'Đang hoạt động' : 'Đã tắt'}</div>
@@ -902,6 +903,141 @@ function SubGalerie({ merchantId, toast }) {
   )
 }
 
+// ─── Marketing : Thông báo ────────────────────────────────────
+function SubThongBao({ merchantId, toast }) {
+  const [announcements, setAnnouncements] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [showForm, setShowForm] = useState(false)
+  const [editingId, setEditingId] = useState(null)
+  const [form, setForm] = useState({ text: '', hasEndDate: false, valid_until: '', active: true })
+
+  async function load() {
+    const { data } = await supabase.from('announcements').select('*').eq('merchant_id', merchantId).order('created_at', { ascending: false })
+    setAnnouncements(data || [])
+    setLoading(false)
+  }
+  useEffect(() => { if (merchantId) load() }, [merchantId])
+
+  function resetForm() {
+    setForm({ text: '', hasEndDate: false, valid_until: '', active: true })
+    setEditingId(null)
+    setShowForm(false)
+  }
+
+  async function save() {
+    if (!form.text.trim()) { toast('Yêu cầu nội dung thông báo', false); return }
+    if (!await moderate([form.text])) { toast('Nội dung không được phép', false); return }
+    const payload = {
+      text: form.text.trim(),
+      active: form.active,
+      valid_until: form.hasEndDate && form.valid_until ? form.valid_until : null,
+      merchant_id: merchantId,
+    }
+    if (editingId) {
+      await supabase.from('announcements').update(payload).eq('id', editingId)
+      toast('Đã cập nhật thông báo', true)
+    } else {
+      await supabase.from('announcements').insert(payload)
+      toast('Đã tạo thông báo', true)
+    }
+    resetForm(); load()
+  }
+
+  function edit(a) {
+    setEditingId(a.id)
+    setForm({
+      text: a.text || '',
+      hasEndDate: !!a.valid_until,
+      valid_until: a.valid_until ? a.valid_until.split('T')[0] : '',
+      active: a.active,
+    })
+    setShowForm(true)
+  }
+
+  async function toggleActive(a) { await supabase.from('announcements').update({ active: !a.active }).eq('id', a.id); load() }
+  async function remove(id) { if (!confirm('Xóa thông báo?')) return; await supabase.from('announcements').delete().eq('id', id); load(); toast('Đã xóa', true) }
+
+  const f = field => e => setForm(p => ({ ...p, [field]: e.target.value }))
+
+  return (
+    <div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+        <div>
+          <div style={{ fontWeight: '700', fontSize: '15px', color: C.dark }}>Thông báo</div>
+          <div style={{ fontSize: '12px', color: C.mid, marginTop: '2px' }}>Thông báo đang hoạt động sẽ hiển thị trên Mini App của bạn.</div>
+        </div>
+        {!showForm && <Btn onClick={() => setShowForm(true)}>+ Thêm</Btn>}
+      </div>
+      {showForm && (
+        <Card style={{ marginBottom: '16px', border: `1px solid ${C.border}` }}>
+          <FieldGroup label="Nội dung thông báo">
+            <textarea
+              value={form.text}
+              onChange={f('text')}
+              placeholder="Ví dụ: Nhạc sống tối thứ sáu 19h-22h"
+              rows={3}
+              maxLength={200}
+              style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: `1px solid ${C.border}`, fontSize: '14px', color: C.dark, outline: 'none', fontFamily: "'Be Vietnam Pro', sans-serif", resize: 'vertical' }}
+            />
+            <div style={{ fontSize: '11px', color: C.mid, marginTop: '4px', textAlign: 'right' }}>{form.text.length}/200</div>
+          </FieldGroup>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+            <input
+              type="checkbox"
+              id="hasEndDate"
+              checked={form.hasEndDate}
+              onChange={e => setForm(p => ({ ...p, hasEndDate: e.target.checked, valid_until: e.target.checked ? p.valid_until : '' }))}
+              style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+            />
+            <label htmlFor="hasEndDate" style={{ fontSize: '13px', color: C.dark, cursor: 'pointer' }}>Có ngày kết thúc</label>
+          </div>
+          {form.hasEndDate && (
+            <FieldGroup label="Kết thúc vào">
+              <Input value={form.valid_until} onChange={f('valid_until')} type="date" />
+            </FieldGroup>
+          )}
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <Btn onClick={save}>{editingId ? 'Lưu' : 'Tạo'}</Btn>
+            <Btn variant="ghost" onClick={resetForm}>Hủy</Btn>
+          </div>
+        </Card>
+      )}
+      {loading ? <div style={{ color: C.mid }}>Đang tải…</div> : announcements.length === 0 ? (
+        <Card style={{ textAlign: 'center', color: C.mid }}>
+          <div style={{ fontSize: '32px', marginBottom: '8px' }}>📢</div>
+          <div>Chưa có thông báo.</div>
+        </Card>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          {announcements.map(a => {
+            const expired = a.valid_until && new Date(a.valid_until) < new Date()
+            return (
+              <Card key={a.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 18px' }}>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: '14px', color: C.dark, whiteSpace: 'pre-wrap' }}>{a.text}</div>
+                  {a.valid_until && (
+                    <div style={{ fontSize: '12px', color: expired ? '#c00' : C.mid, marginTop: '4px' }}>
+                      {expired ? '⚠ Đã hết hạn' : '📅 Đến'} {new Date(a.valid_until).toLocaleDateString('vi-VN')}
+                    </div>
+                  )}
+                </div>
+                <div
+                  style={{ padding: '3px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: '600', background: a.active ? '#f0fff4' : '#f5f5f5', color: a.active ? '#1a6b3a' : C.mid, cursor: 'pointer', whiteSpace: 'nowrap' }}
+                  onClick={() => toggleActive(a)}
+                >
+                  {a.active ? 'Đang hoạt động' : 'Đã tắt'}
+                </div>
+                <Btn variant="ghost" small onClick={() => edit(a)}>✏️</Btn>
+                <Btn variant="danger" small onClick={() => remove(a.id)}>🗑</Btn>
+              </Card>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ─── Section Marketing ────────────────────────────────────────
 function SectionMarketing({ merchantId, merchant, onSaveMerchant, toast }) {
   const [sub, setSub] = useState('roue')
@@ -915,7 +1051,7 @@ function SectionMarketing({ merchantId, merchant, onSaveMerchant, toast }) {
       {sub === 'parrainage' && <SubParrainage merchantId={merchantId} toast={toast} />}
       {sub === 'coupons'    && <SubCoupons merchantId={merchantId} toast={toast} />}
       {sub === 'bienvenue'  && <SubBienvenue merchant={merchant} onSave={onSaveMerchant} />}
-      {sub === 'galerie'    && <SubGalerie merchantId={merchantId} toast={toast} />}
+      {sub === 'thongbao'   && <SubThongBao merchantId={merchantId} toast={toast} />}
     </div>
   )
 }
