@@ -235,11 +235,11 @@ function SubHero({ merchant, onSave }) {
         </div>
       ) : (
         <div style={{ width: '100%', height: '160px', borderRadius: '10px', border: `2px dashed ${C.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.mid, fontSize: '14px', marginBottom: '16px', cursor: 'pointer', background: C.bg }} onClick={() => fileRef.current.click()}>
-          Cliquez pour uploader votre photo d'accueil
+          Nhấn để tải ảnh trang chính
         </div>
       )}
       <input ref={fileRef} type="file" accept="image/*" onChange={handleFile} style={{ display: 'none' }} />
-      <Btn onClick={() => fileRef.current.click()} disabled={uploading}>{uploading ? 'Đang gửi…' : preview ? '🔄 Changer la photo' : '📷 Uploader une photo'}</Btn>
+      <Btn onClick={() => fileRef.current.click()} disabled={uploading}>{uploading ? 'Đang gửi…' : preview ? '🔄 Đổi ảnh' : '📷 Tải ảnh'}</Btn>
     </Card>
   )
 }
@@ -248,7 +248,7 @@ function SectionProfil({ merchant, onSave, merchantId, toast }) {
   const [sub, setSub] = useState('infos')
   return (
     <div>
-      <SectionTitle>Ma page</SectionTitle>
+      <SectionTitle>Trang của tôi</SectionTitle>
       <ProfilNav active={sub} onSelect={setSub} />
       {sub === 'infos'    && <SubInfos merchant={merchant} onSave={onSave} />}
       {sub === 'hero'     && <SubHero merchant={merchant} onSave={onSave} />}
@@ -756,10 +756,10 @@ function SubParrainage({ merchantId, toast }) {
       <div style={{ margin: '16px 0', padding: '16px', background: C.bg, borderRadius: '10px', fontSize: '13px', color: C.mid }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
           <span style={{ background: C.white, padding: '6px 12px', borderRadius: '8px', color: C.dark, fontWeight: '600' }}>👩 Người giới thiệu</span>
-          <span>partage un lien Zalo →</span>
+          <span>chia sẻ link Zalo →</span>
           <span style={{ background: C.white, padding: '6px 12px', borderRadius: '8px', color: C.dark, fontWeight: '600' }}>👩 Người được giới thiệu</span>
-          <span>ouvre la Mini App →</span>
-          <span style={{ background: '#f0fff4', padding: '6px 12px', borderRadius: '8px', color: '#1a6b3a', fontWeight: '600' }}>Toutes les deux reçoivent −{form.discount_referrer || 15}%</span>
+          <span>mở Mini App →</span>
+          <span style={{ background: '#f0fff4', padding: '6px 12px', borderRadius: '8px', color: '#1a6b3a', fontWeight: '600' }}>Cả hai cùng được −{form.discount_referrer || 15}%</span>
         </div>
       </div>
       <SaveBtn onClick={save} />
