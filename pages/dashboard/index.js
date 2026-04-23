@@ -1145,6 +1145,11 @@ function SectionAvis({ merchantId, toast }) {
     if (!form.author_name) { toast('Yêu cầu tên', false); return }
     if (!await moderate([form.author_name, form.content])) { toast('Nội dung không được phép', false); return }
     await supabase.from('reviews').insert({ ...form, merchant_id: merchantId })
+    fetch('/api/reviews/notify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ merchantId, review: form })
+    }).catch(e => console.warn('[notify] failed:', e))
     setShowForm(false); setForm({ author_name: '', content: '', rating: 5, visible: true }); load(); toast('Đã thêm đánh giá', true)
   }
   async function toggleVisible(r) { await supabase.from('reviews').update({ visible: !r.visible }).eq('id', r.id); load() }
