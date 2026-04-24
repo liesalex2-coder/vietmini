@@ -41,6 +41,22 @@ export default async function handler(req, res) {
 
     if (!merchant) return res.status(404).json({ error: 'Marchand introuvable' })
 
+    // Abonnement inactif → renvoyer 403 avec infos minimales (name, vertical pour le template)
+    // Bypass via ?preview=1 pour permettre la prévisualisation côté dashboard marchand et admin
+    const isPreview = req.query.preview === '1'
+    if (!merchant.subscription_active && !isPreview) {
+      res.setHeader('Access-Control-Allow-Origin', '*')
+      res.setHeader('Cache-Control', 'no-store')
+      return res.status(403).json({
+        error: 'subscription_inactive',
+        merchant: {
+          name: merchant.name || '',
+          vertical: merchant.vertical || '',
+          primary_color: merchant.primary_color || '#D0021B',
+        }
+      })
+    }
+
     // Grouper les services par catégorie (sans perdre les orphelins)
     const categoriesList = categories || []
     const servicesList = services || []

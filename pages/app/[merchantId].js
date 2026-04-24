@@ -16,7 +16,7 @@ const TEMPLATE_MAP = {
   boutique: '/mini-apps/boutique.html',
 }
 
-export async function getServerSideProps({ params, req }) {
+export async function getServerSideProps({ params, req, query }) {
   const { merchantId } = params
 
   const { data: merchant } = await supabase
@@ -35,9 +35,12 @@ export async function getServerSideProps({ params, req }) {
   const host = req.headers['x-forwarded-host'] || req.headers.host
   const apiBase = `${protocol}://${host}`
 
+  // Propager le flag preview (pour permettre l'aperçu même si abonnement inactif)
+  const previewParam = query.preview === '1' ? '&preview=1' : ''
+
   return {
     redirect: {
-      destination: `${template}?merchant_id=${merchantId}&api=${apiBase}`,
+      destination: `${template}?merchant_id=${merchantId}&api=${apiBase}${previewParam}`,
       permanent: false,
     }
   }

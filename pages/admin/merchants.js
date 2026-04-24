@@ -321,7 +321,7 @@ export default function AdminMerchants() {
                     </div>
                     <div style={{ textAlign: 'right', display: 'flex', gap: '6px', justifyContent: 'flex-end' }}>
                       <Link
-                        href={`/preview/${m.id}`}
+                        href={`/app/${m.id}?preview=1`}
                         target="_blank"
                         style={{
                           padding: '6px 10px',

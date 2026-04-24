@@ -16,7 +16,7 @@ export default function Preview() {
       .then(({ data }) => { setMerchant(data); setLoading(false) })
   }, [merchantId])
 
-  const appUrl = merchantId ? `/app/${merchantId}` : null
+  const appUrl = merchantId ? `/app/${merchantId}?preview=1` : null
 
   return (
     <>
