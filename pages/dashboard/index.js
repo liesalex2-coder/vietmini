@@ -575,7 +575,7 @@ function SubFlash({ merchantId, toast }) {
       </div>
       <div style={{ margin: '12px 0 4px', fontSize: '12px', fontWeight: '600', color: C.mid, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Loại lịch</div>
       <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
-        <button onClick={() => setForm(p => ({ ...p, recurring: false }))} style={{ flex: 1, padding: '9px', borderRadius: '8px', border: `2px solid ${!form.recurring ? C.red : C.border}`, background: !form.recurring ? '#fff5f5' : '#fff', color: !form.recurring ? C.red : C.mid, fontWeight: '600', fontSize: '13px', cursor: 'pointer', fontFamily: "'Be Vietnam Pro', sans-serif" }}>📅 Ponctuel</button>
+        <button onClick={() => setForm(p => ({ ...p, recurring: false }))} style={{ flex: 1, padding: '9px', borderRadius: '8px', border: `2px solid ${!form.recurring ? C.red : C.border}`, background: !form.recurring ? '#fff5f5' : '#fff', color: !form.recurring ? C.red : C.mid, fontWeight: '600', fontSize: '13px', cursor: 'pointer', fontFamily: "'Be Vietnam Pro', sans-serif" }}>📅 Một lần</button>
         <button onClick={() => setForm(p => ({ ...p, recurring: true }))} style={{ flex: 1, padding: '9px', borderRadius: '8px', border: `2px solid ${form.recurring ? C.red : C.border}`, background: form.recurring ? '#fff5f5' : '#fff', color: form.recurring ? C.red : C.mid, fontWeight: '600', fontSize: '13px', cursor: 'pointer', fontFamily: "'Be Vietnam Pro', sans-serif" }}>🔁 Định kỳ</button>
       </div>
       {!form.recurring ? (
