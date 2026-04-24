@@ -364,9 +364,9 @@ export default async function handler(req, res) {
       await supabaseAdmin.from('referral_config').insert({
         merchant_id: merchantId,
         enabled: false,
-        referrer_discount: 15,
-        referee_discount: 10,
-        validity_days: 30
+        discount_referrer: 15,
+        discount_referred: 10,
+        valid_days: 30
       })
     }
 
