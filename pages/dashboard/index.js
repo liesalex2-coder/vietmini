@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/router'
 import Head from 'next/head'
 import { supabase } from '../../lib/supabaseClient'
+import QRCode from 'qrcode'
 
 
 async function moderate(fields) {
@@ -132,6 +133,29 @@ function MarketingNav({ active, onSelect }) {
 function SectionApercu({ merchant, contacts, broadcasts, onChangeVertical }) {
   const now = new Date()
   const thisMonth = contacts.filter(c => { const d = new Date(c.captured_at); return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear() }).length
+
+  // QR code — visible uniquement si abonnement actif
+  const [qrDataUrl, setQrDataUrl] = useState(null)
+  useEffect(() => {
+    if (!merchant || !merchant.id || !merchant.subscription_active) return
+    const appUrl = `${window.location.origin}/app/${merchant.id}`
+    QRCode.toDataURL(appUrl, {
+      width: 512,
+      margin: 2,
+      color: { dark: '#1A0A00', light: '#FFFFFF' },
+    }).then(setQrDataUrl).catch(e => console.error('QR error', e))
+  }, [merchant])
+
+  function downloadQR() {
+    if (!qrDataUrl) return
+    const link = document.createElement('a')
+    link.href = qrDataUrl
+    link.download = `vietmini-qr-${(merchant.name || 'cua-hang').toLowerCase().replace(/[^a-z0-9]+/g, '-')}.png`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
+
   return (
     <div>
       <SectionTitle>Tổng quan</SectionTitle>
@@ -153,6 +177,28 @@ function SectionApercu({ merchant, contacts, broadcasts, onChangeVertical }) {
             </div>
           </div>
         </Card>
+      )}
+      {merchant && merchant.subscription_active && (
+        <div style={{ marginTop: '16px' }}>
+          <Card>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>
+              <div style={{ width: '140px', height: '140px', background: '#fff', borderRadius: '12px', padding: '8px', border: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                {qrDataUrl ? (
+                  <img src={qrDataUrl} alt="QR Code" style={{ width: '100%', height: '100%', display: 'block' }} />
+                ) : (
+                  <div style={{ fontSize: '12px', color: C.mid }}>Đang tạo…</div>
+                )}
+              </div>
+              <div style={{ flex: 1, minWidth: '200px' }}>
+                <div style={{ fontWeight: '700', fontSize: '15px', color: C.dark, marginBottom: '6px' }}>Mã QR cửa hàng</div>
+                <div style={{ fontSize: '13px', color: C.mid, lineHeight: '1.5', marginBottom: '12px' }}>
+                  In ra và dán tại quầy để khách hàng quét và truy cập ứng dụng.
+                </div>
+                <Btn variant="primary" small onClick={downloadQR} disabled={!qrDataUrl}>⬇ Tải xuống PNG</Btn>
+              </div>
+            </div>
+          </Card>
+        </div>
       )}
     </div>
   )
