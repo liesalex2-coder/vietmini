@@ -1036,10 +1036,12 @@ function renderStamps() {}
   _merchantId = merchantId;
   const apiBase = params.get('api') || 'https://vietmini.vercel.app';
   _apiBase = apiBase;
+  const isPreview = params.get('preview') === '1';
   if (!merchantId) return;
 
   try {
-    const res = await fetch(`${apiBase}/api/mini-app/${merchantId}`);
+    const apiUrl = `${apiBase}/api/mini-app/${merchantId}` + (isPreview ? '?preview=1' : '');
+    const res = await fetch(apiUrl);
 
     // Abonnement inactif → afficher un écran de blocage et s'arrêter là
     if (res.status === 403) {
