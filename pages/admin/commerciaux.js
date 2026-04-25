@@ -129,11 +129,6 @@ export default function AdminCommerciaux() {
     setBusyId(null)
   }
 
-  // Stats
-  const totalCount = commerciaux.length
-  const actifsCount = commerciaux.filter(c => c.actif).length
-  const inactifsCount = commerciaux.filter(c => !c.actif).length
-
   if (loading) {
     return (
       <div style={{ minHeight: '100vh', background: C.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Be Vietnam Pro', sans-serif", color: C.mid }}>
@@ -175,7 +170,7 @@ export default function AdminCommerciaux() {
           </div>
         </div>
 
-        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '40px 24px 80px' }}>
+        <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '40px 24px 80px' }}>
 
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '32px', gap: '16px' }}>
             <div>
@@ -199,13 +194,6 @@ export default function AdminCommerciaux() {
                 }}
               >+ Ajouter</button>
             )}
-          </div>
-
-          {/* Stats */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '28px' }}>
-            <StatCard label="Total" value={totalCount} />
-            <StatCard label="Actifs" value={actifsCount} color={C.green} />
-            <StatCard label="Inactifs" value={inactifsCount} color={C.muted} />
           </div>
 
           {/* Formulaire inline */}
@@ -302,21 +290,42 @@ export default function AdminCommerciaux() {
             </p>
           ) : (
             <div style={{ background: C.white, borderRadius: '12px', border: `1px solid ${C.border}`, overflow: 'hidden' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1.6fr 1.2fr 1fr 0.8fr 1.4fr', gap: '12px', padding: '12px 16px', background: C.bg, fontSize: '11px', fontWeight: '700', color: C.mid, textTransform: 'uppercase', letterSpacing: '0.5px', borderBottom: `1px solid ${C.border}` }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1.6fr 1.2fr 1.4fr 0.8fr 1.4fr', gap: '12px', padding: '12px 16px', background: C.bg, fontSize: '11px', fontWeight: '700', color: C.mid, textTransform: 'uppercase', letterSpacing: '0.5px', borderBottom: `1px solid ${C.border}` }}>
                 <div>Nom</div>
                 <div>Téléphone</div>
-                <div style={{ textAlign: 'center' }}>Marchands</div>
+                <div style={{ textAlign: 'center' }}>Marchands signés</div>
                 <div style={{ textAlign: 'center' }}>Statut</div>
                 <div style={{ textAlign: 'right' }}>Actions</div>
               </div>
               {commerciaux.map(c => {
                 const isBusy = busyId === c.id
                 return (
-                  <div key={c.id} style={{ display: 'grid', gridTemplateColumns: '1.6fr 1.2fr 1fr 0.8fr 1.4fr', gap: '12px', padding: '12px 16px', fontSize: '13px', color: C.dark, borderBottom: `1px solid ${C.border}`, alignItems: 'center', opacity: c.actif ? 1 : 0.55 }}>
+                  <div key={c.id} style={{ display: 'grid', gridTemplateColumns: '1.6fr 1.2fr 1.4fr 0.8fr 1.4fr', gap: '12px', padding: '12px 16px', fontSize: '13px', color: C.dark, borderBottom: `1px solid ${C.border}`, alignItems: 'center', opacity: c.actif ? 1 : 0.55 }}>
                     <div style={{ fontWeight: '700' }}>{c.nom}</div>
                     <div style={{ fontSize: '12px', color: C.mid }}>{c.telephone || '—'}</div>
-                    <div style={{ textAlign: 'center', fontSize: '13px', fontWeight: '700', color: c.nb_marchands > 0 ? C.dark : C.muted }}>
-                      {c.nb_marchands}
+                    <div style={{ textAlign: 'center' }}>
+                      {c.nb_marchands > 0 ? (
+                        <Link
+                          href={`/admin/merchants?commercial=${c.id}`}
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            padding: '5px 12px',
+                            borderRadius: '6px',
+                            background: C.bg,
+                            color: C.dark,
+                            fontSize: '13px',
+                            fontWeight: '700',
+                            textDecoration: 'none',
+                            border: `1px solid ${C.border}`
+                          }}
+                        >
+                          {c.nb_marchands} marchand{c.nb_marchands > 1 ? 's' : ''} →
+                        </Link>
+                      ) : (
+                        <span style={{ fontSize: '13px', color: C.muted }}>0 marchand</span>
+                      )}
                     </div>
                     <div style={{ textAlign: 'center' }}>
                       <span style={{
@@ -376,14 +385,5 @@ export default function AdminCommerciaux() {
         </div>
       </div>
     </>
-  )
-}
-
-function StatCard({ label, value, color }) {
-  return (
-    <div style={{ background: C.white, borderRadius: '12px', border: `1px solid ${C.border}`, padding: '20px' }}>
-      <div style={{ fontSize: '11px', fontWeight: '700', color: C.mid, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px' }}>{label}</div>
-      <div style={{ fontSize: '28px', fontWeight: '900', color: color || C.dark }}>{value}</div>
-    </div>
   )
 }

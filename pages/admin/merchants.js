@@ -21,7 +21,6 @@ const VERTICAL_LABELS = {
   boutique: 'Boutique',
 }
 
-// Grille à 7 colonnes (ajout colonne Commercial)
 const GRID_COLS = '1.4fr 0.7fr 1fr 1.2fr 0.8fr 0.9fr 1.4fr'
 
 function formatDate(d) {
@@ -62,6 +61,15 @@ export default function AdminMerchants() {
   const [error, setError] = useState('')
 
   useEffect(() => { checkAuth() }, [])
+
+  // Pré-remplir le filtre commercial depuis l'URL (?commercial=xxx)
+  useEffect(() => {
+    if (!router.isReady) return
+    const q = router.query.commercial
+    if (q && typeof q === 'string') {
+      setFilterCommercial(q)
+    }
+  }, [router.isReady, router.query.commercial])
 
   async function checkAuth() {
     const { data: { session } } = await supabase.auth.getSession()
@@ -201,9 +209,14 @@ export default function AdminMerchants() {
     return m.subscription_active && d !== null && d >= 0 && d <= 30
   }).length
 
-  // Pour le dropdown : commerciaux actifs + ceux déjà assignés (même inactifs) pour ne pas perdre l'historique
+  // Pour le dropdown : commerciaux actifs + ceux déjà assignés
   const assignedCommerciauxIds = new Set(merchants.map(m => m.commercial_id).filter(Boolean))
   const dropdownCommerciaux = commerciaux.filter(c => c.actif || assignedCommerciauxIds.has(c.id))
+
+  // Nom du commercial filtré (pour bandeau d'info)
+  const filteredCommercialName = filterCommercial !== 'all' && filterCommercial !== 'none'
+    ? commerciaux.find(c => c.id === filterCommercial)?.nom
+    : null
 
   if (loading) {
     return (
@@ -257,6 +270,39 @@ export default function AdminMerchants() {
             <StatCard label="Actifs" value={activeCount} color={C.green} />
             <StatCard label="Expire ≤30j" value={expiringCount} color="#d97706" />
           </div>
+
+          {/* Bandeau filtre commercial actif */}
+          {filteredCommercialName && (
+            <div style={{
+              background: '#fff7ed',
+              border: '1px solid #fed7aa',
+              borderRadius: '8px',
+              padding: '12px 16px',
+              marginBottom: '16px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '12px'
+            }}>
+              <span style={{ fontSize: '13px', color: '#9a3412' }}>
+                Marchands signés par <strong>{filteredCommercialName}</strong>
+              </span>
+              <button
+                onClick={() => setFilterCommercial('all')}
+                style={{
+                  padding: '5px 12px',
+                  borderRadius: '6px',
+                  border: '1px solid #fed7aa',
+                  background: C.white,
+                  color: '#9a3412',
+                  fontSize: '12px',
+                  fontWeight: '700',
+                  cursor: 'pointer',
+                  fontFamily: "'Be Vietnam Pro', sans-serif"
+                }}
+              >Effacer le filtre</button>
+            </div>
+          )}
 
           {/* Filtres */}
           <div style={{ background: C.white, borderRadius: '12px', border: `1px solid ${C.border}`, padding: '16px', marginBottom: '20px', display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
@@ -320,20 +366,6 @@ export default function AdminMerchants() {
                 <option key={c.id} value={c.id}>{c.nom}{!c.actif ? ' (inactif)' : ''}</option>
               ))}
             </select>
-            <button
-              onClick={() => loadMerchants(accessToken)}
-              style={{
-                padding: '10px 16px',
-                borderRadius: '8px',
-                background: C.dark,
-                color: C.white,
-                fontSize: '13px',
-                fontWeight: '700',
-                border: 'none',
-                cursor: 'pointer',
-                fontFamily: "'Be Vietnam Pro', sans-serif"
-              }}
-            >↻ Recharger</button>
           </div>
 
           {error && <p style={{ fontSize: '13px', color: C.red, marginBottom: '16px' }}>{error}</p>}
