@@ -143,7 +143,12 @@ export default function AdminCodes() {
             <div style={{ width: '32px', height: '32px', background: C.dark, borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.gold, fontWeight: '700', fontSize: '14px' }}>A</div>
             <span style={{ fontWeight: '700', fontSize: '16px', color: C.dark }}>VietMini Admin</span>
           </div>
-          <Link href="/dashboard" style={{ fontSize: '13px', color: C.mid, textDecoration: 'none' }}>← Dashboard</Link>
+          <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
+            <Link href="/admin/codes" style={{ fontSize: '13px', color: C.red, textDecoration: 'none', fontWeight: '700' }}>Codes</Link>
+            <Link href="/admin/merchants" style={{ fontSize: '13px', color: C.mid, textDecoration: 'none' }}>Marchands</Link>
+            <Link href="/admin/commerciaux" style={{ fontSize: '13px', color: C.mid, textDecoration: 'none' }}>Commerciaux</Link>
+            <Link href="/dashboard" style={{ fontSize: '13px', color: C.mid, textDecoration: 'none' }}>← Dashboard</Link>
+          </div>
         </div>
 
         <div style={{ maxWidth: '800px', margin: '0 auto', padding: '40px 24px 80px' }}>

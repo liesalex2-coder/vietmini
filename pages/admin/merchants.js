@@ -204,6 +204,7 @@ export default function AdminMerchants() {
           <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
             <Link href="/admin/codes" style={{ fontSize: '13px', color: C.mid, textDecoration: 'none' }}>Codes</Link>
             <Link href="/admin/merchants" style={{ fontSize: '13px', color: C.red, textDecoration: 'none', fontWeight: '700' }}>Marchands</Link>
+            <Link href="/admin/commerciaux" style={{ fontSize: '13px', color: C.mid, textDecoration: 'none' }}>Commerciaux</Link>
             <Link href="/dashboard" style={{ fontSize: '13px', color: C.mid, textDecoration: 'none' }}>← Dashboard</Link>
           </div>
         </div>
