@@ -21,6 +21,9 @@ const VERTICAL_LABELS = {
   boutique: 'Boutique',
 }
 
+// Grille à 7 colonnes (ajout colonne Commercial)
+const GRID_COLS = '1.4fr 0.7fr 1fr 1.2fr 0.8fr 0.9fr 1.4fr'
+
 function formatDate(d) {
   if (!d) return '—'
   return new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: '2-digit' })
@@ -50,9 +53,11 @@ export default function AdminMerchants() {
   const [accessToken, setAccessToken] = useState(null)
 
   const [merchants, setMerchants] = useState([])
+  const [commerciaux, setCommerciaux] = useState([])
   const [listLoading, setListLoading] = useState(false)
   const [search, setSearch] = useState('')
   const [filterStatus, setFilterStatus] = useState('all')
+  const [filterCommercial, setFilterCommercial] = useState('all')
   const [busyId, setBusyId] = useState(null)
   const [error, setError] = useState('')
 
@@ -80,8 +85,12 @@ export default function AdminMerchants() {
         body: JSON.stringify({ action: 'list', access_token: token })
       })
       const data = await res.json()
-      if (res.ok) setMerchants(data.merchants || [])
-      else setError(data.error || 'Erreur chargement')
+      if (res.ok) {
+        setMerchants(data.merchants || [])
+        setCommerciaux(data.commerciaux || [])
+      } else {
+        setError(data.error || 'Erreur chargement')
+      }
     } catch (e) {
       setError('Erreur de connexion')
     }
@@ -140,11 +149,33 @@ export default function AdminMerchants() {
     setBusyId(null)
   }
 
+  async function handleAssignCommercial(m, newCommercialId) {
+    setBusyId(m.id)
+    try {
+      const res = await fetch('/api/admin/merchants', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'assign_commercial',
+          access_token: accessToken,
+          merchant_id: m.id,
+          commercial_id: newCommercialId || null
+        })
+      })
+      const data = await res.json()
+      if (!res.ok) { alert(data.error || 'Erreur'); setBusyId(null); return }
+      await loadMerchants(accessToken)
+    } catch (e) {
+      alert('Erreur de connexion')
+    }
+    setBusyId(null)
+  }
+
   // Filtres
   const filtered = merchants.filter(m => {
     if (search) {
       const q = search.toLowerCase()
-      const hay = `${m.name || ''} ${m.email || ''} ${m.phone || ''} ${m.vertical || ''}`.toLowerCase()
+      const hay = `${m.name || ''} ${m.email || ''} ${m.phone || ''} ${m.vertical || ''} ${m.commercial_nom || ''}`.toLowerCase()
       if (!hay.includes(q)) return false
     }
     if (filterStatus === 'active' && !m.subscription_active) return false
@@ -157,6 +188,8 @@ export default function AdminMerchants() {
       const d = daysUntil(m.subscription_expires_at)
       if (!m.subscription_active || d === null || d >= 0) return false
     }
+    if (filterCommercial === 'none' && m.commercial_id) return false
+    if (filterCommercial !== 'all' && filterCommercial !== 'none' && m.commercial_id !== filterCommercial) return false
     return true
   })
 
@@ -167,6 +200,10 @@ export default function AdminMerchants() {
     const d = daysUntil(m.subscription_expires_at)
     return m.subscription_active && d !== null && d >= 0 && d <= 30
   }).length
+
+  // Pour le dropdown : commerciaux actifs + ceux déjà assignés (même inactifs) pour ne pas perdre l'historique
+  const assignedCommerciauxIds = new Set(merchants.map(m => m.commercial_id).filter(Boolean))
+  const dropdownCommerciaux = commerciaux.filter(c => c.actif || assignedCommerciauxIds.has(c.id))
 
   if (loading) {
     return (
@@ -209,7 +246,7 @@ export default function AdminMerchants() {
           </div>
         </div>
 
-        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '40px 24px 80px' }}>
+        <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '40px 24px 80px' }}>
 
           <h1 style={{ fontSize: '28px', fontWeight: '900', color: C.dark, letterSpacing: '-0.5px', margin: '0 0 8px' }}>Marchands</h1>
           <p style={{ fontSize: '14px', color: C.mid, margin: '0 0 32px' }}>Liste complète des marchands inscrits.</p>
@@ -227,7 +264,7 @@ export default function AdminMerchants() {
               type="text"
               value={search}
               onChange={e => setSearch(e.target.value)}
-              placeholder="Rechercher (nom, email, tél, vertical)…"
+              placeholder="Rechercher (nom, email, tél, vertical, commercial)…"
               style={{
                 flex: 1,
                 minWidth: '220px',
@@ -255,11 +292,33 @@ export default function AdminMerchants() {
                 cursor: 'pointer'
               }}
             >
-              <option value="all">Tous</option>
+              <option value="all">Tous statuts</option>
               <option value="active">Actifs</option>
               <option value="expiring">Expirant ≤30j</option>
               <option value="expired">Expirés</option>
               <option value="inactive">Inactifs</option>
+            </select>
+            <select
+              value={filterCommercial}
+              onChange={e => setFilterCommercial(e.target.value)}
+              style={{
+                padding: '10px 12px',
+                borderRadius: '8px',
+                border: `1px solid ${C.border}`,
+                fontSize: '14px',
+                color: C.dark,
+                outline: 'none',
+                fontFamily: "'Be Vietnam Pro', sans-serif",
+                background: C.white,
+                cursor: 'pointer',
+                maxWidth: '180px'
+              }}
+            >
+              <option value="all">Tous commerciaux</option>
+              <option value="none">Sans commercial</option>
+              {commerciaux.map(c => (
+                <option key={c.id} value={c.id}>{c.nom}{!c.actif ? ' (inactif)' : ''}</option>
+              ))}
             </select>
             <button
               onClick={() => loadMerchants(accessToken)}
@@ -288,9 +347,10 @@ export default function AdminMerchants() {
             </p>
           ) : (
             <div style={{ background: C.white, borderRadius: '12px', border: `1px solid ${C.border}`, overflow: 'hidden' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1.6fr 0.9fr 1.4fr 0.9fr 1fr 1.4fr', gap: '12px', padding: '12px 16px', background: C.bg, fontSize: '11px', fontWeight: '700', color: C.mid, textTransform: 'uppercase', letterSpacing: '0.5px', borderBottom: `1px solid ${C.border}` }}>
+              <div style={{ display: 'grid', gridTemplateColumns: GRID_COLS, gap: '12px', padding: '12px 16px', background: C.bg, fontSize: '11px', fontWeight: '700', color: C.mid, textTransform: 'uppercase', letterSpacing: '0.5px', borderBottom: `1px solid ${C.border}` }}>
                 <div>Marchand</div>
                 <div>Vertical</div>
+                <div>Commercial</div>
                 <div>Email / Tél</div>
                 <div style={{ textAlign: 'center' }}>Statut</div>
                 <div style={{ textAlign: 'center' }}>Expire</div>
@@ -300,13 +360,39 @@ export default function AdminMerchants() {
                 const status = subscriptionStatus(m)
                 const isBusy = busyId === m.id
                 return (
-                  <div key={m.id} style={{ display: 'grid', gridTemplateColumns: '1.6fr 0.9fr 1.4fr 0.9fr 1fr 1.4fr', gap: '12px', padding: '12px 16px', fontSize: '13px', color: C.dark, borderBottom: `1px solid ${C.border}`, alignItems: 'center' }}>
+                  <div key={m.id} style={{ display: 'grid', gridTemplateColumns: GRID_COLS, gap: '12px', padding: '12px 16px', fontSize: '13px', color: C.dark, borderBottom: `1px solid ${C.border}`, alignItems: 'center' }}>
                     <div>
                       <div style={{ fontWeight: '700' }}>{m.name || <span style={{ color: C.muted, fontStyle: 'italic' }}>Sans nom</span>}</div>
                       <div style={{ fontSize: '11px', color: C.muted, marginTop: '2px' }}>Inscrit {formatDate(m.created_at)}</div>
                     </div>
                     <div style={{ fontSize: '12px', color: C.mid }}>
                       {m.vertical ? (VERTICAL_LABELS[m.vertical] || m.vertical) : '—'}
+                    </div>
+                    <div>
+                      <select
+                        value={m.commercial_id || ''}
+                        onChange={e => handleAssignCommercial(m, e.target.value)}
+                        disabled={isBusy}
+                        style={{
+                          width: '100%',
+                          padding: '6px 8px',
+                          borderRadius: '6px',
+                          border: `1px solid ${C.border}`,
+                          fontSize: '12px',
+                          color: m.commercial_id ? C.dark : C.muted,
+                          outline: 'none',
+                          fontFamily: "'Be Vietnam Pro', sans-serif",
+                          background: C.white,
+                          cursor: isBusy ? 'wait' : 'pointer'
+                        }}
+                      >
+                        <option value="">— Aucun</option>
+                        {dropdownCommerciaux.map(c => (
+                          <option key={c.id} value={c.id}>
+                            {c.nom}{!c.actif ? ' (inactif)' : ''}
+                          </option>
+                        ))}
+                      </select>
                     </div>
                     <div style={{ fontSize: '12px', overflow: 'hidden' }}>
                       <div style={{ color: C.dark, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{m.email || '—'}</div>

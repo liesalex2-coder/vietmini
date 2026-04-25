@@ -26,7 +26,7 @@ export default async function handler(req, res) {
     if (action === 'list') {
       const { data: merchants, error } = await supabaseAdmin
         .from('merchants')
-        .select('id, user_id, name, vertical, phone, address, subscription_active, subscription_expires_at, created_at')
+        .select('id, user_id, name, vertical, phone, address, subscription_active, subscription_expires_at, created_at, commercial_id')
         .order('created_at', { ascending: false })
       if (error) throw error
 
@@ -41,12 +41,27 @@ export default async function handler(req, res) {
         }
       }
 
+      // Récupérer la liste des commerciaux (tous, pour pouvoir afficher le nom même si désactivé)
+      const { data: commerciaux } = await supabaseAdmin
+        .from('commerciaux')
+        .select('id, nom, actif')
+        .order('nom', { ascending: true })
+
+      const commerciauxMap = {}
+      for (const c of (commerciaux || [])) {
+        commerciauxMap[c.id] = c
+      }
+
       const enriched = (merchants || []).map(m => ({
         ...m,
         email: emailsMap[m.user_id] || null,
+        commercial_nom: m.commercial_id ? (commerciauxMap[m.commercial_id]?.nom || null) : null,
       }))
 
-      return res.status(200).json({ merchants: enriched })
+      return res.status(200).json({
+        merchants: enriched,
+        commerciaux: commerciaux || [],
+      })
     }
 
     // EXTEND (prolonger un abonnement de N jours)
@@ -90,6 +105,21 @@ export default async function handler(req, res) {
       const { error } = await supabaseAdmin
         .from('merchants')
         .update({ subscription_active: active })
+        .eq('id', merchant_id)
+      if (error) throw error
+      return res.status(200).json({ ok: true })
+    }
+
+    // ASSIGN COMMERCIAL (assigner ou retirer un commercial sur un marchand)
+    if (action === 'assign_commercial') {
+      const { merchant_id, commercial_id } = req.body
+      if (!merchant_id) {
+        return res.status(400).json({ error: 'Paramètres invalides' })
+      }
+      // commercial_id peut être null pour retirer l'assignation
+      const { error } = await supabaseAdmin
+        .from('merchants')
+        .update({ commercial_id: commercial_id || null })
         .eq('id', merchant_id)
       if (error) throw error
       return res.status(200).json({ ok: true })
