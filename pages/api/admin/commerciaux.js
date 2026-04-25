@@ -104,6 +104,37 @@ export default async function handler(req, res) {
       return res.status(200).json({ ok: true })
     }
 
+    // DELETE (suppression définitive avec archivage du nom dans les marchands)
+    if (action === 'delete') {
+      const { commercial_id } = req.body
+      if (!commercial_id) return res.status(400).json({ error: 'ID requis' })
+
+      // 1. Récupérer le nom du commercial pour archivage
+      const { data: commercial, error: fetchError } = await supabaseAdmin
+        .from('commerciaux')
+        .select('nom')
+        .eq('id', commercial_id)
+        .single()
+      if (fetchError) throw fetchError
+      if (!commercial) return res.status(404).json({ error: 'Commercial introuvable' })
+
+      // 2. Archiver le nom sur les marchands signés par ce commercial
+      const { error: archiveError } = await supabaseAdmin
+        .from('merchants')
+        .update({ commercial_nom_historique: commercial.nom })
+        .eq('commercial_id', commercial_id)
+      if (archiveError) throw archiveError
+
+      // 3. Supprimer le commercial (le ON DELETE SET NULL passe automatiquement commercial_id à null)
+      const { error: deleteError } = await supabaseAdmin
+        .from('commerciaux')
+        .delete()
+        .eq('id', commercial_id)
+      if (deleteError) throw deleteError
+
+      return res.status(200).json({ ok: true })
+    }
+
     return res.status(400).json({ error: 'Action inconnue' })
 
   } catch (e) {

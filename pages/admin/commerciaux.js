@@ -129,6 +129,42 @@ export default function AdminCommerciaux() {
     setBusyId(null)
   }
 
+  async function handleDelete(c) {
+    // Première confirmation
+    const msg = c.nb_marchands > 0
+      ? `Supprimer définitivement "${c.nom}" ?\n\nCe commercial a signé ${c.nb_marchands} marchand${c.nb_marchands > 1 ? 's' : ''}. Ces marchands ne seront pas supprimés, mais le nom de "${c.nom}" sera conservé en historique sur leur fiche.\n\nCette action est irréversible.`
+      : `Supprimer définitivement "${c.nom}" ?\n\nCette action est irréversible.`
+
+    if (!window.confirm(msg)) return
+
+    // Deuxième confirmation : taper le nom exact
+    const typed = window.prompt(`Pour confirmer la suppression, tapez exactement le nom du commercial :\n\n${c.nom}`)
+    if (typed === null) return // Annulé
+    if (typed.trim() !== c.nom) {
+      alert(`Le nom saisi ne correspond pas. Suppression annulée.`)
+      return
+    }
+
+    setBusyId(c.id)
+    try {
+      const res = await fetch('/api/admin/commerciaux', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'delete',
+          access_token: accessToken,
+          commercial_id: c.id
+        })
+      })
+      const data = await res.json()
+      if (!res.ok) { alert(data.error || 'Erreur'); setBusyId(null); return }
+      await loadCommerciaux(accessToken)
+    } catch (e) {
+      alert('Erreur de connexion')
+    }
+    setBusyId(null)
+  }
+
   if (loading) {
     return (
       <div style={{ minHeight: '100vh', background: C.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Be Vietnam Pro', sans-serif", color: C.mid }}>
@@ -170,7 +206,7 @@ export default function AdminCommerciaux() {
           </div>
         </div>
 
-        <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '40px 24px 80px' }}>
+        <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '40px 24px 80px' }}>
 
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '32px', gap: '16px' }}>
             <div>
@@ -290,7 +326,7 @@ export default function AdminCommerciaux() {
             </p>
           ) : (
             <div style={{ background: C.white, borderRadius: '12px', border: `1px solid ${C.border}`, overflow: 'hidden' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1.6fr 1.2fr 1.4fr 0.8fr 1.4fr', gap: '12px', padding: '12px 16px', background: C.bg, fontSize: '11px', fontWeight: '700', color: C.mid, textTransform: 'uppercase', letterSpacing: '0.5px', borderBottom: `1px solid ${C.border}` }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1.1fr 1.3fr 0.7fr 1.7fr', gap: '12px', padding: '12px 16px', background: C.bg, fontSize: '11px', fontWeight: '700', color: C.mid, textTransform: 'uppercase', letterSpacing: '0.5px', borderBottom: `1px solid ${C.border}` }}>
                 <div>Nom</div>
                 <div>Téléphone</div>
                 <div style={{ textAlign: 'center' }}>Marchands signés</div>
@@ -300,7 +336,7 @@ export default function AdminCommerciaux() {
               {commerciaux.map(c => {
                 const isBusy = busyId === c.id
                 return (
-                  <div key={c.id} style={{ display: 'grid', gridTemplateColumns: '1.6fr 1.2fr 1.4fr 0.8fr 1.4fr', gap: '12px', padding: '12px 16px', fontSize: '13px', color: C.dark, borderBottom: `1px solid ${C.border}`, alignItems: 'center', opacity: c.actif ? 1 : 0.55 }}>
+                  <div key={c.id} style={{ display: 'grid', gridTemplateColumns: '1.4fr 1.1fr 1.3fr 0.7fr 1.7fr', gap: '12px', padding: '12px 16px', fontSize: '13px', color: C.dark, borderBottom: `1px solid ${C.border}`, alignItems: 'center', opacity: c.actif ? 1 : 0.55 }}>
                     <div style={{ fontWeight: '700' }}>{c.nom}</div>
                     <div style={{ fontSize: '12px', color: C.mid }}>{c.telephone || '—'}</div>
                     <div style={{ textAlign: 'center' }}>
@@ -341,7 +377,7 @@ export default function AdminCommerciaux() {
                         {c.actif ? 'Actif' : 'Inactif'}
                       </span>
                     </div>
-                    <div style={{ textAlign: 'right', display: 'flex', gap: '6px', justifyContent: 'flex-end' }}>
+                    <div style={{ textAlign: 'right', display: 'flex', gap: '6px', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
                       <button
                         onClick={() => openEdit(c)}
                         disabled={isBusy || formOpen}
@@ -367,7 +403,7 @@ export default function AdminCommerciaux() {
                           borderRadius: '6px',
                           border: `1px solid ${C.border}`,
                           background: C.white,
-                          color: c.actif ? C.red : C.green,
+                          color: c.actif ? C.dark : C.green,
                           fontSize: '11px',
                           fontWeight: '700',
                           cursor: isBusy ? 'wait' : 'pointer',
@@ -375,6 +411,22 @@ export default function AdminCommerciaux() {
                           whiteSpace: 'nowrap'
                         }}
                       >{c.actif ? 'Désactiver' : 'Réactiver'}</button>
+                      <button
+                        onClick={() => handleDelete(c)}
+                        disabled={isBusy}
+                        style={{
+                          padding: '6px 10px',
+                          borderRadius: '6px',
+                          border: 'none',
+                          background: isBusy ? C.muted : C.red,
+                          color: C.white,
+                          fontSize: '11px',
+                          fontWeight: '700',
+                          cursor: isBusy ? 'wait' : 'pointer',
+                          fontFamily: "'Be Vietnam Pro', sans-serif",
+                          whiteSpace: 'nowrap'
+                        }}
+                      >Supprimer</button>
                     </div>
                   </div>
                 )
