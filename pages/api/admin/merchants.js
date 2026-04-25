@@ -26,7 +26,7 @@ export default async function handler(req, res) {
     if (action === 'list') {
       const { data: merchants, error } = await supabaseAdmin
         .from('merchants')
-        .select('id, user_id, name, vertical, phone, address, subscription_active, subscription_expires_at, created_at, commercial_id')
+        .select('id, user_id, name, vertical, phone, address, subscription_active, subscription_expires_at, created_at, commercial_id, commercial_nom_historique')
         .order('created_at', { ascending: false })
       if (error) throw error
 
@@ -34,14 +34,13 @@ export default async function handler(req, res) {
       const userIds = (merchants || []).map(m => m.user_id).filter(Boolean)
       const emailsMap = {}
       if (userIds.length > 0) {
-        // Pagination par défaut 50 users par page ; pour VietMini on est loin du plafond
         const { data: authList } = await supabaseAdmin.auth.admin.listUsers({ perPage: 1000 })
         for (const u of (authList?.users || [])) {
           emailsMap[u.id] = u.email
         }
       }
 
-      // Récupérer la liste des commerciaux (tous, pour pouvoir afficher le nom même si désactivé)
+      // Récupérer la liste des commerciaux
       const { data: commerciaux } = await supabaseAdmin
         .from('commerciaux')
         .select('id, nom, actif')
@@ -78,7 +77,6 @@ export default async function handler(req, res) {
         .eq('id', merchant_id)
         .single()
 
-      // Base = max(aujourd'hui, date d'expiration actuelle)
       const now = new Date()
       const currentExpiry = current?.subscription_expires_at ? new Date(current.subscription_expires_at) : null
       const base = currentExpiry && currentExpiry > now ? currentExpiry : now
@@ -96,7 +94,7 @@ export default async function handler(req, res) {
       return res.status(200).json({ subscription_expires_at: newExpiry.toISOString() })
     }
 
-    // TOGGLE ACTIVE (activer/désactiver manuellement)
+    // TOGGLE ACTIVE
     if (action === 'toggle_active') {
       const { merchant_id, active } = req.body
       if (!merchant_id || typeof active !== 'boolean') {
@@ -110,18 +108,50 @@ export default async function handler(req, res) {
       return res.status(200).json({ ok: true })
     }
 
-    // ASSIGN COMMERCIAL (assigner ou retirer un commercial sur un marchand)
+    // ASSIGN COMMERCIAL
     if (action === 'assign_commercial') {
       const { merchant_id, commercial_id } = req.body
       if (!merchant_id) {
         return res.status(400).json({ error: 'Paramètres invalides' })
       }
-      // commercial_id peut être null pour retirer l'assignation
       const { error } = await supabaseAdmin
         .from('merchants')
         .update({ commercial_id: commercial_id || null })
         .eq('id', merchant_id)
       if (error) throw error
+      return res.status(200).json({ ok: true })
+    }
+
+    // DELETE (suppression définitive : merchants row CASCADE + auth.users)
+    if (action === 'delete') {
+      const { merchant_id } = req.body
+      if (!merchant_id) return res.status(400).json({ error: 'ID requis' })
+
+      // 1. Récupérer le user_id avant suppression
+      const { data: merchant, error: fetchError } = await supabaseAdmin
+        .from('merchants')
+        .select('user_id')
+        .eq('id', merchant_id)
+        .single()
+      if (fetchError) throw fetchError
+      if (!merchant) return res.status(404).json({ error: 'Marchand introuvable' })
+
+      // 2. Supprimer le row merchants (CASCADE sur toutes les tables liées)
+      const { error: deleteError } = await supabaseAdmin
+        .from('merchants')
+        .delete()
+        .eq('id', merchant_id)
+      if (deleteError) throw deleteError
+
+      // 3. Supprimer le compte auth.users si user_id présent
+      if (merchant.user_id) {
+        const { error: authDeleteError } = await supabaseAdmin.auth.admin.deleteUser(merchant.user_id)
+        if (authDeleteError) {
+          // On log mais on ne fait pas échouer la suppression — le merchants row est déjà parti
+          console.error('Erreur suppression auth.users:', authDeleteError)
+        }
+      }
+
       return res.status(200).json({ ok: true })
     }
 

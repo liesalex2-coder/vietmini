@@ -21,7 +21,7 @@ const VERTICAL_LABELS = {
   boutique: 'Boutique',
 }
 
-const GRID_COLS = '1.4fr 0.7fr 1fr 1.2fr 0.8fr 0.9fr 1.4fr'
+const GRID_COLS = '1.4fr 0.7fr 1fr 1.2fr 0.8fr 0.9fr 1.7fr'
 
 function formatDate(d) {
   if (!d) return '—'
@@ -179,11 +179,57 @@ export default function AdminMerchants() {
     setBusyId(null)
   }
 
+  async function handleDelete(m) {
+    const label = m.name || m.email || 'ce marchand'
+    const confirmIdentifier = m.email || m.name
+
+    if (!confirmIdentifier) {
+      alert('Impossible de supprimer ce marchand : aucun email ni nom pour confirmer.')
+      return
+    }
+
+    // Première confirmation
+    const msg = `⚠️ SUPPRESSION DÉFINITIVE\n\nVous allez supprimer "${label}" et TOUTES ses données :\n• Compte de connexion\n• Services, photos, fidélité\n• Avis, contacts, diffusions\n• Toute la configuration de la Mini App\n\nCette action est IRRÉVERSIBLE.\n\nContinuer ?`
+
+    if (!window.confirm(msg)) return
+
+    // Deuxième confirmation : taper l'email exact (ou le nom si pas d'email)
+    const promptLabel = m.email
+      ? `Pour confirmer, tapez exactement l'email du marchand :\n\n${m.email}`
+      : `Pour confirmer, tapez exactement le nom du marchand :\n\n${m.name}`
+
+    const typed = window.prompt(promptLabel)
+    if (typed === null) return // Annulé
+    if (typed.trim() !== confirmIdentifier) {
+      alert(`La saisie ne correspond pas. Suppression annulée.`)
+      return
+    }
+
+    setBusyId(m.id)
+    try {
+      const res = await fetch('/api/admin/merchants', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'delete',
+          access_token: accessToken,
+          merchant_id: m.id
+        })
+      })
+      const data = await res.json()
+      if (!res.ok) { alert(data.error || 'Erreur'); setBusyId(null); return }
+      await loadMerchants(accessToken)
+    } catch (e) {
+      alert('Erreur de connexion')
+    }
+    setBusyId(null)
+  }
+
   // Filtres
   const filtered = merchants.filter(m => {
     if (search) {
       const q = search.toLowerCase()
-      const hay = `${m.name || ''} ${m.email || ''} ${m.phone || ''} ${m.vertical || ''} ${m.commercial_nom || ''}`.toLowerCase()
+      const hay = `${m.name || ''} ${m.email || ''} ${m.phone || ''} ${m.vertical || ''} ${m.commercial_nom || ''} ${m.commercial_nom_historique || ''}`.toLowerCase()
       if (!hay.includes(q)) return false
     }
     if (filterStatus === 'active' && !m.subscription_active) return false
@@ -201,7 +247,6 @@ export default function AdminMerchants() {
     return true
   })
 
-  // Stats
   const totalCount = merchants.length
   const activeCount = merchants.filter(m => m.subscription_active).length
   const expiringCount = merchants.filter(m => {
@@ -209,11 +254,9 @@ export default function AdminMerchants() {
     return m.subscription_active && d !== null && d >= 0 && d <= 30
   }).length
 
-  // Pour le dropdown : commerciaux actifs + ceux déjà assignés
   const assignedCommerciauxIds = new Set(merchants.map(m => m.commercial_id).filter(Boolean))
   const dropdownCommerciaux = commerciaux.filter(c => c.actif || assignedCommerciauxIds.has(c.id))
 
-  // Nom du commercial filtré (pour bandeau d'info)
   const filteredCommercialName = filterCommercial !== 'all' && filterCommercial !== 'none'
     ? commerciaux.find(c => c.id === filterCommercial)?.nom
     : null
@@ -259,7 +302,7 @@ export default function AdminMerchants() {
           </div>
         </div>
 
-        <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '40px 24px 80px' }}>
+        <div style={{ maxWidth: '1320px', margin: '0 auto', padding: '40px 24px 80px' }}>
 
           <h1 style={{ fontSize: '28px', fontWeight: '900', color: C.dark, letterSpacing: '-0.5px', margin: '0 0 8px' }}>Marchands</h1>
           <p style={{ fontSize: '14px', color: C.mid, margin: '0 0 32px' }}>Liste complète des marchands inscrits.</p>
@@ -425,6 +468,11 @@ export default function AdminMerchants() {
                           </option>
                         ))}
                       </select>
+                      {!m.commercial_id && m.commercial_nom_historique && (
+                        <div style={{ fontSize: '10px', color: C.muted, marginTop: '3px', fontStyle: 'italic' }}>
+                          Anc. : {m.commercial_nom_historique}
+                        </div>
+                      )}
                     </div>
                     <div style={{ fontSize: '12px', overflow: 'hidden' }}>
                       <div style={{ color: C.dark, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{m.email || '—'}</div>
@@ -438,7 +486,7 @@ export default function AdminMerchants() {
                     <div style={{ textAlign: 'center', fontSize: '12px', color: C.mid }}>
                       {formatDate(m.subscription_expires_at)}
                     </div>
-                    <div style={{ textAlign: 'right', display: 'flex', gap: '6px', justifyContent: 'flex-end' }}>
+                    <div style={{ textAlign: 'right', display: 'flex', gap: '6px', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
                       <Link
                         href={`/app/${m.id}?preview=1`}
                         target="_blank"
@@ -460,9 +508,9 @@ export default function AdminMerchants() {
                         style={{
                           padding: '6px 10px',
                           borderRadius: '6px',
-                          border: 'none',
-                          background: isBusy ? C.muted : C.red,
-                          color: C.white,
+                          border: `1px solid ${C.border}`,
+                          background: C.white,
+                          color: C.dark,
                           fontSize: '11px',
                           fontWeight: '700',
                           cursor: isBusy ? 'wait' : 'pointer',
@@ -478,7 +526,7 @@ export default function AdminMerchants() {
                           borderRadius: '6px',
                           border: `1px solid ${C.border}`,
                           background: C.white,
-                          color: m.subscription_active ? C.red : C.green,
+                          color: m.subscription_active ? C.dark : C.green,
                           fontSize: '11px',
                           fontWeight: '700',
                           cursor: isBusy ? 'wait' : 'pointer',
@@ -486,6 +534,22 @@ export default function AdminMerchants() {
                           whiteSpace: 'nowrap'
                         }}
                       >{m.subscription_active ? 'Désactiver' : 'Activer'}</button>
+                      <button
+                        onClick={() => handleDelete(m)}
+                        disabled={isBusy}
+                        style={{
+                          padding: '6px 10px',
+                          borderRadius: '6px',
+                          border: 'none',
+                          background: isBusy ? C.muted : C.red,
+                          color: C.white,
+                          fontSize: '11px',
+                          fontWeight: '700',
+                          cursor: isBusy ? 'wait' : 'pointer',
+                          fontFamily: "'Be Vietnam Pro', sans-serif",
+                          whiteSpace: 'nowrap'
+                        }}
+                      >Supprimer</button>
                     </div>
                   </div>
                 )
