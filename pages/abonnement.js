@@ -1,6 +1,7 @@
 import Head from 'next/head'
 import Link from 'next/link'
 import { useState } from 'react'
+import { useRouter } from 'next/router'
 import { supabase } from '../lib/supabaseClient'
 
 const C = {
@@ -28,12 +29,15 @@ function formatVND(n) {
 }
 
 export default function Abonnement() {
+  const router = useRouter()
   const [showCode, setShowCode] = useState(false)
   const [code, setCode] = useState('')
   const [codeMsg, setCodeMsg] = useState('')
   const [codeMsgType, setCodeMsgType] = useState('')
   const [validating, setValidating] = useState(false)
   const [appliedCode, setAppliedCode] = useState(null)
+  const [activating, setActivating] = useState(false)
+  const [activationError, setActivationError] = useState('')
 
   const discount = appliedCode
     ? Math.round(BASE_PRICE * appliedCode.discount_percentage / 100)
@@ -98,9 +102,49 @@ export default function Abonnement() {
     setCodeMsg('')
     setCodeMsgType('')
     setShowCode(false)
+    setActivationError('')
   }
 
-  function handlePay() {
+  async function handlePay() {
+    setActivationError('')
+
+    // Cas 1 : code 100% appliqué → activation immédiate
+    if (appliedCode && finalPrice === 0) {
+      setActivating(true)
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        if (!session) {
+          setActivationError('Vui lòng đăng nhập lại.')
+          setActivating(false)
+          return
+        }
+
+        const res = await fetch('/api/apply-code', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            code: appliedCode.code,
+            access_token: session.access_token
+          })
+        })
+        const data = await res.json()
+
+        if (!res.ok) {
+          setActivationError(data.error || 'Lỗi kích hoạt')
+          setActivating(false)
+          return
+        }
+
+        // Succès : redirection vers dashboard avec un flag
+        router.push('/dashboard?activated=1')
+      } catch (e) {
+        setActivationError('Lỗi kết nối.')
+        setActivating(false)
+      }
+      return
+    }
+
+    // Cas 2 : paiement réel (SePay pas encore branché)
     alert('Thanh toán sẽ sớm khả dụng — liên hệ với chúng tôi qua Zalo để kích hoạt thuê bao.')
   }
 
@@ -190,12 +234,19 @@ export default function Abonnement() {
               {/* CTA */}
               <button
                 onClick={handlePay}
-                style={{ width: '100%', padding: '14px', borderRadius: '12px', background: C.red, color: C.white, fontWeight: '700', fontSize: '16px', border: 'none', cursor: 'pointer', fontFamily: "'Be Vietnam Pro', sans-serif" }}
+                disabled={activating}
+                style={{ width: '100%', padding: '14px', borderRadius: '12px', background: activating ? C.mid : C.red, color: C.white, fontWeight: '700', fontSize: '16px', border: 'none', cursor: activating ? 'wait' : 'pointer', fontFamily: "'Be Vietnam Pro', sans-serif" }}
               >
-                {finalPrice === 0
-                  ? 'Kích hoạt thuê bao →'
-                  : `Thanh toán ${formatVND(finalPrice)} ₫ →`}
+                {activating
+                  ? 'Đang kích hoạt…'
+                  : finalPrice === 0
+                    ? 'Kích hoạt thuê bao →'
+                    : `Thanh toán ${formatVND(finalPrice)} ₫ →`}
               </button>
+
+              {activationError && (
+                <p style={{ fontSize: '13px', color: C.red, textAlign: 'center', marginTop: '10px' }}>{activationError}</p>
+              )}
 
               {/* Code d'activation discret */}
               {!appliedCode && !showCode && (

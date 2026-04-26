@@ -26,7 +26,7 @@ export default async function handler(req, res) {
     if (action === 'list') {
       const { data: merchants, error } = await supabaseAdmin
         .from('merchants')
-        .select('id, user_id, name, vertical, phone, address, subscription_active, subscription_expires_at, created_at, commercial_id, commercial_nom_historique')
+        .select('id, user_id, name, vertical, phone, address, subscription_active, subscription_expires_at, signed_at, last_renewal_at, created_at, commercial_id, commercial_nom_historique')
         .order('created_at', { ascending: false })
       if (error) throw error
 
@@ -73,7 +73,7 @@ export default async function handler(req, res) {
 
       const { data: current } = await supabaseAdmin
         .from('merchants')
-        .select('subscription_expires_at')
+        .select('subscription_expires_at, signed_at')
         .eq('id', merchant_id)
         .single()
 
@@ -81,13 +81,21 @@ export default async function handler(req, res) {
       const currentExpiry = current?.subscription_expires_at ? new Date(current.subscription_expires_at) : null
       const base = currentExpiry && currentExpiry > now ? currentExpiry : now
       const newExpiry = new Date(base.getTime() + n * 24 * 60 * 60 * 1000)
+      const nowISO = now.toISOString()
+
+      const updates = {
+        subscription_active: true,
+        subscription_expires_at: newExpiry.toISOString(),
+        last_renewal_at: nowISO,
+      }
+      // signed_at uniquement si null (première signature)
+      if (!current?.signed_at) {
+        updates.signed_at = nowISO
+      }
 
       const { error } = await supabaseAdmin
         .from('merchants')
-        .update({
-          subscription_active: true,
-          subscription_expires_at: newExpiry.toISOString(),
-        })
+        .update(updates)
         .eq('id', merchant_id)
       if (error) throw error
 
