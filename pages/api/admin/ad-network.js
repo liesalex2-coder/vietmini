@@ -1,15 +1,10 @@
 // pages/api/admin/ad-network.js
 // API admin pour la console /admin/ad-network.
-// Suit le pattern existant /api/admin/merchants : POST unique, body { action, access_token, ... }.
+// Pattern aligné sur /api/admin/merchants : POST + body { action, access_token, ... }.
 //
-// Actions disponibles :
-//   - list_campaigns : { city?, source?, status? }       — liste les campagnes avec filtres
-//   - grant          : { merchant_id, days, source?, note? } — offrir des jours à un marchand
-//   - get_settings   : ()                                 — lire tous les paramètres
-//   - update_setting : { key, value }                     — modifier un paramètre
-//   - inventory      : ()                                 — vue par ville
-//   - cities         : ()                                 — liste des villes (pour les selects)
-//   - search_merchants: { q }                             — chercher un marchand (pour la modal grant)
+// Note importante : la table merchants n'a PAS de colonne email — l'email vit dans
+// auth.users (Supabase Auth) et se récupère via supa.auth.admin.listUsers(), joint
+// côté code via merchant.user_id → auth_user.id.
 
 import { createClient } from '@supabase/supabase-js'
 
@@ -26,6 +21,33 @@ function todayStr() {
   return new Date().toISOString().slice(0, 10)
 }
 
+// Récupère un map { user_id → email } pour les merchant.user_id passés en argument.
+// Tolère un échec silencieux : si l'email ne peut pas être récupéré, on renvoie {}.
+async function buildEmailMap(supa, userIds) {
+  if (!userIds || userIds.length === 0) return {}
+  try {
+    // listUsers ne supporte pas le filtre par id directement → on liste les pages
+    // et on filtre côté code. Pour des volumes encore raisonnables, c'est OK.
+    const wanted = new Set(userIds.filter(Boolean))
+    const map = {}
+    let page = 1
+    const perPage = 1000
+    while (page <= 5) { // garde-fou : 5000 utilisateurs max
+      const { data, error } = await supa.auth.admin.listUsers({ page, perPage })
+      if (error) break
+      const users = data?.users || []
+      for (const u of users) {
+        if (wanted.has(u.id)) map[u.id] = u.email
+      }
+      if (users.length < perPage) break
+      page += 1
+    }
+    return map
+  } catch (e) {
+    return {}
+  }
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' })
@@ -37,7 +59,7 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'action and access_token required' })
   }
 
-  // Vérification admin via access_token (même pattern que /api/admin/merchants)
+  // Vérification admin
   const supaAuth = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
@@ -67,7 +89,7 @@ export default async function handler(req, res) {
       .select(`
         id, source, days_total, days_remaining, started_at, last_shown_date,
         active, created_by_admin, admin_note, created_at,
-        merchants ( id, name, email, city_code, vertical, subscription_active )
+        merchants ( id, user_id, name, city_code, vertical, subscription_active )
       `)
       .order('created_at', { ascending: false })
 
@@ -86,6 +108,16 @@ export default async function handler(req, res) {
     if (city) {
       filtered = filtered.filter(c => c.merchants && c.merchants.city_code === city)
     }
+
+    // Joindre les emails depuis auth.users
+    const userIds = filtered.map(c => c.merchants?.user_id).filter(Boolean)
+    const emailMap = await buildEmailMap(supa, userIds)
+    filtered = filtered.map(c => ({
+      ...c,
+      merchants: c.merchants
+        ? { ...c.merchants, email: emailMap[c.merchants.user_id] || null }
+        : null
+    }))
 
     return res.status(200).json({ campaigns: filtered })
   }
@@ -235,16 +267,34 @@ export default async function handler(req, res) {
     const { q } = params
     let query = supa
       .from('merchants')
-      .select('id, name, email, city_code, subscription_active')
+      .select('id, user_id, name, city_code, subscription_active')
       .order('name')
-      .limit(20)
+      .limit(50)
     if (q && q.trim()) {
       const term = q.trim()
-      query = query.or(`name.ilike.%${term}%,email.ilike.%${term}%`)
+      // On ne peut filtrer que sur les colonnes de merchants (pas email)
+      query = query.ilike('name', `%${term}%`)
     }
     const { data, error } = await query
     if (error) return res.status(500).json({ error: error.message })
-    return res.status(200).json({ merchants: data || [] })
+
+    let merchants = data || []
+
+    // Joindre les emails
+    const userIds = merchants.map(m => m.user_id).filter(Boolean)
+    const emailMap = await buildEmailMap(supa, userIds)
+    merchants = merchants.map(m => ({ ...m, email: emailMap[m.user_id] || null }))
+
+    // Si la recherche ressemble à un email, refiltrer côté code sur l'email
+    if (q && q.trim() && q.includes('@')) {
+      const term = q.trim().toLowerCase()
+      merchants = merchants.filter(m =>
+        (m.email || '').toLowerCase().includes(term) ||
+        (m.name || '').toLowerCase().includes(term)
+      )
+    }
+
+    return res.status(200).json({ merchants: merchants.slice(0, 20) })
   }
 
   return res.status(400).json({ error: 'unknown action' })
