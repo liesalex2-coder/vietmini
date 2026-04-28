@@ -30,6 +30,7 @@ const TABS = [
   { id: 'avis',       icon: '⭐', label: 'Đánh giá' },
   { id: 'contacts',   icon: '👥', label: 'Khách hàng' },
   { id: 'diffusions', icon: '📢', label: 'Gửi tin' },
+  { id: 'pub',        icon: '🔮', label: 'Quảng cáo' },
 ]
 
 const MARKETING_TABS = [
@@ -1334,6 +1335,242 @@ function SectionDiffusions({ merchantId, contactCount, toast }) {
 }
 
 // ─── Dashboard principal ──────────────────────────────────────
+// ─── Section Quảng cáo (Vận Mệnh ad-network) ─────────────────
+function SectionPub({ merchantId, merchant, toast }) {
+  const [loading, setLoading] = useState(true)
+  const [status, setStatus] = useState(null)
+  const [cities, setCities] = useState([])
+  const [selectedCity, setSelectedCity] = useState('')
+  const [activating, setActivating] = useState(false)
+
+  async function loadAll() {
+    setLoading(true)
+    try {
+      const [s, c] = await Promise.all([
+        fetch(`/api/ad-network/status?merchant_id=${merchantId}`).then(r => r.json()),
+        fetch('/api/ad-network/cities').then(r => r.json())
+      ])
+      setStatus(s)
+      setCities(c.cities || [])
+      setSelectedCity((s.city && s.city.code) || '')
+    } catch (e) {
+      toast('Lỗi tải dữ liệu', false)
+    }
+    setLoading(false)
+  }
+
+  useEffect(() => { if (merchantId) loadAll() }, [merchantId])
+
+  async function saveCity() {
+    if (!selectedCity) { toast('Vui lòng chọn thành phố', false); return }
+    try {
+      const r = await fetch('/api/ad-network/set-city', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ merchant_id: merchantId, city_code: selectedCity })
+      })
+      const data = await r.json()
+      if (!r.ok) throw new Error(data.error || 'failed')
+      toast('Đã lưu thành phố', true)
+      await loadAll()
+    } catch (e) {
+      toast('Lỗi lưu thành phố', false)
+    }
+  }
+
+  async function activate() {
+    if (!confirm(`Kích hoạt ${status?.welcome?.days || 15} ngày quảng cáo miễn phí ngay bây giờ?\n\nLưu ý: thời gian sẽ bắt đầu đếm ngay sau khi kích hoạt.`)) return
+    setActivating(true)
+    try {
+      const r = await fetch('/api/ad-network/activate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ merchant_id: merchantId })
+      })
+      const data = await r.json()
+      if (!r.ok) {
+        toast(data.message || 'Không thể kích hoạt', false)
+      } else {
+        toast(data.message || 'Đã kích hoạt', true)
+        await loadAll()
+      }
+    } catch (e) {
+      toast('Lỗi kích hoạt', false)
+    }
+    setActivating(false)
+  }
+
+  if (loading) {
+    return <div style={{ color: C.mid }}>Đang tải…</div>
+  }
+
+  const subscriptionActive = merchant?.subscription_active
+  const hasCity = !!status?.city
+  const totalDays = status?.total_days_remaining || 0
+  const welcome = status?.welcome || {}
+  const campaigns = status?.campaigns || []
+
+  const sourceLabel = {
+    welcome:     '🎁 Quà chào mừng',
+    monthly:     '🔄 Quà hàng tháng',
+    addon:       '💳 Đã mua thêm',
+    admin_grant: '🎖 Tặng từ VietMini'
+  }
+
+  return (
+    <div>
+      <SectionTitle>Quảng cáo trên Vận Mệnh</SectionTitle>
+
+      <Card style={{ marginBottom: '16px', background: 'linear-gradient(135deg, #fff7e6, #fff0e0)' }}>
+        <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
+          <div style={{ fontSize: '32px', flexShrink: 0 }}>🔮</div>
+          <div>
+            <div style={{ fontWeight: '700', fontSize: '15px', color: C.dark, marginBottom: '6px' }}>
+              Quảng bá cửa hàng trên ứng dụng Vận Mệnh
+            </div>
+            <div style={{ fontSize: '13px', color: C.mid, lineHeight: '1.6' }}>
+              Vận Mệnh là ứng dụng tử vi hằng ngày trên Zalo. Cửa hàng của bạn sẽ xuất hiện
+              trong banner cuộn dành cho người dùng cùng khu vực — mang lại khách hàng mới mỗi ngày.
+            </div>
+          </div>
+        </div>
+      </Card>
+
+      {!subscriptionActive && (
+        <Card style={{ marginBottom: '16px', borderLeft: `4px solid ${C.gold}` }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{ fontSize: '24px' }}>⚡</div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontWeight: '700', color: C.dark, marginBottom: '4px' }}>
+                Cần kích hoạt thuê bao trước
+              </div>
+              <div style={{ fontSize: '13px', color: C.mid }}>
+                Quảng cáo trên Vận Mệnh dành cho cửa hàng đã kích hoạt thuê bao VietMini.
+              </div>
+            </div>
+            <a href="/abonnement" style={{ background: C.red, color: C.white, fontWeight: '700', fontSize: '13px', padding: '9px 16px', borderRadius: '8px', textDecoration: 'none', whiteSpace: 'nowrap' }}>
+              Kích hoạt →
+            </a>
+          </div>
+        </Card>
+      )}
+
+      <Card style={{ marginBottom: '16px' }}>
+        <div style={{ fontWeight: '700', fontSize: '15px', color: C.dark, marginBottom: '6px' }}>
+          📍 Thành phố mục tiêu
+        </div>
+        <div style={{ fontSize: '13px', color: C.mid, marginBottom: '16px', lineHeight: '1.5' }}>
+          Cửa hàng của bạn sẽ chỉ hiển thị cho người dùng Vận Mệnh ở thành phố này.
+        </div>
+        <FieldGroup label="Thành phố">
+          <select
+            value={selectedCity}
+            onChange={e => setSelectedCity(e.target.value)}
+            style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: `1px solid ${C.border}`, fontSize: '14px', color: C.dark, outline: 'none', boxSizing: 'border-box', background: C.white, fontFamily: "'Be Vietnam Pro', sans-serif" }}
+          >
+            <option value="">— Chọn thành phố —</option>
+            {cities.filter(c => !c.parent).map(parent => (
+              <optgroup key={parent.code} label={parent.name_vi}>
+                <option value={parent.code}>{parent.name_vi} (toàn thành phố)</option>
+                {cities.filter(c => c.parent === parent.code).map(child => (
+                  <option key={child.code} value={child.code}>{child.name_vi}</option>
+                ))}
+              </optgroup>
+            ))}
+          </select>
+        </FieldGroup>
+        <SaveBtn onClick={saveCity} small />
+      </Card>
+
+      <Card style={{ marginBottom: '16px' }}>
+        <div style={{ fontWeight: '700', fontSize: '15px', color: C.dark, marginBottom: '12px' }}>
+          ✨ Tình trạng hiển thị
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '16px', background: C.bg, borderRadius: '10px', marginBottom: '16px' }}>
+          <div style={{ fontSize: '36px', fontWeight: '700', color: totalDays > 0 ? C.red : C.mid, lineHeight: '1' }}>
+            {totalDays}
+          </div>
+          <div>
+            <div style={{ fontWeight: '600', color: C.dark, fontSize: '14px' }}>
+              {totalDays > 0 ? 'ngày hiển thị còn lại' : 'Chưa có ngày hiển thị'}
+            </div>
+            <div style={{ fontSize: '12px', color: C.mid, marginTop: '2px' }}>
+              {totalDays > 0
+                ? 'Cửa hàng đang xuất hiện trên Vận Mệnh'
+                : welcome.already_used
+                  ? 'Đã sử dụng quà chào mừng'
+                  : 'Kích hoạt quà chào mừng để bắt đầu'}
+            </div>
+          </div>
+        </div>
+
+        {welcome.can_activate && hasCity && (
+          <Btn
+            variant="primary"
+            onClick={activate}
+            disabled={activating}
+            style={{ width: '100%' }}
+          >
+            {activating ? 'Đang kích hoạt…' : `🎁 Kích hoạt ${welcome.days} ngày miễn phí`}
+          </Btn>
+        )}
+
+        {welcome.can_activate && !hasCity && subscriptionActive && (
+          <div style={{ fontSize: '13px', color: C.gold, fontWeight: '600', textAlign: 'center', padding: '8px' }}>
+            ⚠ Vui lòng chọn thành phố trước khi kích hoạt
+          </div>
+        )}
+
+        {welcome.already_used && (
+          <div style={{ fontSize: '13px', color: C.mid, textAlign: 'center', padding: '8px' }}>
+            ✓ Bạn đã sử dụng quà chào mừng {welcome.days} ngày
+          </div>
+        )}
+      </Card>
+
+      {campaigns.length > 0 && (
+        <Card style={{ marginBottom: '16px' }}>
+          <div style={{ fontWeight: '700', fontSize: '15px', color: C.dark, marginBottom: '12px' }}>
+            📋 Lịch sử & chi tiết
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {campaigns.map(c => (
+              <div key={c.id} style={{ padding: '12px', background: C.bg, borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontWeight: '600', fontSize: '13px', color: C.dark }}>
+                    {sourceLabel[c.source] || c.source}
+                  </div>
+                  <div style={{ fontSize: '11px', color: C.mid, marginTop: '2px' }}>
+                    Bắt đầu: {new Date(c.started_at).toLocaleDateString('vi-VN')}
+                    {c.admin_note && ` · ${c.admin_note}`}
+                  </div>
+                </div>
+                <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                  <div style={{ fontWeight: '700', fontSize: '16px', color: C.red }}>
+                    {c.days_remaining}/{c.days_total}
+                  </div>
+                  <div style={{ fontSize: '11px', color: C.mid }}>ngày còn</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
+
+      <Card style={{ opacity: 0.6 }}>
+        <div style={{ fontWeight: '700', fontSize: '15px', color: C.dark, marginBottom: '6px' }}>
+          💳 Mua thêm ngày hiển thị
+        </div>
+        <div style={{ fontSize: '13px', color: C.mid, lineHeight: '1.5' }}>
+          Tính năng này sẽ sớm khả dụng. Bạn sẽ có thể mua thêm ngày hiển thị
+          khi quà chào mừng kết thúc.
+        </div>
+      </Card>
+    </div>
+  )
+}
+
 export default function Dashboard() {
   const router = useRouter()
   const [user, setUser] = useState(null)
@@ -1431,6 +1668,7 @@ export default function Dashboard() {
             {activeTab === 'avis'       && <SectionAvis merchantId={merchant.id} toast={showToast} />}
             {activeTab === 'contacts'   && <SectionContacts merchantId={merchant.id} />}
             {activeTab === 'diffusions' && <SectionDiffusions merchantId={merchant.id} contactCount={contacts.length} toast={showToast} />}
+            {activeTab === 'pub'        && <SectionPub merchantId={merchant.id} merchant={merchant} toast={showToast} />}
           </div>
         </main>
       </div>

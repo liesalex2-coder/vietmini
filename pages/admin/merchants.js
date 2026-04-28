@@ -298,6 +298,7 @@ export default function AdminMerchants() {
             <Link href="/admin/codes" style={{ fontSize: '13px', color: C.mid, textDecoration: 'none' }}>Codes</Link>
             <Link href="/admin/merchants" style={{ fontSize: '13px', color: C.red, textDecoration: 'none', fontWeight: '700' }}>Marchands</Link>
             <Link href="/admin/commerciaux" style={{ fontSize: '13px', color: C.mid, textDecoration: 'none' }}>Commerciaux</Link>
+            <Link href="/admin/ad-network" style={{ fontSize: '13px', color: C.mid, textDecoration: 'none' }}>Réseau Pub</Link>
             <Link href="/dashboard" style={{ fontSize: '13px', color: C.mid, textDecoration: 'none' }}>← Dashboard</Link>
           </div>
         </div>
