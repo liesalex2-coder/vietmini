@@ -1336,12 +1336,23 @@ function SectionDiffusions({ merchantId, contactCount, toast }) {
 
 // ─── Dashboard principal ──────────────────────────────────────
 // ─── Section Quảng cáo (Vận Mệnh ad-network) ─────────────────
+// ─── Section Quảng cáo (réseau ad VietMini multi-apps) ───────
+// REMPLACER l'ancienne SectionPub (lignes 1338 à 1572 environ) par tout ce qui suit.
+// Garde la même signature : SectionPub({ merchantId, merchant, toast })
+
 function SectionPub({ merchantId, merchant, toast }) {
   const [loading, setLoading] = useState(true)
   const [status, setStatus] = useState(null)
   const [cities, setCities] = useState([])
   const [selectedCity, setSelectedCity] = useState('')
   const [activating, setActivating] = useState(false)
+  const [switching, setSwitching] = useState(false)
+
+  // Pour l'activation : choix d'app via radio avant le clic sur "Kích hoạt"
+  const [activateAppCode, setActivateAppCode] = useState('')
+  // Pour le switch : sélecteur ouvert ou fermé + app cible choisie
+  const [switchOpen, setSwitchOpen] = useState(false)
+  const [switchAppCode, setSwitchAppCode] = useState('')
 
   async function loadAll() {
     setLoading(true)
@@ -1353,6 +1364,12 @@ function SectionPub({ merchantId, merchant, toast }) {
       setStatus(s)
       setCities(c.cities || [])
       setSelectedCity((s.city && s.city.code) || '')
+
+      // Présélectionne la première app disponible pour l'activation
+      const apps = s.media_apps || []
+      if (apps.length > 0 && !activateAppCode) {
+        setActivateAppCode(apps[0].code)
+      }
     } catch (e) {
       toast('Lỗi tải dữ liệu', false)
     }
@@ -1379,13 +1396,18 @@ function SectionPub({ merchantId, merchant, toast }) {
   }
 
   async function activate() {
-    if (!confirm(`Kích hoạt ${status?.welcome?.days || 15} ngày quảng cáo miễn phí ngay bây giờ?\n\nLưu ý: thời gian sẽ bắt đầu đếm ngay sau khi kích hoạt.`)) return
+    if (!activateAppCode) { toast('Vui lòng chọn ứng dụng', false); return }
+
+    const chosenApp = (status?.media_apps || []).find(a => a.code === activateAppCode)
+    const appName = chosenApp?.name_vi || activateAppCode
+
+    if (!confirm(`Kích hoạt ${status?.welcome?.days || 15} ngày quảng cáo miễn phí trên ${appName}?\n\nLưu ý: thời gian sẽ bắt đầu đếm ngay sau khi kích hoạt.`)) return
     setActivating(true)
     try {
       const r = await fetch('/api/ad-network/activate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ merchant_id: merchantId })
+        body: JSON.stringify({ merchant_id: merchantId, media_app_code: activateAppCode })
       })
       const data = await r.json()
       if (!r.ok) {
@@ -1400,6 +1422,35 @@ function SectionPub({ merchantId, merchant, toast }) {
     setActivating(false)
   }
 
+  async function switchApp() {
+    if (!switchAppCode) { toast('Vui lòng chọn ứng dụng', false); return }
+
+    const chosenApp = (status?.media_apps || []).find(a => a.code === switchAppCode)
+    const appName = chosenApp?.name_vi || switchAppCode
+
+    if (!confirm(`Chuyển quảng cáo sang ${appName}?\n\nSố ngày còn lại sẽ được sử dụng cho ứng dụng mới.`)) return
+    setSwitching(true)
+    try {
+      const r = await fetch('/api/ad-network/switch-app', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ merchant_id: merchantId, media_app_code: switchAppCode })
+      })
+      const data = await r.json()
+      if (!r.ok) {
+        toast(data.message || 'Không thể chuyển', false)
+      } else {
+        toast(data.message || 'Đã chuyển', true)
+        setSwitchOpen(false)
+        setSwitchAppCode('')
+        await loadAll()
+      }
+    } catch (e) {
+      toast('Lỗi chuyển ứng dụng', false)
+    }
+    setSwitching(false)
+  }
+
   if (loading) {
     return <div style={{ color: C.mid }}>Đang tải…</div>
   }
@@ -1409,6 +1460,11 @@ function SectionPub({ merchantId, merchant, toast }) {
   const totalDays = status?.total_days_remaining || 0
   const welcome = status?.welcome || {}
   const campaigns = status?.campaigns || []
+  const mediaApps = status?.media_apps || []
+
+  // Trouve l'app actuellement active (la première campagne avec days_remaining > 0)
+  const activeCampaign = campaigns.find(c => c.days_remaining > 0)
+  const currentApp = activeCampaign?.media_app || null
 
   const sourceLabel = {
     welcome:     '🎁 Quà chào mừng',
@@ -1419,18 +1475,18 @@ function SectionPub({ merchantId, merchant, toast }) {
 
   return (
     <div>
-      <SectionTitle>Quảng cáo trên Vận Mệnh</SectionTitle>
+      <SectionTitle>Quảng cáo trên ứng dụng VietMini</SectionTitle>
 
       <Card style={{ marginBottom: '16px', background: 'linear-gradient(135deg, #fff7e6, #fff0e0)' }}>
         <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
-          <div style={{ fontSize: '32px', flexShrink: 0 }}>🔮</div>
+          <div style={{ fontSize: '32px', flexShrink: 0 }}>✨</div>
           <div>
             <div style={{ fontWeight: '700', fontSize: '15px', color: C.dark, marginBottom: '6px' }}>
-              Quảng bá cửa hàng trên ứng dụng Vận Mệnh
+              Quảng bá cửa hàng trên ứng dụng VietMini
             </div>
             <div style={{ fontSize: '13px', color: C.mid, lineHeight: '1.6' }}>
-              Vận Mệnh là ứng dụng tử vi hằng ngày trên Zalo. Cửa hàng của bạn sẽ xuất hiện
-              trong banner cuộn dành cho người dùng cùng khu vực — mang lại khách hàng mới mỗi ngày.
+              Cửa hàng của bạn xuất hiện trong banner cuộn trên một trong các ứng dụng VietMini
+              dành cho người dùng cùng khu vực — mang lại khách hàng mới mỗi ngày.
             </div>
           </div>
         </div>
@@ -1445,7 +1501,7 @@ function SectionPub({ merchantId, merchant, toast }) {
                 Cần kích hoạt thuê bao trước
               </div>
               <div style={{ fontSize: '13px', color: C.mid }}>
-                Quảng cáo trên Vận Mệnh dành cho cửa hàng đã kích hoạt thuê bao VietMini.
+                Quảng cáo dành cho cửa hàng đã kích hoạt thuê bao VietMini.
               </div>
             </div>
             <a href="/abonnement" style={{ background: C.red, color: C.white, fontWeight: '700', fontSize: '13px', padding: '9px 16px', borderRadius: '8px', textDecoration: 'none', whiteSpace: 'nowrap' }}>
@@ -1460,7 +1516,7 @@ function SectionPub({ merchantId, merchant, toast }) {
           📍 Thành phố mục tiêu
         </div>
         <div style={{ fontSize: '13px', color: C.mid, marginBottom: '16px', lineHeight: '1.5' }}>
-          Cửa hàng của bạn sẽ chỉ hiển thị cho người dùng Vận Mệnh ở thành phố này.
+          Cửa hàng của bạn sẽ chỉ hiển thị cho người dùng ở thành phố này.
         </div>
         <FieldGroup label="Thành phố">
           <select
@@ -1491,13 +1547,13 @@ function SectionPub({ merchantId, merchant, toast }) {
           <div style={{ fontSize: '36px', fontWeight: '700', color: totalDays > 0 ? C.red : C.mid, lineHeight: '1' }}>
             {totalDays}
           </div>
-          <div>
+          <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontWeight: '600', color: C.dark, fontSize: '14px' }}>
               {totalDays > 0 ? 'ngày hiển thị còn lại' : 'Chưa có ngày hiển thị'}
             </div>
             <div style={{ fontSize: '12px', color: C.mid, marginTop: '2px' }}>
-              {totalDays > 0
-                ? 'Cửa hàng đang xuất hiện trên Vận Mệnh'
+              {totalDays > 0 && currentApp
+                ? <>Đang xuất hiện trên <strong>{currentApp.emoji} {currentApp.name_vi}</strong></>
                 : welcome.already_used
                   ? 'Đã sử dụng quà chào mừng'
                   : 'Kích hoạt quà chào mừng để bắt đầu'}
@@ -1505,15 +1561,110 @@ function SectionPub({ merchantId, merchant, toast }) {
           </div>
         </div>
 
-        {welcome.can_activate && hasCity && (
+        {/* Cas 1 : campagne active → bouton "Đổi ứng dụng" */}
+        {totalDays > 0 && currentApp && !switchOpen && mediaApps.length > 1 && (
           <Btn
-            variant="primary"
-            onClick={activate}
-            disabled={activating}
+            variant="secondary"
+            onClick={() => { setSwitchOpen(true); setSwitchAppCode('') }}
             style={{ width: '100%' }}
           >
-            {activating ? 'Đang kích hoạt…' : `🎁 Kích hoạt ${welcome.days} ngày miễn phí`}
+            🔄 Đổi ứng dụng hiển thị
           </Btn>
+        )}
+
+        {/* Sélecteur d'app pour le switch */}
+        {totalDays > 0 && switchOpen && (
+          <div style={{ background: C.bg, padding: '14px', borderRadius: '10px', marginTop: '4px' }}>
+            <div style={{ fontSize: '13px', fontWeight: '600', color: C.dark, marginBottom: '10px' }}>
+              Chọn ứng dụng mới để hiển thị {totalDays} ngày còn lại:
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '12px' }}>
+              {mediaApps
+                .filter(a => a.code !== currentApp?.code)
+                .map(a => (
+                  <label
+                    key={a.code}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: '10px',
+                      padding: '10px 12px',
+                      background: switchAppCode === a.code ? C.white : 'transparent',
+                      border: `1px solid ${switchAppCode === a.code ? (a.color || C.red) : C.border}`,
+                      borderRadius: '8px', cursor: 'pointer'
+                    }}
+                  >
+                    <input
+                      type="radio"
+                      name="switch-app"
+                      value={a.code}
+                      checked={switchAppCode === a.code}
+                      onChange={e => setSwitchAppCode(e.target.value)}
+                      style={{ margin: 0 }}
+                    />
+                    <span style={{ fontSize: '20px' }}>{a.emoji}</span>
+                    <span style={{ fontSize: '14px', fontWeight: '600', color: C.dark }}>{a.name_vi}</span>
+                  </label>
+                ))}
+            </div>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <Btn
+                variant="secondary"
+                onClick={() => { setSwitchOpen(false); setSwitchAppCode('') }}
+                style={{ flex: 1 }}
+              >
+                Hủy
+              </Btn>
+              <Btn
+                variant="primary"
+                onClick={switchApp}
+                disabled={switching || !switchAppCode}
+                style={{ flex: 2 }}
+              >
+                {switching ? 'Đang chuyển…' : 'Xác nhận chuyển'}
+              </Btn>
+            </div>
+          </div>
+        )}
+
+        {/* Cas 2 : peut activer le bonus de bienvenue → choix d'app */}
+        {welcome.can_activate && hasCity && mediaApps.length > 0 && (
+          <div>
+            <div style={{ fontSize: '13px', fontWeight: '600', color: C.dark, marginBottom: '10px' }}>
+              Chọn ứng dụng để hiển thị {welcome.days} ngày miễn phí:
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '14px' }}>
+              {mediaApps.map(a => (
+                <label
+                  key={a.code}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: '10px',
+                    padding: '10px 12px',
+                    background: activateAppCode === a.code ? C.white : 'transparent',
+                    border: `1px solid ${activateAppCode === a.code ? (a.color || C.red) : C.border}`,
+                    borderRadius: '8px', cursor: 'pointer'
+                  }}
+                >
+                  <input
+                    type="radio"
+                    name="activate-app"
+                    value={a.code}
+                    checked={activateAppCode === a.code}
+                    onChange={e => setActivateAppCode(e.target.value)}
+                    style={{ margin: 0 }}
+                  />
+                  <span style={{ fontSize: '20px' }}>{a.emoji}</span>
+                  <span style={{ fontSize: '14px', fontWeight: '600', color: C.dark }}>{a.name_vi}</span>
+                </label>
+              ))}
+            </div>
+            <Btn
+              variant="primary"
+              onClick={activate}
+              disabled={activating || !activateAppCode}
+              style={{ width: '100%' }}
+            >
+              {activating ? 'Đang kích hoạt…' : `🎁 Kích hoạt ${welcome.days} ngày miễn phí`}
+            </Btn>
+          </div>
         )}
 
         {welcome.can_activate && !hasCity && subscriptionActive && (
@@ -1522,7 +1673,7 @@ function SectionPub({ merchantId, merchant, toast }) {
           </div>
         )}
 
-        {welcome.already_used && (
+        {welcome.already_used && totalDays === 0 && (
           <div style={{ fontSize: '13px', color: C.mid, textAlign: 'center', padding: '8px' }}>
             ✓ Bạn đã sử dụng quà chào mừng {welcome.days} ngày
           </div>
@@ -1540,6 +1691,11 @@ function SectionPub({ merchantId, merchant, toast }) {
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontWeight: '600', fontSize: '13px', color: C.dark }}>
                     {sourceLabel[c.source] || c.source}
+                    {c.media_app && (
+                      <span style={{ marginLeft: '8px', fontSize: '12px', color: C.mid, fontWeight: '500' }}>
+                        · {c.media_app.emoji} {c.media_app.name_vi}
+                      </span>
+                    )}
                   </div>
                   <div style={{ fontSize: '11px', color: C.mid, marginTop: '2px' }}>
                     Bắt đầu: {new Date(c.started_at).toLocaleDateString('vi-VN')}

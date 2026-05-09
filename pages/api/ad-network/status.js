@@ -1,13 +1,16 @@
 // pages/api/ad-network/status.js
 // GET — Le marchand lit son état pub depuis son dashboard.
-// Renvoie : ville, jours restants total, liste des campagnes, statut bonus de bienvenue.
+// Renvoie : ville, jours restants total, liste des campagnes (avec app média),
+// statut bonus de bienvenue, et liste des apps média disponibles.
 
 import {
   adminClient,
   getActiveCampaigns,
   getTotalDaysRemaining,
   getSettingBool,
-  getSettingInt
+  getSettingInt,
+  getMediaApps,
+  getMediaAppById
 } from '../../../lib/adNetwork';
 
 export default async function handler(req, res) {
@@ -44,8 +47,26 @@ export default async function handler(req, res) {
     city = c || null;
   }
 
-  // Campagnes actives
+  // Campagnes actives + enrichissement avec l'app média
   const campaigns = await getActiveCampaigns(supa, merchant_id);
+
+  const enrichedCampaigns = await Promise.all(
+    campaigns.map(async c => {
+      const app = c.media_app_id ? await getMediaAppById(supa, c.media_app_id) : null;
+      return {
+        id: c.id,
+        source: c.source,
+        days_total: c.days_total,
+        days_remaining: c.days_remaining,
+        started_at: c.started_at,
+        last_shown_date: c.last_shown_date,
+        created_by_admin: c.created_by_admin,
+        admin_note: c.admin_note,
+        media_app: app // peut être null pour les vieilles campagnes pré-migration
+      };
+    })
+  );
+
   const totalDays = await getTotalDaysRemaining(supa, merchant_id);
 
   // Le marchand a-t-il déjà activé son bonus de bienvenue ?
@@ -63,6 +84,9 @@ export default async function handler(req, res) {
   const welcomeEnabled = await getSettingBool(supa, 'welcome_bonus_enabled', true);
   const welcomeDays = await getSettingInt(supa, 'welcome_bonus_days', 15);
 
+  // Liste des apps média disponibles (pour le sélecteur)
+  const apps = await getMediaApps(supa);
+
   return res.status(200).json({
     merchant: {
       id: merchant.id,
@@ -71,21 +95,13 @@ export default async function handler(req, res) {
     },
     city,
     total_days_remaining: totalDays,
-    campaigns: campaigns.map(c => ({
-      id: c.id,
-      source: c.source,
-      days_total: c.days_total,
-      days_remaining: c.days_remaining,
-      started_at: c.started_at,
-      last_shown_date: c.last_shown_date,
-      created_by_admin: c.created_by_admin,
-      admin_note: c.admin_note
-    })),
+    campaigns: enrichedCampaigns,
     welcome: {
       already_used: welcomeUsed,
       enabled: welcomeEnabled,
       days: welcomeDays,
       can_activate: welcomeEnabled && !welcomeUsed && merchant.subscription_active
-    }
+    },
+    media_apps: apps
   });
 }

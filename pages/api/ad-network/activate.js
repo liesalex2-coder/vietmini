@@ -1,25 +1,43 @@
 // pages/api/ad-network/activate.js
 // POST — Le marchand active son bonus de bienvenue depuis son dashboard.
-// Body : { merchant_id }
+// Body : { merchant_id, media_app_code }
 // Pré-conditions :
 //   - le bonus de bienvenue est activé globalement (ad_settings.welcome_bonus_enabled)
 //   - le marchand a un abonnement actif
 //   - le marchand a une ville définie
 //   - le marchand n'a pas déjà activé son bonus
+//   - l'app média choisie existe et est active
 
-import { adminClient, getSettingBool, getSettingInt } from '../../../lib/adNetwork';
+import {
+  adminClient,
+  getSettingBool,
+  getSettingInt,
+  getMediaAppByCode
+} from '../../../lib/adNetwork';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { merchant_id } = req.body || {};
+  const { merchant_id, media_app_code } = req.body || {};
   if (!merchant_id) {
     return res.status(400).json({ error: 'merchant_id required' });
   }
+  if (!media_app_code) {
+    return res.status(400).json({
+      error: 'media_app_required',
+      message: 'Vui lòng chọn ứng dụng để hiển thị quảng cáo.'
+    });
+  }
 
   const supa = adminClient();
+
+  // Vérifie l'app média
+  const mediaApp = await getMediaAppByCode(supa, media_app_code);
+  if (!mediaApp) {
+    return res.status(400).json({ error: 'invalid_media_app' });
+  }
 
   // Vérifie l'état du marchand
   const { data: merchant, error: mErr } = await supa
@@ -71,7 +89,7 @@ export default async function handler(req, res) {
     });
   }
 
-  // Crée la campagne welcome
+  // Crée la campagne welcome sur l'app choisie
   const days = await getSettingInt(supa, 'welcome_bonus_days', 15);
 
   const { data: campaign, error: cErr } = await supa
@@ -82,7 +100,8 @@ export default async function handler(req, res) {
       days_total: days,
       days_remaining: days,
       created_by_admin: false,
-      active: true
+      active: true,
+      media_app_id: mediaApp.id
     })
     .select()
     .single();
@@ -94,6 +113,7 @@ export default async function handler(req, res) {
   return res.status(200).json({
     success: true,
     campaign,
-    message: `Đã kích hoạt ${days} ngày quảng cáo miễn phí.`
+    media_app: mediaApp,
+    message: `Đã kích hoạt ${days} ngày quảng cáo miễn phí trên ${mediaApp.name_vi}.`
   });
 }
