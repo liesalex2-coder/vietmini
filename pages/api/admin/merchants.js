@@ -99,6 +99,14 @@ export default async function handler(req, res) {
         .eq('id', merchant_id)
       if (error) throw error
 
+      // Reprendre les campagnes pub en pause (qui ont encore des jours)
+      await supabaseAdmin
+        .from('ad_campaigns')
+        .update({ active: true })
+        .eq('merchant_id', merchant_id)
+        .eq('active', false)
+        .gt('days_remaining', 0)
+
       return res.status(200).json({ subscription_expires_at: newExpiry.toISOString() })
     }
 
@@ -108,11 +116,32 @@ export default async function handler(req, res) {
       if (!merchant_id || typeof active !== 'boolean') {
         return res.status(400).json({ error: 'Paramètres invalides' })
       }
+
+      // 1. Mise à jour du marchand
       const { error } = await supabaseAdmin
         .from('merchants')
         .update({ subscription_active: active })
         .eq('id', merchant_id)
       if (error) throw error
+
+      // 2. Mettre en pause / reprendre les campagnes pub
+      if (active) {
+        // Reprise : on réactive les campagnes qui ont encore des jours
+        await supabaseAdmin
+          .from('ad_campaigns')
+          .update({ active: true })
+          .eq('merchant_id', merchant_id)
+          .eq('active', false)
+          .gt('days_remaining', 0)
+      } else {
+        // Pause : on désactive toutes les campagnes actives (jours conservés)
+        await supabaseAdmin
+          .from('ad_campaigns')
+          .update({ active: false })
+          .eq('merchant_id', merchant_id)
+          .eq('active', true)
+      }
+
       return res.status(200).json({ ok: true })
     }
 
