@@ -58,7 +58,7 @@ export default function About() {
           <div style={{ background: C.white, borderRadius: '16px', padding: '32px', boxShadow: '0 2px 12px rgba(26,10,0,0.06)' }}>
             <h2 style={{ fontSize: '18px', fontWeight: '700', color: C.dark, margin: '0 0 16px' }}>Về sản phẩm VietMini</h2>
             <p style={{ fontSize: '14px', color: C.dark, margin: '0 0 12px', lineHeight: 1.7 }}>
-              VietMini là nền tảng SaaS giúp các doanh nghiệp vừa và nhỏ tại Việt Nam có ngay một Mini App Zalo riêng — để thu hút khách hàng, gửi ưu đãi và xây dựng lòng trung thành.
+              VietMini là nền tảng SaaS giúp các doanh nghiệp vừa và nhỏ tại Việt Nam có ngay một Mini App Zalo và một trang web riêng — để thu hút khách hàng, gửi ưu đãi và xây dựng lòng trung thành.
             </p>
             <p style={{ fontSize: '14px', color: C.dark, margin: 0, lineHeight: 1.7 }}>
               Sản phẩm được phát triển và vận hành bởi CÔNG TY TNHH NGÔI SAO DẪN ĐẦU AI.

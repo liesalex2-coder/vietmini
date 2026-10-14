@@ -10,8 +10,8 @@ export default function CommentCaMarche() {
             <span style={{display:'block',width:'24px',height:'2px',background:'var(--red)'}}></span>
             <span style={{fontSize:'11px',fontWeight:800,color:'var(--red)',textTransform:'uppercase',letterSpacing:'1.5px'}}>Cách hoạt động</span>
           </div>
-          <h1 style={{fontSize:'clamp(32px,4vw,52px)',fontWeight:900,lineHeight:1.1,letterSpacing:'-1px',marginBottom:'20px',color:'#1A0A00'}}>Trang Zalo của bạn<br />sẵn sàng ngay trong ngày.</h1>
-          <p style={{fontSize:'17px',color:'var(--mid)',lineHeight:1.7,maxWidth:'560px',margin:'0 auto'}}>Không cần biết Zalo hoạt động thế nào. Không cần kỹ năng công nghệ. Chúng tôi lo hết.</p>
+          <h1 style={{fontSize:'clamp(32px,4vw,52px)',fontWeight:900,lineHeight:1.1,letterSpacing:'-1px',marginBottom:'20px',color:'#1A0A00'}}>Trang của bạn<br />sẵn sàng ngay trong ngày.</h1>
+          <p style={{fontSize:'17px',color:'var(--mid)',lineHeight:1.7,maxWidth:'560px',margin:'0 auto'}}>Trên Zalo, trên web, hoặc cả hai. Không cần kỹ năng công nghệ. Chúng tôi lo hết.</p>
         </div>
       </div>
 
@@ -26,8 +26,8 @@ export default function CommentCaMarche() {
             </div>
             <div className="step">
               <div className="step-num">2</div>
-              <h3>Khách hàng tham gia danh sách chỉ trong một thao tác</h3>
-              <p>Ngay khi khách ghé cửa hàng, họ có thể theo dõi bạn trên Zalo chỉ trong vài giây. Danh sách liên hệ của bạn tự động tăng lên, không tốn công sức.</p>
+              <h3>Khách hàng quét mã QR</h3>
+              <p>Khách dùng Zalo mở ứng dụng Zalo của bạn và theo dõi bạn chỉ trong vài giây. Khách không dùng Zalo mở trang web của bạn trên trình duyệt.</p>
               <div className="step-arrow">&rarr;</div>
             </div>
             <div className="step">
@@ -65,10 +65,40 @@ export default function CommentCaMarche() {
         </div>
       </section>
 
+      <section className="page-section" style={{background:'var(--cream)'}}>
+        <div style={{maxWidth:'1200px',margin:'0 auto'}}>
+          <div style={{display:'flex',alignItems:'center',gap:'8px',marginBottom:'16px'}}>
+            <span style={{display:'block',width:'24px',height:'2px',background:'var(--red)'}}></span>
+            <span style={{fontSize:'11px',fontWeight:800,color:'var(--red)',textTransform:'uppercase',letterSpacing:'1.5px'}}>Vì sao có trang web</span>
+          </div>
+          <h2 style={{fontSize:'clamp(28px,3.5vw,46px)',fontWeight:900,color:'var(--dark)',lineHeight:1.1,letterSpacing:'-1px',marginBottom:'20px'}}>Không phải khách nào<br />cũng dùng Zalo.</h2>
+          <p style={{fontSize:'16px',color:'var(--mid)',maxWidth:'620px',lineHeight:1.7,marginBottom:'48px'}}>Khách du lịch, người nước ngoài sống tại Việt Nam: họ dùng WhatsApp, Telegram, Instagram. Trang web của bạn mở trên mọi trình duyệt, chỉ cần quét mã QR hoặc nhấn vào đường link.</p>
+          <div className="fichier-grid" style={{marginTop:0}}>
+            {[
+              ['Không cần Zalo','Khách mở trang của bạn bằng trình duyệt có sẵn trên điện thoại.'],
+              ['Không cần tải ứng dụng','Quét mã QR tại quầy, trang mở ngay. Không đăng ký, không cài đặt.'],
+              ['Chia sẻ ở mọi nơi','Đặt đường link trên Google Maps, Facebook, Instagram hay gửi qua WhatsApp.'],
+            ].map(([t,d]) => (
+              <div key={t} className="fichier-card">
+                <h3>{t}</h3>
+                <p>{d}</p>
+              </div>
+            ))}
+          </div>
+          <div style={{marginTop:'32px',padding:'24px 32px',borderRadius:'16px',border:'1.5px solid rgba(208,2,27,0.2)',background:'linear-gradient(135deg, #FFF5F5, #FFF0E8)',display:'flex',alignItems:'center',justifyContent:'space-between',gap:'16px',flexWrap:'wrap'}}>
+            <div>
+              <div style={{fontWeight:800,color:'var(--dark)',fontSize:'17px'}}>Có cả khách Việt và khách nước ngoài?</div>
+              <div style={{color:'var(--mid)',fontSize:'15px'}}>Gói Cả hai: trang web và ứng dụng Zalo, 3.000.000 ₫ / năm.</div>
+            </div>
+            <a href="/tarifs" className="btn-primary">Xem bảng giá</a>
+          </div>
+        </div>
+      </section>
+
       <div className="page-cta-dark">
         <div>
           <h2 style={{color:'white',marginBottom:'16px',fontSize:'clamp(28px,3.5vw,48px)',fontWeight:900,letterSpacing:'-1px',lineHeight:1.1}}>Sẵn sàng bắt đầu?</h2>
-          <p style={{fontSize:'18px',color:'rgba(255,255,255,0.45)',marginBottom:'44px'}}>Trang Zalo của bạn sẵn sàng trong chưa đầy 5 phút.</p>
+          <p style={{fontSize:'18px',color:'rgba(255,255,255,0.45)',marginBottom:'44px'}}>Trang của bạn sẵn sàng trong chưa đầy 5 phút.</p>
           <a href="/register" className="btn-hero" style={{display:'inline-block'}}>Tạo tài khoản miễn phí &rarr;</a>
         </div>
       </div>

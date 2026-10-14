@@ -43,7 +43,7 @@ export default function DemoPage({ slug, demo }) {
       <div style={{background:'#fff', padding:'40px 48px 32px', textAlign:'center', borderBottom:'1px solid rgba(122,74,42,0.08)'}}>
         <span style={{display:'inline-block', fontFamily:"'Be Vietnam Pro', sans-serif", fontSize:'11px', fontWeight:800, color:'#D0021B', textTransform:'uppercase', letterSpacing:'1.5px', background:'rgba(208,2,27,0.08)', padding:'4px 12px', borderRadius:'20px', marginBottom:'12px'}}>{demo.vertical}</span>
         <h1 style={{fontFamily:"'Be Vietnam Pro', sans-serif", fontSize:'clamp(24px,3vw,36px)', fontWeight:900, color:'#1A0A00', letterSpacing:'-0.5px', lineHeight:1.1, margin:'0 0 10px'}}>{demo.name}</h1>
-        <p style={{fontFamily:"'Be Vietnam Pro', sans-serif", fontSize:'15px', color:'#7A4A2A', margin:0}}>Đây chính là những gì khách hàng thấy khi mở trang Zalo của bạn.</p>
+        <p style={{fontFamily:"'Be Vietnam Pro', sans-serif", fontSize:'15px', color:'#7A4A2A', margin:0}}>Đây chính là những gì khách hàng thấy khi mở trang của bạn, trong Zalo hoặc trên trình duyệt.</p>
       </div>
 
       {/* Phone mockup */}

@@ -9,7 +9,7 @@ export default function Demos() {
     {href:'/demo/gym',     bg:'linear-gradient(135deg,#E8F5E0,#C8E8B0)', img:'/images/img_5.webp', alt:'Phòng gym',               vertical:'Thể thao',               name:'Phòng gym & Yoga',   desc:'Lớp học, gói tập, khuyến mãi. Gắn kết hội viên lâu dài.'},
     {href:'/demo/paw',     bg:'linear-gradient(135deg,#FFF0DC,#FFE0A8)', img:'/images/img_6.webp', alt:'Chăm sóc thú cưng',          vertical:'Thú cưng',             name:'Grooming & Chăm sóc thú cưng',     desc:'Tắm, cắt tỉa, chăm sóc. Giữ liên lạc với khách hàng.',      imgPos:'50% 15%'},
     {href:'/demo/karaoke', bg:'linear-gradient(135deg,#F0E8FF,#D8C8F0)', img:'/images/img_7.webp', alt:'Karaoke',           vertical:'Giải trí',      name:'Karaoke & Bida',     desc:'Đặt phòng, gắn kết khách quen.'},
-    {href:'/demo/fashion', bg:'linear-gradient(135deg,#FAE8EF,#F0C8D8)', img:'/images/img_8.webp', alt:'Cửa hàng',          vertical:'Cửa hàng & Bán lẻ', name:'Cửa hàng của bạn trên Zalo', desc:'Quần áo, phụ kiện, mỹ phẩm. Giới thiệu sản phẩm và giữ liên lạc với khách.'},
+    {href:'/demo/fashion', bg:'linear-gradient(135deg,#FAE8EF,#F0C8D8)', img:'/images/img_8.webp', alt:'Cửa hàng',          vertical:'Cửa hàng & Bán lẻ', name:'Cửa hàng của bạn', desc:'Quần áo, phụ kiện, mỹ phẩm. Giới thiệu sản phẩm và giữ liên lạc với khách.'},
   ];
   return (
     <Layout title="Demo — VietMini">
@@ -20,8 +20,8 @@ export default function Demos() {
             <span style={{display:'block',width:'24px',height:'2px',background:'var(--red)'}}></span>
             <span style={{fontSize:'11px',fontWeight:800,color:'var(--red)',textTransform:'uppercase',letterSpacing:'1.5px'}}>Demo</span>
           </div>
-          <h1 style={{fontSize:'clamp(32px,4vw,52px)',fontWeight:900,lineHeight:1.1,letterSpacing:'-1px',marginBottom:'20px',color:'#1A0A00'}}>Cửa hàng của bạn,<br />trang Zalo của bạn.</h1>
-          <p style={{fontSize:'17px',color:'var(--mid)',lineHeight:1.7,maxWidth:'560px',margin:'0 auto'}}>Nhấn vào một ví dụ — đây chính là những gì khách hàng thấy khi mở trang Zalo của bạn.</p>
+          <h1 style={{fontSize:'clamp(32px,4vw,52px)',fontWeight:900,lineHeight:1.1,letterSpacing:'-1px',marginBottom:'20px',color:'#1A0A00'}}>Cửa hàng của bạn,<br />trên Zalo và trên web.</h1>
+          <p style={{fontSize:'17px',color:'var(--mid)',lineHeight:1.7,maxWidth:'560px',margin:'0 auto'}}>Nhấn vào một ví dụ — đây chính là những gì khách hàng thấy khi mở trang của bạn, trong Zalo hoặc trên trình duyệt.</p>
         </div>
       </div>
 
@@ -50,7 +50,7 @@ export default function Demos() {
       <div className="page-cta-dark">
         <div>
           <h2 style={{color:'white',marginBottom:'16px',fontSize:'clamp(28px,3.5vw,48px)',fontWeight:900,letterSpacing:'-1px',lineHeight:1.1}}>Có ví dụ nào phù hợp với bạn không?</h2>
-          <p style={{fontSize:'18px',color:'rgba(255,255,255,0.45)',marginBottom:'44px'}}>Trang Zalo của bạn sẵn sàng trong chưa đầy 5 phút.</p>
+          <p style={{fontSize:'18px',color:'rgba(255,255,255,0.45)',marginBottom:'44px'}}>Trang của bạn sẵn sàng trong chưa đầy 5 phút.</p>
           <a href="/register" className="btn-hero" style={{display:'inline-block'}}>Tạo tài khoản miễn phí &rarr;</a>
         </div>
       </div>

@@ -10,11 +10,11 @@ export default function Home() {
         <div className="hero-inner">
           <div>
             <div className="hero-tag fade-up">Dành cho salon, spa, nhà hàng, gym...</div>
-            <h1 className="fade-up-2">74 triệu người Việt trên Zalo. <em>Còn cửa hàng của bạn thì sao?</em></h1>
-            <p className="hero-sub fade-up-3">Khách hàng của bạn đã ở đó. <strong>Chỉ còn thiếu bạn thôi.</strong></p>
+            <h1 className="fade-up-2">Khách Việt trên Zalo. Khách nước ngoài trên web. <em>Cửa hàng của bạn ở cả hai.</em></h1>
+            <p className="hero-sub fade-up-3">Hai cách để khách mở cửa hàng của bạn trên điện thoại. <strong>Bạn chọn một, hoặc cả hai.</strong></p>
             <div className="hero-insight fade-up-3">
               <div className="hero-insight-icon">💡</div>
-              <p>VietMini đưa cửa hàng của bạn lên Zalo chỉ trong vài phút — trang giới thiệu, danh sách dịch vụ, và khả năng gửi tin nhắn trực tiếp đến điện thoại của khách hàng.</p>
+              <p>VietMini đưa cửa hàng của bạn lên Zalo và lên web chỉ trong vài phút — trang giới thiệu, danh sách dịch vụ, ưu đãi và thẻ tích điểm, quản lý từ một bảng điều khiển duy nhất.</p>
             </div>
             <div className="hero-cta fade-up-3">
               <a href="/register" className="btn-hero">Dùng thử miễn phí →</a>
@@ -36,18 +36,63 @@ export default function Home() {
         </div>
       </section>
 
+      {/* DEUX PRODUITS */}
+      <section className="how" id="san-pham">
+        <div className="section-inner">
+          <div className="section-tag">Hai sản phẩm</div>
+          <h2>Trang web hoặc ứng dụng Zalo.<br />Hoặc cả hai.</h2>
+          <p className="section-sub">Cùng nội dung, cùng ưu đãi, cùng bảng điều khiển. Chỉ khác cách khách hàng mở cửa hàng của bạn.</p>
+          <div className="features-grid">
+            {[
+              {
+                icon: '🌐',
+                name: 'Trang web',
+                who: 'Cho khách du lịch, người nước ngoài và khách không dùng Zalo.',
+                how: 'Khách quét mã QR hoặc nhấn vào đường link. Trang mở ngay trên mọi trình duyệt, không cần tải gì.',
+                where: 'Chia sẻ đường link ở mọi nơi: Google Maps, Facebook, Instagram, WhatsApp.',
+                price: '2.000.000 ₫ / năm',
+              },
+              {
+                icon: '💬',
+                name: 'Ứng dụng Zalo',
+                who: 'Cho khách hàng Việt Nam, những người dùng Zalo mỗi ngày.',
+                how: 'Khách quét mã QR bằng Zalo. Cửa hàng của bạn mở ngay trong Zalo, không cần tải gì.',
+                where: 'Khách theo dõi Zalo OA của bạn và nhận tin nhắn trực tiếp trên Zalo.',
+                price: '2.000.000 ₫ / năm',
+              },
+            ].map((p) => (
+              <div key={p.name} className="feature-card" style={{display:'flex',flexDirection:'column'}}>
+                <div className="feature-icon">{p.icon}</div>
+                <h3>{p.name}</h3>
+                <p style={{fontWeight:700,color:'var(--dark)',marginBottom:'12px'}}>{p.who}</p>
+                <p style={{marginBottom:'12px'}}>{p.how}</p>
+                <p style={{marginBottom:'24px'}}>{p.where}</p>
+                <div style={{marginTop:'auto',paddingTop:'16px',borderTop:'1px solid var(--border)',fontWeight:800,color:'var(--red)'}}>{p.price}</div>
+              </div>
+            ))}
+          </div>
+          <div style={{marginTop:'20px',padding:'24px 32px',borderRadius:'20px',border:'1.5px solid rgba(208,2,27,0.2)',background:'linear-gradient(135deg, #FFF5F5, #FFF0E8)',display:'flex',alignItems:'center',justifyContent:'space-between',gap:'16px',flexWrap:'wrap'}}>
+            <div>
+              <div style={{fontWeight:800,color:'var(--dark)',fontSize:'17px'}}>Cả hai: 3.000.000 ₫ / năm</div>
+              <div style={{color:'var(--mid)',fontSize:'15px'}}>Cho cửa hàng có cả khách Việt và khách nước ngoài. Tiết kiệm 1.000.000 ₫.</div>
+            </div>
+            <a href="/tarifs" className="btn-primary">Xem bảng giá</a>
+          </div>
+        </div>
+      </section>
+
       {/* CE QUE CA FAIT */}
       <section className="features" id="features">
         <div className="section-inner">
           <div className="section-tag">VietMini làm được gì</div>
-          <h2>Cửa hàng của bạn trên Zalo,<br />đúng như bạn mong muốn.</h2>
+          <h2>Cửa hàng của bạn trên Zalo và trên web,<br />đúng như bạn mong muốn.</h2>
           <p className="section-sub">Trang giới thiệu đầy đủ, công cụ để khách hàng quay lại, và kênh liên lạc trực tiếp với họ. Tất cả từ điện thoại của bạn.</p>
           <div className="features-grid">
             <div className="feature-card big">
               <div>
                 <div className="feature-icon">🏪</div>
-                <h3>Trang Zalo của bạn,<br />đúng phong cách của bạn.</h3>
-                <p>Khách hàng tìm thấy bạn trên Zalo. Họ thấy tên, dịch vụ, bảng giá, hình ảnh của bạn. Họ có thể liên hệ chỉ bằng một chạm. Cửa hàng của bạn nằm gọn trong điện thoại của từng khách hàng, không cần tải gì cả.</p>
+                <h3>Trang của bạn,<br />đúng phong cách của bạn.</h3>
+                <p>Khách hàng mở trang của bạn trên Zalo hoặc trên trình duyệt. Họ thấy tên, dịch vụ, bảng giá, hình ảnh của bạn. Họ có thể liên hệ chỉ bằng một chạm. Cửa hàng của bạn nằm gọn trong điện thoại của từng khách hàng, không cần tải gì cả.</p>
               </div>
               <div className="feature-visual">
                 <div style={{fontSize:'11px',fontWeight:800,color:'var(--red)',textTransform:'uppercase',letterSpacing:'1px',marginBottom:'10px'}}>Bella Salon — Phan Thiết</div>
@@ -60,7 +105,7 @@ export default function Home() {
               </div>
             </div>
             <div className="feature-card">
-              <h3>Gửi khuyến mãi,<br />khách hàng quay lại.</h3>
+              <h3>Gửi khuyến mãi qua Zalo,<br />khách hàng quay lại.</h3>
               <p>Có ưu đãi đặc biệt tối nay? Gửi tin nhắn đến toàn bộ khách hàng chỉ với một cú nhấp. Họ nhận được ngay trên Zalo, trên điện thoại của mình.</p>
             </div>
             <div className="feature-card">
@@ -84,8 +129,8 @@ export default function Home() {
       <div style={{background:'linear-gradient(135deg,#2D1200 0%,#4A1800 100%)',padding:'100px 48px',textAlign:'center',position:'relative',overflow:'hidden'}}>
         <div style={{position:'absolute',inset:0,backgroundImage:'radial-gradient(circle, rgba(245,166,35,0.07) 1.5px, transparent 1.5px)',backgroundSize:'32px 32px',pointerEvents:'none'}}></div>
         <div style={{position:'relative'}}>
-          <h2 style={{color:'white',marginBottom:'16px',fontSize:'clamp(28px,3.5vw,48px)',fontWeight:900,letterSpacing:'-1px',lineHeight:1.1}}>Khách hàng của bạn đang trên Zalo. Hãy đến với họ.</h2>
-          <p style={{fontSize:'18px',color:'rgba(255,255,255,0.45)',marginBottom:'44px'}}>Trang Zalo của bạn sẵn sàng trong chưa đầy 5 phút.</p>
+          <h2 style={{color:'white',marginBottom:'16px',fontSize:'clamp(28px,3.5vw,48px)',fontWeight:900,letterSpacing:'-1px',lineHeight:1.1}}>Khách Việt hay khách nước ngoài, hãy đến với họ.</h2>
+          <p style={{fontSize:'18px',color:'rgba(255,255,255,0.45)',marginBottom:'44px'}}>Trang của bạn sẵn sàng trong chưa đầy 5 phút.</p>
           <a href="/register" className="btn-hero" style={{display:'inline-block'}}>Tạo tài khoản miễn phí →</a>
         </div>
       </div>
