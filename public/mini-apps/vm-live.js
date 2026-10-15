@@ -24,7 +24,10 @@
     '.vml-item+.vml-item::before{content:"•";margin-right:48px;opacity:.6}',
     '@keyframes vml-scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}',
     '.vml-verified{display:inline-block;background:#e8f5e9;color:#1a6b3a;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;margin-left:6px;vertical-align:middle}',
-    '.vml-empty{padding:16px;text-align:center;color:var(--muted,#777);font-size:13px}'
+    '.vml-empty{padding:16px;text-align:center;color:var(--muted,#777);font-size:13px}',
+    // Réservation pas encore branchée et durée des services inconnue : masquées pour un vrai commerçant
+    '.booking-feature{display:none!important}',
+    '.svc-dur{display:none!important}'
   ].join('');
   document.head.appendChild(css);
 
@@ -41,10 +44,44 @@
       else a.style.display = 'none';
     });
 
+    // Ligne « Thời gian » (durée inventée) dans le détail d'un service
+    var durEl = document.getElementById('svc-dur-detail');
+    if (durEl && durEl.parentNode) durEl.parentNode.style.display = 'none';
+    // Bandeau de l'en-tête : pas de ville de démonstration
+    Array.prototype.forEach.call(document.querySelectorAll('.hero-badge'), function (b) {
+      b.textContent = b.textContent.replace(/\s*·\s*Phan Thiết\s*$/, '');
+    });
+
+    // Onglets de catégories : ceux du commerçant (les modèles gardaient ceux de la démo)
+    var tabs = document.getElementById('tabs');
+    var cats = (d.services || []).map(function (c) { return c.name; });
+    if (tabs) {
+      if (cats.length) {
+        tabs.innerHTML = '';
+        ['all'].concat(cats).forEach(function (c, i) {
+          var b = document.createElement('button');
+          b.className = 'tab-pill' + (i === 0 ? ' active' : '');
+          b.textContent = c === 'all' ? 'Tất cả' : c;
+          b.onclick = function () { if (typeof filterTab === 'function') filterTab(this, c); };
+          tabs.appendChild(b);
+        });
+        tabs.style.display = cats.length > 1 ? '' : 'none';
+      } else {
+        tabs.style.display = 'none';
+      }
+    }
+    // Aucun service saisi : ne pas laisser les services de démonstration
+    if (!cats.length) {
+      try {
+        if (typeof SERVICES !== 'undefined') { SERVICES.length = 0; }
+        if (typeof renderServices === 'function') renderServices('all');
+      } catch (e) {}
+    }
+
     // 1. Note dans l'en-tête
     var stats = d.review_stats || { count: (d.reviews || []).length, avg: 0 };
     Array.prototype.forEach.call(document.querySelectorAll('.hero-chip'), function (chip) {
-      if (chip.textContent.indexOf('đánh giá') === -1) return;
+      if (chip.textContent.trim().indexOf('⭐') !== 0) return;
       if (stats.count > 0 && stats.avg > 0) {
         chip.textContent = '⭐ ' + String(stats.avg).replace('.', ',') + ' (' + stats.count + ' đánh giá)';
       } else {

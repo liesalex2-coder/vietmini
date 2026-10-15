@@ -15,6 +15,10 @@
   function refGet() { try { return localStorage.getItem(REF_KEY) || refParam || ''; } catch (e) { return refParam || ''; } }
 
   var state = { card: null, loyalty: null, referral: null, review: null, prizes: [], busy: false };
+  function T(vi, vars) {
+    if (window.vmT) return window.vmT(vi, vars);
+    return vi.replace(/\{(\w+)\}/g, function (m, k) { return vars && vars[k] != null ? vars[k] : m; });
+  }
   var reviewStars = 0;
   var pendingSpin = false;
 
@@ -191,12 +195,12 @@
       html +=
         '<div class="vmm-card">' +
           '<div class="vmm-title">Thẻ tích điểm</div>' +
-          '<div class="vmm-sub">' + current + ' / ' + total + ' lần ghé</div>' +
+          '<div class="vmm-sub">' + esc(T('{n} / {total} lần ghé', { n: current, total: total })) + '</div>' +
           '<div class="vmm-stamps">' + stamps + '</div>' +
           (full
             ? '<div class="vmm-done">Bạn đã đủ tem! Xuất trình cho nhân viên để nhận phần thưởng.</div>'
             : '') +
-          (l.reward_text ? '<div class="vmm-reward">Phần thưởng: <strong>' + esc(l.reward_text) + '</strong></div>' : '') +
+          (l.reward_text ? '<div class="vmm-reward">' + T('Phần thưởng: {r}', { r: '<strong>' + esc(l.reward_text) + '</strong>' }) + '</div>' : '') +
           '<button class="vmm-btn" id="vmmAction">' + (full ? 'Dùng phần thưởng' : 'Nhận tem') + '</button>' +
           '<div class="vmm-ok" id="vmmOk"></div>' +
         '</div>';
@@ -205,9 +209,11 @@
     var rf = state.referral;
     if (rf && rf.enabled && rf.ref_code) {
       html += '<div class="vmm-card"><div class="vmm-title">Giới thiệu bạn bè</div>' +
-        '<div class="vmm-sub" style="margin-bottom:10px">Gửi đường link cho bạn bè. Bạn bè được <strong>giảm ' + esc(rf.discount_referred) + '%</strong>. ' +
-        'Bạn được <strong>giảm ' + esc(rf.discount_referrer) + '%</strong> khi bạn bè đến lần đầu.</div>' +
-        '<div class="vmm-reward">' + esc(rf.service_name || 'Tất cả dịch vụ') + ' · hiệu lực ' + esc(rf.valid_days) + ' ngày</div>' +
+        '<div class="vmm-sub" style="margin-bottom:10px">' + T('Gửi đường link cho bạn bè. Bạn bè được {a}. Bạn được {b} khi bạn bè đến lần đầu.', {
+          a: '<strong>' + esc(T('giảm {n}%', { n: rf.discount_referred })) + '</strong>',
+          b: '<strong>' + esc(T('giảm {n}%', { n: rf.discount_referrer })) + '</strong>'
+        }) + '</div>' +
+        '<div class="vmm-reward">' + esc(T('{s} · hiệu lực {d} ngày', { s: rf.service_name || T('Tất cả dịch vụ'), d: rf.valid_days })) + '</div>' +
         '<button class="vmm-btn" id="vmmShare">Chia sẻ</button>' +
         '<div class="vmm-ok" id="vmmShareOk"></div></div>';
     }
@@ -215,7 +221,7 @@
     var rv = state.review;
     if (rv && rv.enabled) {
       var rewardLine = rv.reward_percent
-        ? '<div class="vmm-reward">Nhận <strong>giảm ' + esc(rv.reward_percent) + '% · ' + esc(rv.service_name || 'Tất cả dịch vụ') + '</strong> khi gửi đánh giá.</div>'
+        ? '<div class="vmm-reward">' + T('Nhận {x} khi gửi đánh giá.', { x: '<strong>' + esc(T('giảm {n}%', { n: rv.reward_percent }) + ' · ' + (rv.service_name || T('Tất cả dịch vụ'))) + '</strong>' }) + '</div>'
         : '';
       html += '<div class="vmm-card"><div class="vmm-title">Đánh giá</div>';
       if (!rv.visited) {
@@ -229,8 +235,8 @@
           '<div class="vmm-error" id="vmmReviewError"></div>' +
           '<button class="vmm-btn" id="vmmReviewSend">Gửi đánh giá</button>';
       } else {
-        html += '<div class="vmm-sub" style="margin:0">Cảm ơn bạn đã đánh giá!' +
-          (rv.next_date ? ' Bạn có thể đánh giá lại từ ' + fmtDate(rv.next_date) + '.' : '') + '</div>';
+        html += '<div class="vmm-sub" style="margin:0">' + esc(T('Cảm ơn bạn đã đánh giá!')) +
+          (rv.next_date ? ' ' + esc(T('Bạn có thể đánh giá lại từ {d}.', { d: fmtDate(rv.next_date) })) : '') + '</div>';
       }
       html += '<div class="vmm-ok" id="vmmReviewOk"></div></div>';
     }
@@ -244,7 +250,7 @@
             : p.source === 'referral_referrer' ? 'Cảm ơn bạn đã giới thiệu'
             : 'Quà giới thiệu';
           return '<div class="vmm-prize"><div style="flex:1"><div class="vmm-prize-name">🎁 ' + esc(p.label) + '</div>' +
-            '<div class="vmm-prize-exp">' + origin + ' · Hết hạn: ' + fmtDate(p.expires_at) + '</div></div>' +
+            '<div class="vmm-prize-exp">' + esc(T('{o} · Hết hạn: {d}', { o: T(origin), d: fmtDate(p.expires_at) })) + '</div></div>' +
             '<button class="vmm-small-btn" data-prize="' + esc(p.id) + '" data-kind="' + esc(p.kind || 'spin') + '">Dùng</button></div>';
         }).join('') +
         '<div class="vmm-ok" id="vmmPrizeOk"></div></div>';
@@ -324,7 +330,7 @@
     if (!rf || !rf.ref_code) return;
     var url = apiBase + '/app/' + encodeURIComponent(merchantId) + '?ref=' + encodeURIComponent(rf.ref_code);
     var title = document.title || '';
-    var text = (title ? title + ' — ' : '') + 'Giảm ' + rf.discount_referred + '% cho lần đầu đến.';
+    var text = (title ? title + ' — ' : '') + T('Giảm {n}% cho lần đầu đến.', { n: rf.discount_referred });
     var ok = document.getElementById('vmmShareOk');
     if (navigator.share) {
       navigator.share({ title: title, text: text, url: url }).catch(function () {});
@@ -518,6 +524,16 @@
       wheelMessage('Có lỗi xảy ra, vui lòng thử lại.');
     });
   };
+
+  // Changement de langue : on redessine la page Tôi
+  document.addEventListener('vm:lang', function () {
+    if (state.card) renderMember();
+    else if (document.getElementById('vmmName')) {
+      var n = document.getElementById('vmmName').value, ph = document.getElementById('vmmPhone').value;
+      var note = document.querySelector('.vmm-note');
+      renderForm({ name: n, phone: ph }, note ? (note.firstChild && note.firstChild.__vmOrig) || note.textContent : null);
+    }
+  });
 
   // ── DÉMARRAGE ───────────────────────────────────────────────
   var savedId = storeGet();
