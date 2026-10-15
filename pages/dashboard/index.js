@@ -1209,8 +1209,6 @@ function SectionMarketing({ merchantId, merchant, onSaveMerchant, toast }) {
 function SectionAvis({ merchantId, toast }) {
   const [reviews, setReviews] = useState([])
   const [loading, setLoading] = useState(true)
-  const [showForm, setShowForm] = useState(false)
-  const [form, setForm] = useState({ author_name: '', content: '', rating: 5, visible: true })
   const [showReviews, setShowReviews] = useState(true)
 
   async function load() {
@@ -1223,17 +1221,6 @@ function SectionAvis({ merchantId, toast }) {
     setLoading(false)
   }
   useEffect(() => { if (merchantId) load() }, [merchantId])
-  async function save() {
-    if (!form.author_name) { toast('Yêu cầu tên', false); return }
-    if (!await moderate([form.author_name, form.content])) { toast('Nội dung không được phép', false); return }
-    await supabase.from('reviews').insert({ ...form, merchant_id: merchantId })
-    fetch('/api/reviews/notify', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ merchantId, review: form })
-    }).catch(e => console.warn('[notify] failed:', e))
-    setShowForm(false); setForm({ author_name: '', content: '', rating: 5, visible: true }); load(); toast('Đã thêm đánh giá', true)
-  }
   async function toggleVisible(r) { await supabase.from('reviews').update({ visible: !r.visible }).eq('id', r.id); load() }
   async function toggleShowReviews() {
     const newVal = !showReviews
@@ -1242,11 +1229,10 @@ function SectionAvis({ merchantId, toast }) {
     toast(newVal ? 'Phần đánh giá được hiển thị' : 'Phần đánh giá đã ẩn', true)
   }
   async function remove(id) { if (!confirm('Xóa?')) return; await supabase.from('reviews').delete().eq('id', id); load(); toast('Đã xóa', true) }
-  const f = field => e => setForm(p => ({ ...p, [field]: e.target.value }))
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}><SectionTitle>Đánh giá của khách</SectionTitle><Btn onClick={() => setShowForm(v => !v)}>+ Thêm</Btn></div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}><SectionTitle>Đánh giá của khách</SectionTitle></div>
       <Card style={{ marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           <div style={{ fontWeight: '600', fontSize: '14px', color: C.dark }}>Hiện phần đánh giá trên Mini App</div>
@@ -1256,16 +1242,6 @@ function SectionAvis({ merchantId, toast }) {
           <div style={{ position: 'absolute', top: '2px', left: showReviews ? '22px' : '2px', width: '20px', height: '20px', borderRadius: '50%', background: C.white, transition: 'left .15s' }} />
         </div>
       </Card>
-      {showForm && (
-        <Card style={{ marginBottom: '16px', border: `1px solid ${C.border}` }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-            <FieldGroup label="Tên"><Input value={form.author_name} onChange={f('author_name')} placeholder="Nguyễn Thị Lan" /></FieldGroup>
-            <FieldGroup label="Đánh giá (1–5)"><Input value={form.rating} onChange={f('rating')} type="number" /></FieldGroup>
-          </div>
-          <FieldGroup label="Bình luận"><Textarea value={form.content} onChange={f('content')} placeholder="Dịch vụ rất tốt…" /></FieldGroup>
-          <div style={{ display: 'flex', gap: '8px' }}><SaveBtn onClick={save} /><Btn variant="ghost" onClick={() => setShowForm(false)}>Hủy</Btn></div>
-        </Card>
-      )}
       {loading ? <div style={{ color: C.mid }}>Đang tải…</div> : reviews.length === 0 ? (
         <Card style={{ textAlign: 'center', color: C.mid }}><div style={{ fontSize: '32px', marginBottom: '8px' }}>⭐</div><div>Chưa có đánh giá.</div></Card>
       ) : (
@@ -1277,8 +1253,10 @@ function SectionAvis({ merchantId, toast }) {
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px', flexWrap: 'wrap' }}>
                     <span style={{ fontWeight: '700', fontSize: '14px', color: C.dark }}>{r.author_name}</span>
                     <span style={{ fontSize: '13px', color: C.gold }}>{'★'.repeat(r.rating)}{'☆'.repeat(5 - r.rating)}</span>
-                    {r.verified && (
+                    {r.verified ? (
                       <span style={{ fontSize: '10px', fontWeight: '600', padding: '2px 8px', borderRadius: '20px', background: '#e8f5e9', color: '#1a6b3a' }}>✓ Đã xác minh</span>
+                    ) : (
+                      <span style={{ fontSize: '10px', fontWeight: '600', padding: '2px 8px', borderRadius: '20px', background: '#f5f5f5', color: C.mid }}>Thêm thủ công · không hiển thị</span>
                     )}
                   </div>
                   {r.content && <div style={{ fontSize: '13px', color: C.mid }}>{r.content}</div>}

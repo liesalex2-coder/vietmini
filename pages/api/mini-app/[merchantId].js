@@ -33,12 +33,12 @@ export default async function handler(req, res) {
       supabase.from('loyalty_config').select('*').eq('merchant_id', merchantId).maybeSingle(),
       supabase.from('flash_sales').select('*').eq('merchant_id', merchantId).maybeSingle(),
       supabase.from('referral_config').select('*').eq('merchant_id', merchantId).maybeSingle(),
-      supabase.from('reviews').select('*').eq('merchant_id', merchantId).eq('visible', true).order('created_at', { ascending: false }).limit(20),
+      supabase.from('reviews').select('*').eq('merchant_id', merchantId).eq('visible', true).eq('verified', true).order('created_at', { ascending: false }).limit(20),
       supabase.from('coupons').select('*').eq('merchant_id', merchantId).eq('active', true),
       supabase.from('gallery').select('*').eq('merchant_id', merchantId).eq('active', true).order('display_order'),
       supabase.from('announcements').select('*').eq('merchant_id', merchantId).eq('active', true).order('created_at', { ascending: false }),
       supabase.from('review_config').select('*').eq('merchant_id', merchantId).maybeSingle(),
-      supabase.from('reviews').select('rating').eq('merchant_id', merchantId).eq('visible', true),
+      supabase.from('reviews').select('rating').eq('merchant_id', merchantId).eq('visible', true).eq('verified', true),
     ])
 
     if (!merchant) return res.status(404).json({ error: 'Marchand introuvable' })
