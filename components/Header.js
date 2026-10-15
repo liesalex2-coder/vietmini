@@ -13,7 +13,7 @@ const NAV = [
 export default function Header() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [loggedIn, setLoggedIn] = useState(false);
+  const [auth, setAuth] = useState('unknown'); // 'unknown' | 'in' | 'out'
   const router = useRouter();
 
   useEffect(() => {
@@ -27,10 +27,16 @@ export default function Header() {
   }, [router.asPath]);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => setLoggedIn(!!(data && data.session)));
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => setLoggedIn(!!session));
+    supabase.auth.getSession().then(({ data }) => setAuth(data && data.session ? 'in' : 'out'));
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => setAuth(session ? 'in' : 'out'));
     return () => sub && sub.subscription && sub.subscription.unsubscribe();
   }, []);
+
+  async function logout() {
+    await supabase.auth.signOut();
+    setAuth('out');
+    router.push('/');
+  }
 
   const isActive = (href) => {
     if (href === '/#features') return router.pathname === '/';
@@ -59,16 +65,23 @@ export default function Header() {
                 {item.label}
               </Link>
             ))}
-            {!loggedIn && (
-              <Link href="/login" className={`nav-link${isActive('/login') ? ' active' : ''}`}>Đăng nhập</Link>
-            )}
           </nav>
 
           {/* CTA + hamburger */}
           <div className="actions">
-            {loggedIn
-              ? <Link key="cta-dash" href="/dashboard" className="cta-btn">Bảng điều khiển</Link>
-              : <Link key="cta-reg" href="/register" className="cta-btn">Tạo tài khoản</Link>}
+            {auth === 'in' && (
+              <div key="auth-in" className="auth">
+                <span className="auth-status"><span className="auth-dot" />Đã đăng nhập</span>
+                <a href="/dashboard" className="cta-btn">Bảng điều khiển</a>
+                <button type="button" className="ghost-btn" onClick={logout}>Đăng xuất</button>
+              </div>
+            )}
+            {auth === 'out' && (
+              <div key="auth-out" className="auth">
+                <a href="/login" className="ghost-btn">Đăng nhập</a>
+                <a href="/register" className="cta-btn">Tạo tài khoản</a>
+              </div>
+            )}
             <button
               className={`hamburger${open ? ' open' : ''}`}
               onClick={() => setOpen(!open)}
@@ -90,13 +103,18 @@ export default function Header() {
               {item.label}
             </Link>
           ))}
-          {loggedIn ? (
-            <Link key="m-dash" href="/dashboard" className="mobile-cta">Bảng điều khiển</Link>
-          ) : (
-            <>
-              <Link href="/login" className="mobile-link">Đăng nhập</Link>
-              <Link key="m-reg" href="/register" className="mobile-cta">Tạo tài khoản</Link>
-            </>
+          {auth === 'in' && (
+            <div key="m-in" className="m-auth">
+              <span className="auth-status"><span className="auth-dot" />Đã đăng nhập</span>
+              <a href="/dashboard" className="mobile-cta">Bảng điều khiển</a>
+              <button type="button" className="mobile-ghost" onClick={logout}>Đăng xuất</button>
+            </div>
+          )}
+          {auth === 'out' && (
+            <div key="m-out" className="m-auth">
+              <a href="/login" className="mobile-ghost">Đăng nhập</a>
+              <a href="/register" className="mobile-cta">Tạo tài khoản</a>
+            </div>
           )}
         </div>
       </header>
@@ -183,6 +201,39 @@ export default function Header() {
         }
 
         /* Actions */
+        .auth { display: flex; align-items: center; gap: 10px; }
+        .auth-status { display: inline-flex; align-items: center; gap: 6px; font-family: 'Be Vietnam Pro', sans-serif; font-size: 13px; font-weight: 600; color: #1a6b3a; white-space: nowrap; }
+        .auth-dot { width: 8px; height: 8px; border-radius: 50%; background: #1a9b4a; display: inline-block; }
+        .ghost-btn {
+          font-family: 'Be Vietnam Pro', sans-serif;
+          font-size: 14px;
+          font-weight: 600;
+          color: #1A0A00;
+          background: transparent;
+          border: 1.5px solid rgba(122, 74, 42, 0.25);
+          text-decoration: none;
+          padding: 7px 16px;
+          border-radius: 10px;
+          cursor: pointer;
+          white-space: nowrap;
+        }
+        .ghost-btn:hover { border-color: #D0021B; color: #D0021B; }
+        .m-auth { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+        .m-auth .auth-status { padding: 4px 12px; }
+        .mobile-ghost {
+          display: block;
+          font-family: 'Be Vietnam Pro', sans-serif;
+          font-size: 15px;
+          font-weight: 600;
+          color: #1A0A00;
+          background: transparent;
+          border: 1.5px solid rgba(122, 74, 42, 0.25);
+          text-decoration: none;
+          padding: 11px;
+          border-radius: 10px;
+          text-align: center;
+          cursor: pointer;
+        }
         .actions {
           display: flex;
           align-items: center;
@@ -293,7 +344,7 @@ export default function Header() {
         @media (max-width: 860px) {
           .nav-desktop { display: none; }
           .hamburger { display: flex; }
-          .cta-btn { display: none; }
+          .auth { display: none; }
         }
         @media (max-width: 480px) {
           .inner { padding: 0 16px; }
