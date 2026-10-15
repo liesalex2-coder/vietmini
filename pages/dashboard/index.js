@@ -29,7 +29,6 @@ const TABS = [
   { id: 'marketing',  icon: '🎯', label: 'Marketing' },
   { id: 'avis',       icon: '⭐', label: 'Đánh giá' },
   { id: 'contacts',   icon: '👥', label: 'Khách hàng' },
-  { id: 'diffusions', icon: '📢', label: 'Gửi tin' },
   { id: 'pub',        icon: '🔮', label: 'Quảng cáo' },
 ]
 
@@ -131,7 +130,7 @@ function MarketingNav({ active, onSelect }) {
 }
 
 // ─── Section Aperçu ───────────────────────────────────────────
-function SectionApercu({ merchant, contacts, broadcasts, onChangeVertical }) {
+function SectionApercu({ merchant, contacts, onChangeVertical }) {
   const now = new Date()
   const thisMonth = contacts.filter(c => { const d = new Date(c.captured_at); return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear() }).length
 
@@ -161,7 +160,7 @@ function SectionApercu({ merchant, contacts, broadcasts, onChangeVertical }) {
     <div>
       <SectionTitle>Tổng quan</SectionTitle>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '24px' }}>
-        {[{ label: 'Tổng số khách hàng', value: contacts.length, icon: '👥' }, { label: 'Mới trong tháng', value: thisMonth, icon: '✨' }, { label: 'Tin đã gửi', value: broadcasts.length, icon: '📢' }].map(s => (
+        {[{ label: 'Tổng số khách hàng', value: contacts.length, icon: '👥' }, { label: 'Mới trong tháng', value: thisMonth, icon: '✨' }].map(s => (
           <Card key={s.label}><div style={{ fontSize: '28px', marginBottom: '8px' }}>{s.icon}</div><div style={{ fontSize: '32px', fontWeight: '700', color: C.dark }}>{s.value}</div><div style={{ fontSize: '13px', color: C.mid, marginTop: '4px' }}>{s.label}</div></Card>
         ))}
       </div>
@@ -1299,54 +1298,6 @@ function SectionContacts({ merchantId }) {
   )
 }
 
-// ─── Section Diffusions ───────────────────────────────────────
-function SectionDiffusions({ merchantId, contactCount, toast }) {
-  const [broadcasts, setBroadcasts] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [message, setMessage] = useState('')
-  const [sending, setSending] = useState(false)
-
-  async function load() { const { data } = await supabase.from('broadcasts').select('*').eq('merchant_id', merchantId).order('sent_at', { ascending: false }); setBroadcasts(data || []); setLoading(false) }
-  useEffect(() => { if (merchantId) load() }, [merchantId])
-
-  async function send() {
-    if (!message.trim()) { toast('Tin nhắn trống', false); return }
-    setSending(true)
-    if (!await moderate([message.trim()])) { toast('Nội dung không được phép', false); return }
-    await supabase.from('broadcasts').insert({ merchant_id: merchantId, message: message.trim(), recipient_count: contactCount, status: 'sent' })
-    setMessage(''); setSending(false); load(); toast('Đã lưu thông báo', true)
-  }
-
-  return (
-    <div>
-      <SectionTitle>Gửi tin ZNS</SectionTitle>
-      <Card style={{ marginBottom: '20px' }}>
-        <div style={{ fontWeight: '700', color: C.dark, marginBottom: '12px' }}>Tin mới <span style={{ fontSize: '12px', fontWeight: '400', color: C.mid, marginLeft: '8px' }}>{contactCount} contact{contactCount > 1 ? 's' : ''}</span></div>
-        <Textarea value={message} onChange={e => setMessage(e.target.value)} placeholder="Viết tin khuyến mãi của bạn…" rows={4} />
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '12px' }}>
-          <div style={{ fontSize: '12px', color: C.mid }}>{message.length}/500</div>
-          <Btn onClick={send} disabled={sending || !message.trim()}>{sending ? 'Đang gửi…' : '📢 Gửi'}</Btn>
-        </div>
-      </Card>
-      <div style={{ fontWeight: '700', color: C.dark, marginBottom: '12px' }}>Lịch sử</div>
-      {loading ? <div style={{ color: C.mid }}>Đang tải…</div> : broadcasts.length === 0 ? (
-        <Card style={{ textAlign: 'center', color: C.mid }}><div style={{ fontSize: '32px', marginBottom: '8px' }}>📭</div><div>Chưa có tin nào.</div></Card>
-      ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          {broadcasts.map(b => (
-            <Card key={b.id} style={{ padding: '14px 18px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <div style={{ flex: 1, fontSize: '14px', color: C.dark }}>{b.message}</div>
-                <div style={{ flexShrink: 0, textAlign: 'right', marginLeft: '16px' }}><div style={{ fontSize: '12px', color: C.mid }}>{new Date(b.sent_at).toLocaleDateString('fr-FR')}</div><div style={{ fontSize: '11px', color: C.mid, marginTop: '2px' }}>{b.recipient_count} dest.</div></div>
-              </div>
-            </Card>
-          ))}
-        </div>
-      )}
-    </div>
-  )
-}
-
 // ─── Dashboard principal ──────────────────────────────────────
 // ─── Section Quảng cáo (Vận Mệnh ad-network) ─────────────────
 // ─── Section Quảng cáo (réseau ad VietMini multi-apps) ───────
@@ -1745,7 +1696,6 @@ export default function Dashboard() {
   const [user, setUser] = useState(null)
   const [merchant, setMerchant] = useState(null)
   const [contacts, setContacts] = useState([])
-  const [broadcasts, setBroadcasts] = useState([])
   const [activeTab, setActiveTab] = useState('apercu')
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [toast, setToast] = useState({ msg: '', ok: true })
@@ -1765,8 +1715,7 @@ export default function Dashboard() {
     if (m && !m.vertical) { router.push('/onboarding'); return }
     if (m) {
       const { data: c } = await supabase.from('contacts').select('*').eq('merchant_id', m.id)
-      const { data: b } = await supabase.from('broadcasts').select('*').eq('merchant_id', m.id)
-      setContacts(c || []); setBroadcasts(b || [])
+      setContacts(c || [])
     }
   }
 
@@ -1832,12 +1781,11 @@ export default function Dashboard() {
             </div>
           )}
           <div style={{ padding: '28px 24px', maxWidth: '800px' }}>
-            {activeTab === 'apercu'     && <SectionApercu merchant={merchant} contacts={contacts} broadcasts={broadcasts} onChangeVertical={async () => { if (window.confirm("Đổi ngành nghề? Tất cả dữ liệu cấu hình sẽ được thiết lập lại.")) { await supabase.from('merchants').update({ vertical: null }).eq('id', merchant.id); router.push('/onboarding') } }} />}
+            {activeTab === 'apercu'     && <SectionApercu merchant={merchant} contacts={contacts} onChangeVertical={async () => { if (window.confirm("Đổi ngành nghề? Tất cả dữ liệu cấu hình sẽ được thiết lập lại.")) { await supabase.from('merchants').update({ vertical: null }).eq('id', merchant.id); router.push('/onboarding') } }} />}
             {activeTab === 'profil'     && <SectionProfil merchant={merchant} onSave={saveMerchant} merchantId={merchant.id} toast={showToast} />}
             {activeTab === 'marketing'  && <SectionMarketing merchantId={merchant.id} merchant={merchant} onSaveMerchant={saveMerchant} toast={showToast} />}
             {activeTab === 'avis'       && <SectionAvis merchantId={merchant.id} toast={showToast} />}
             {activeTab === 'contacts'   && <SectionContacts merchantId={merchant.id} />}
-            {activeTab === 'diffusions' && <SectionDiffusions merchantId={merchant.id} contactCount={contacts.length} toast={showToast} />}
             {activeTab === 'pub'        && <SectionPub merchantId={merchant.id} merchant={merchant} toast={showToast} />}
           </div>
         </main>
