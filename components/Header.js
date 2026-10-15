@@ -67,8 +67,8 @@ export default function Header() {
           {/* CTA + hamburger */}
           <div className="actions">
             {loggedIn
-              ? <Link href="/dashboard" className="cta-btn">Bảng điều khiển</Link>
-              : <Link href="/register" className="cta-btn">Tạo tài khoản</Link>}
+              ? <Link key="cta-dash" href="/dashboard" className="cta-btn">Bảng điều khiển</Link>
+              : <Link key="cta-reg" href="/register" className="cta-btn">Tạo tài khoản</Link>}
             <button
               className={`hamburger${open ? ' open' : ''}`}
               onClick={() => setOpen(!open)}
@@ -91,11 +91,11 @@ export default function Header() {
             </Link>
           ))}
           {loggedIn ? (
-            <Link href="/dashboard" className="mobile-cta">Bảng điều khiển</Link>
+            <Link key="m-dash" href="/dashboard" className="mobile-cta">Bảng điều khiển</Link>
           ) : (
             <>
               <Link href="/login" className="mobile-link">Đăng nhập</Link>
-              <Link href="/register" className="mobile-cta">Tạo tài khoản</Link>
+              <Link key="m-reg" href="/register" className="mobile-cta">Tạo tài khoản</Link>
             </>
           )}
         </div>
