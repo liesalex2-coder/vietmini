@@ -9,14 +9,19 @@
   var apiBase = params.get('api') || window.location.origin;
   var preview = params.get('preview') === '1';
   var STORE_KEY = 'vm_card_' + merchantId;
+  var REF_KEY = 'vm_ref_' + merchantId;
+  var refParam = params.get('ref');
+  if (refParam) { try { localStorage.setItem(REF_KEY, refParam.slice(0, 20)); } catch (e) {} }
+  function refGet() { try { return localStorage.getItem(REF_KEY) || refParam || ''; } catch (e) { return refParam || ''; } }
 
-  var state = { card: null, loyalty: null, prizes: [], busy: false };
+  var state = { card: null, loyalty: null, referral: null, prizes: [], busy: false };
   var pendingSpin = false;
 
   function applyData(body) {
     if (body.card) state.card = body.card;
     if (body.loyalty) state.loyalty = body.loyalty;
     if (body.prizes) state.prizes = body.prizes;
+    if (body.referral) state.referral = body.referral;
   }
 
   function fmtDate(iso) {
@@ -129,7 +134,7 @@
     api('/api/customer/identify', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ merchant_id: merchantId, name: name, phone: phone, preview: preview })
+      body: JSON.stringify({ merchant_id: merchantId, name: name, phone: phone, ref: refGet(), preview: preview })
     }).then(function (r) {
       state.busy = false;
       btn.disabled = false;
@@ -191,21 +196,36 @@
         '</div>';
     }
 
+    var rf = state.referral;
+    if (rf && rf.enabled && rf.ref_code) {
+      html += '<div class="vmm-card"><div class="vmm-title">Giới thiệu bạn bè</div>' +
+        '<div class="vmm-sub" style="margin-bottom:10px">Gửi đường link cho bạn bè. Bạn bè được <strong>giảm ' + esc(rf.discount_referred) + '%</strong>. ' +
+        'Bạn được <strong>giảm ' + esc(rf.discount_referrer) + '%</strong> khi bạn bè đến lần đầu.</div>' +
+        '<div class="vmm-reward">' + esc(rf.service_name || 'Tất cả dịch vụ') + ' · hiệu lực ' + esc(rf.valid_days) + ' ngày</div>' +
+        '<button class="vmm-btn" id="vmmShare">Chia sẻ</button>' +
+        '<div class="vmm-ok" id="vmmShareOk"></div></div>';
+    }
+
     if (state.prizes && state.prizes.length) {
-      html += '<div class="vmm-card"><div class="vmm-title">Phần thưởng vòng quay</div>' +
+      html += '<div class="vmm-card"><div class="vmm-title">Phần thưởng của bạn</div>' +
         '<div class="vmm-sub">Xuất trình cho nhân viên khi đến để nhận thưởng.</div>' +
         state.prizes.map(function (p) {
+          var origin = p.kind === 'reward'
+            ? (p.source === 'referral_referrer' ? 'Cảm ơn bạn đã giới thiệu' : 'Quà giới thiệu')
+            : 'Vòng quay may mắn';
           return '<div class="vmm-prize"><div style="flex:1"><div class="vmm-prize-name">🎁 ' + esc(p.label) + '</div>' +
-            '<div class="vmm-prize-exp">Hết hạn: ' + fmtDate(p.expires_at) + '</div></div>' +
-            '<button class="vmm-small-btn" data-prize="' + esc(p.id) + '">Dùng</button></div>';
+            '<div class="vmm-prize-exp">' + origin + ' · Hết hạn: ' + fmtDate(p.expires_at) + '</div></div>' +
+            '<button class="vmm-small-btn" data-prize="' + esc(p.id) + '" data-kind="' + esc(p.kind || 'spin') + '">Dùng</button></div>';
         }).join('') +
         '<div class="vmm-ok" id="vmmPrizeOk"></div></div>';
     }
 
     root.innerHTML = html;
     Array.prototype.forEach.call(root.querySelectorAll('[data-prize]'), function (b) {
-      b.onclick = function () { openPin('use_prize', b.getAttribute('data-prize')); };
+      b.onclick = function () { openPin('use_prize', b.getAttribute('data-prize'), b.getAttribute('data-kind')); };
     });
+    var share = document.getElementById('vmmShare');
+    if (share) share.onclick = shareLink;
     document.getElementById('vmmLogout').onclick = function () {
       storeDel();
       state.card = null;
@@ -217,6 +237,26 @@
       action.onclick = function () {
         openPin((c.visit_count || 0) >= (l.visits_required || 10) ? 'redeem' : 'stamp');
       };
+    }
+  }
+
+  // ── PARTAGE DU LIEN DE PARRAINAGE ───────────────────────────
+  function shareLink() {
+    var rf = state.referral;
+    if (!rf || !rf.ref_code) return;
+    var url = apiBase + '/app/' + encodeURIComponent(merchantId) + '?ref=' + encodeURIComponent(rf.ref_code);
+    var title = document.title || '';
+    var text = (title ? title + ' — ' : '') + 'Giảm ' + rf.discount_referred + '% cho lần đầu đến.';
+    var ok = document.getElementById('vmmShareOk');
+    if (navigator.share) {
+      navigator.share({ title: title, text: text, url: url }).catch(function () {});
+      return;
+    }
+    var done = function () { if (ok) ok.textContent = 'Đã sao chép đường link.'; };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text + ' ' + url).then(done, function () { window.prompt('', url); });
+    } else {
+      window.prompt('', url);
     }
   }
 
@@ -242,14 +282,16 @@
   var pinBuf = '';
   var pinAction = 'stamp';
   var pinSpinId = null;
+  var pinKind = null;
 
   function drawDots() {
     var dots = pinBd.querySelectorAll('.vmm-dot');
     for (var i = 0; i < dots.length; i++) dots[i].classList.toggle('on', i < pinBuf.length);
   }
-  function openPin(action, spinId) {
+  function openPin(action, spinId, kind) {
     pinAction = action;
     pinSpinId = spinId || null;
+    pinKind = kind || null;
     pinBuf = '';
     drawDots();
     document.getElementById('vmmPinError').textContent = '';
@@ -272,7 +314,7 @@
     api('/api/customer/stamp', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ merchant_id: merchantId, card_id: state.card.id, pin: pinBuf, action: pinAction, spin_id: pinSpinId, preview: preview })
+      body: JSON.stringify({ merchant_id: merchantId, card_id: state.card.id, pin: pinBuf, action: pinAction, spin_id: pinSpinId, kind: pinKind, preview: preview })
     }).then(function (r) {
       state.busy = false;
       if (r.ok && r.body.card) {
@@ -378,6 +420,7 @@
       if (r.ok && r.body.spin) {
         var spin = r.body.spin;
         animateTo(r.body.index, function () {
+          spin.kind = 'spin';
           if (spin.is_win) { state.prizes = [spin].concat(state.prizes || []); renderMember(); }
           showSpinResult(spin, false);
         });

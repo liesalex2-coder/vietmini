@@ -1,15 +1,17 @@
 import {
   supabaseAdmin, normalizePhone, cleanName, cors,
-  getActiveMerchant, getLoyalty, publicLoyalty, publicCard, getActivePrizes,
+  getActiveMerchant, getLoyalty, publicLoyalty, publicCard,
+  getReferral, publicReferral, ensureRefCode, createReward, getAllRewards,
 } from '../../../lib/customer'
 
-// POST { merchant_id, name, phone, preview }
+// POST { merchant_id, name, phone, ref, preview }
 // Crée ou retrouve le client (contacts + loyalty_cards) à partir de son numéro.
+// ref = code de parrainage du lien partagé : seul un NOUVEAU client peut être parrainé.
 export default async function handler(req, res) {
   if (cors(req, res, 'POST')) return
   if (req.method !== 'POST') return res.status(405).json({ error: 'method_not_allowed' })
 
-  const { merchant_id, name, phone, preview } = req.body || {}
+  const { merchant_id, name, phone, ref, preview } = req.body || {}
   const cleanPhone = normalizePhone(phone)
   const displayName = cleanName(name)
   if (!cleanPhone) return res.status(400).json({ error: 'invalid_phone' })
@@ -38,6 +40,7 @@ export default async function handler(req, res) {
     }
 
     // Carte de fidélité (une par client et par commerçant)
+    let isNew = false
     let { data: card } = await supabaseAdmin
       .from('loyalty_cards')
       .select('*')
@@ -63,11 +66,50 @@ export default async function handler(req, res) {
         .single()
       if (error) throw error
       card = created
+      isNew = true
+    }
+
+    const referral = await getReferral(merchant.id)
+    if (referral && referral.enabled) {
+      card = await ensureRefCode(card)
+
+      // Parrainage : nouveau client arrivé par le lien d'un autre client
+      const code = String(ref || '').trim().toLowerCase()
+      if (isNew && code && code !== card.ref_code) {
+        const { data: referrer } = await supabaseAdmin
+          .from('loyalty_cards')
+          .select('id')
+          .eq('merchant_id', merchant.id)
+          .eq('ref_code', code)
+          .maybeSingle()
+        if (referrer && String(referrer.id) !== String(card.id)) {
+          const { error: refErr } = await supabaseAdmin.from('referrals').insert({
+            merchant_id: String(merchant.id),
+            referrer_card_id: String(referrer.id),
+            referred_card_id: String(card.id),
+          })
+          if (!refErr) {
+            await createReward({
+              merchantId: merchant.id,
+              cardId: card.id,
+              source: 'referral_referred',
+              percent: referral.discount_referred,
+              serviceName: referral.service_name,
+              validDays: referral.valid_days,
+            })
+          }
+        }
+      }
     }
 
     const loyalty = await getLoyalty(merchant.id)
-    const prizes = await getActivePrizes(merchant.id, card.id).catch(() => [])
-    return res.status(200).json({ card: publicCard(card), loyalty: publicLoyalty(loyalty), prizes })
+    const prizes = await getAllRewards(merchant.id, card.id).catch(() => [])
+    return res.status(200).json({
+      card: publicCard(card),
+      loyalty: publicLoyalty(loyalty),
+      referral: publicReferral(referral, card),
+      prizes,
+    })
   } catch (e) {
     console.error('[customer/identify]', e)
     return res.status(500).json({ error: 'server_error' })

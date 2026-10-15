@@ -1,5 +1,6 @@
 import {
-  supabaseAdmin, cors, getActiveMerchant, getLoyalty, publicLoyalty, publicCard, getActivePrizes,
+  supabaseAdmin, cors, getActiveMerchant, getLoyalty, publicLoyalty, publicCard,
+  getReferral, publicReferral, createReward, getAllRewards,
 } from '../../../lib/customer'
 
 const MAX_FAILURES = 5
@@ -9,13 +10,14 @@ const ACTIONS = ['stamp', 'redeem', 'use_prize']
 // POST { merchant_id, card_id, pin, action, spin_id?, preview }
 //  - stamp     : +1 tampon
 //  - redeem    : carte pleine → récompense utilisée, carte remise à zéro
-//  - use_prize : lot de la roue (spin_id) marqué comme utilisé
+//  - use_prize : lot de la roue ou récompense (spin_id + kind 'spin' | 'reward') marqué comme utilisé
+// Au premier tampon d'un filleul, la récompense de son parrain est débloquée.
 // Le PIN est vérifié ici : il n'est jamais envoyé au navigateur.
 export default async function handler(req, res) {
   if (cors(req, res, 'POST')) return
   if (req.method !== 'POST') return res.status(405).json({ error: 'method_not_allowed' })
 
-  const { merchant_id, card_id, pin, action, spin_id, preview } = req.body || {}
+  const { merchant_id, card_id, pin, action, spin_id, kind, preview } = req.body || {}
   if (!merchant_id || !card_id || !pin) return res.status(400).json({ error: 'missing_params' })
   if (!ACTIONS.includes(action)) return res.status(400).json({ error: 'invalid_action' })
   if (action === 'use_prize' && !spin_id) return res.status(400).json({ error: 'missing_params' })
@@ -54,7 +56,19 @@ export default async function handler(req, res) {
 
     const update = { pin_failures: 0, pin_locked_until: null }
 
-    if (action === 'use_prize') {
+    if (action === 'use_prize' && kind === 'reward') {
+      const { data: rw } = await supabaseAdmin
+        .from('customer_rewards')
+        .select('*')
+        .eq('id', spin_id)
+        .eq('merchant_id', String(merchant.id))
+        .eq('card_id', String(card.id))
+        .maybeSingle()
+      if (!rw) return res.status(404).json({ error: 'prize_not_found' })
+      if (rw.redeemed_at) return res.status(400).json({ error: 'prize_used' })
+      if (rw.expires_at && new Date(rw.expires_at) < now) return res.status(400).json({ error: 'prize_expired' })
+      await supabaseAdmin.from('customer_rewards').update({ redeemed_at: now.toISOString() }).eq('id', rw.id)
+    } else if (action === 'use_prize') {
       const { data: spin } = await supabaseAdmin
         .from('wheel_spins')
         .select('*')
@@ -88,8 +102,43 @@ export default async function handler(req, res) {
       .single()
     if (error) throw error
 
-    const prizes = await getActivePrizes(merchant.id, card.id).catch(() => [])
-    return res.status(200).json({ card: publicCard(saved), loyalty: publicLoyalty(loyalty), prizes })
+    // Premier tampon d'un filleul → récompense du parrain
+    const referral = await getReferral(merchant.id)
+    if (action === 'stamp' && referral && referral.enabled) {
+      const { data: link } = await supabaseAdmin
+        .from('referrals')
+        .select('*')
+        .eq('referred_card_id', String(card.id))
+        .is('rewarded_at', null)
+        .maybeSingle()
+      if (link) {
+        const { data: claimed } = await supabaseAdmin
+          .from('referrals')
+          .update({ rewarded_at: now.toISOString() })
+          .eq('id', link.id)
+          .is('rewarded_at', null)
+          .select('id')
+          .maybeSingle()
+        if (claimed) {
+          await createReward({
+            merchantId: merchant.id,
+            cardId: link.referrer_card_id,
+            source: 'referral_referrer',
+            percent: referral.discount_referrer,
+            serviceName: referral.service_name,
+            validDays: referral.valid_days,
+          })
+        }
+      }
+    }
+
+    const prizes = await getAllRewards(merchant.id, card.id).catch(() => [])
+    return res.status(200).json({
+      card: publicCard(saved),
+      loyalty: publicLoyalty(loyalty),
+      referral: publicReferral(referral, saved),
+      prizes,
+    })
   } catch (e) {
     console.error('[customer/stamp]', e)
     return res.status(500).json({ error: 'server_error' })

@@ -1,5 +1,6 @@
 import {
-  supabaseAdmin, cors, getActiveMerchant, getLoyalty, publicLoyalty, publicCard, getActivePrizes,
+  supabaseAdmin, cors, getActiveMerchant, getLoyalty, publicLoyalty, publicCard,
+  getReferral, publicReferral, ensureRefCode, getAllRewards,
 } from '../../../lib/customer'
 
 // GET ?merchant_id=…&card_id=…&preview=1
@@ -14,7 +15,7 @@ export default async function handler(req, res) {
     const merchant = await getActiveMerchant(merchant_id, preview === '1')
     if (!merchant) return res.status(404).json({ error: 'merchant_unavailable' })
 
-    const { data: card } = await supabaseAdmin
+    let { data: card } = await supabaseAdmin
       .from('loyalty_cards')
       .select('*')
       .eq('id', card_id)
@@ -22,9 +23,17 @@ export default async function handler(req, res) {
       .maybeSingle()
     if (!card) return res.status(404).json({ error: 'card_not_found' })
 
+    const referral = await getReferral(merchant.id)
+    if (referral && referral.enabled) card = await ensureRefCode(card)
+
     const loyalty = await getLoyalty(merchant.id)
-    const prizes = await getActivePrizes(merchant.id, card.id).catch(() => [])
-    return res.status(200).json({ card: publicCard(card), loyalty: publicLoyalty(loyalty), prizes })
+    const prizes = await getAllRewards(merchant.id, card.id).catch(() => [])
+    return res.status(200).json({
+      card: publicCard(card),
+      loyalty: publicLoyalty(loyalty),
+      referral: publicReferral(referral, card),
+      prizes,
+    })
   } catch (e) {
     console.error('[customer/card]', e)
     return res.status(500).json({ error: 'server_error' })

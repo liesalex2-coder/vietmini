@@ -776,9 +776,15 @@ function SubFidelite({ merchantId, toast }) {
 function SubParrainage({ merchantId, toast }) {
   const [data, setData] = useState(null)
   const [form, setForm] = useState({})
+  const [links, setLinks] = useState([])
+  const [names, setNames] = useState({})
   async function load() {
     const { data: d } = await supabase.from('referral_config').select('*').eq('merchant_id', merchantId).single()
     setData(d); setForm(d || {})
+    const { data: r } = await supabase.from('referrals').select('*').eq('merchant_id', String(merchantId)).order('created_at', { ascending: false })
+    setLinks(r || [])
+    const { data: c } = await supabase.from('loyalty_cards').select('id, display_name, phone').eq('merchant_id', merchantId)
+    const map = {}; (c || []).forEach(x => { map[String(x.id)] = x }); setNames(map)
   }
   useEffect(() => { if (merchantId) load() }, [merchantId])
 
@@ -788,32 +794,58 @@ function SubParrainage({ merchantId, toast }) {
     setData(updated); setForm(updated); toast(updated.enabled ? 'Đã bật giới thiệu' : 'Đã tắt giới thiệu', true)
   }
   async function save() {
-    await supabase.from('referral_config').update({ discount_referrer: parseInt(form.discount_referrer) || 0, discount_referred: parseInt(form.discount_referred) || 0, valid_days: parseInt(form.valid_days) || 30 }).eq('id', data.id)
+    if (!await moderate([form.service_name])) { toast('Nội dung không được phép', false); return }
+    await supabase.from('referral_config').update({
+      discount_referrer: parseInt(form.discount_referrer) || 0,
+      discount_referred: parseInt(form.discount_referred) || 0,
+      valid_days: parseInt(form.valid_days) || 30,
+      service_name: (form.service_name || '').trim(),
+    }).eq('id', data.id)
     load(); toast('Đã lưu giới thiệu', true)
   }
   const f = field => e => setForm(p => ({ ...p, [field]: e.target.value }))
+  const who = id => { const c = names[String(id)]; return c ? (c.display_name || c.phone || '—') : '—' }
 
   if (!data) return <div style={{ color: C.mid }}>Đang tải…</div>
+  const service = (form.service_name || '').trim() || 'Tất cả dịch vụ'
   return (
-    <Card>
-      <FeatureHeader title="Giới thiệu bạn bè" subtitle="Mời bạn qua Zalo — cả hai cùng được thưởng" enabled={data.enabled} onToggle={toggleEnabled} />
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
-        <FieldGroup label="Giảm cho người giới thiệu (%)"><Input value={form.discount_referrer} onChange={f('discount_referrer')} type="number" placeholder="15" /></FieldGroup>
-        <FieldGroup label="Giảm cho người được giới thiệu (%)"><Input value={form.discount_referred} onChange={f('discount_referred')} type="number" placeholder="15" /></FieldGroup>
-        <FieldGroup label="Hiệu lực (ngày)"><Input value={form.valid_days} onChange={f('valid_days')} type="number" placeholder="30" /></FieldGroup>
-      </div>
-      {/* Flow visuel */}
-      <div style={{ margin: '16px 0', padding: '16px', background: C.bg, borderRadius: '10px', fontSize: '13px', color: C.mid }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-          <span style={{ background: C.white, padding: '6px 12px', borderRadius: '8px', color: C.dark, fontWeight: '600' }}>👩 Người giới thiệu</span>
-          <span>chia sẻ link Zalo →</span>
-          <span style={{ background: C.white, padding: '6px 12px', borderRadius: '8px', color: C.dark, fontWeight: '600' }}>👩 Người được giới thiệu</span>
-          <span>mở Mini App →</span>
-          <span style={{ background: '#f0fff4', padding: '6px 12px', borderRadius: '8px', color: '#1a6b3a', fontWeight: '600' }}>Cả hai cùng được −{form.discount_referrer || 15}%</span>
+    <div>
+      <Card style={{ marginBottom: '16px' }}>
+        <FeatureHeader title="Giới thiệu bạn bè" subtitle="Khách mời bạn bè — cả hai cùng được giảm giá" enabled={data.enabled} onToggle={toggleEnabled} />
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
+          <FieldGroup label="Giảm cho người giới thiệu (%)"><Input value={form.discount_referrer} onChange={f('discount_referrer')} type="number" placeholder="15" /></FieldGroup>
+          <FieldGroup label="Giảm cho người được giới thiệu (%)"><Input value={form.discount_referred} onChange={f('discount_referred')} type="number" placeholder="15" /></FieldGroup>
+          <FieldGroup label="Hiệu lực (ngày)"><Input value={form.valid_days} onChange={f('valid_days')} type="number" placeholder="30" /></FieldGroup>
+          <div style={{ gridColumn: '1 / -1' }}><FieldGroup label="Dịch vụ áp dụng"><Input value={form.service_name || ''} onChange={f('service_name')} placeholder="Ví dụ: Nail Gel, Cắt tóc… (để trống = tất cả dịch vụ)" /></FieldGroup></div>
         </div>
-      </div>
-      <SaveBtn onClick={save} />
-    </Card>
+        <div style={{ margin: '16px 0', padding: '16px', background: C.bg, borderRadius: '10px', fontSize: '13px', color: C.mid, lineHeight: 1.7 }}>
+          <div>1. Khách chia sẻ đường link từ trang Tôi.</div>
+          <div>2. Bạn bè đăng ký → được <strong style={{ color: C.dark }}>giảm {form.discount_referred || 0}% · {service}</strong>.</div>
+          <div>3. Bạn bè đến lần đầu (nhận tem đầu tiên) → người giới thiệu được <strong style={{ color: C.dark }}>giảm {form.discount_referrer || 0}% · {service}</strong>.</div>
+          <div>Mỗi phần thưởng dùng một lần, hiệu lực {form.valid_days || 30} ngày.</div>
+        </div>
+        <SaveBtn onClick={save} />
+      </Card>
+
+      <div style={{ fontWeight: '700', color: C.dark, marginBottom: '12px', fontSize: '15px' }}>Lượt giới thiệu ({links.length})</div>
+      {links.length === 0 ? (
+        <Card style={{ textAlign: 'center', color: C.mid }}>Chưa có lượt giới thiệu nào.</Card>
+      ) : (
+        <Card style={{ padding: 0, overflow: 'hidden' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+            <thead><tr style={{ background: C.bg }}>{['Người giới thiệu', 'Bạn bè', 'Ngày', 'Thưởng người giới thiệu'].map(h => <th key={h} style={{ padding: '10px 16px', textAlign: 'left', fontWeight: '600', color: C.mid }}>{h}</th>)}</tr></thead>
+            <tbody>{links.map((l, i) => (
+              <tr key={l.id} style={{ borderTop: `1px solid ${C.border}`, background: i % 2 === 0 ? C.white : C.cream }}>
+                <td style={{ padding: '10px 16px', color: C.dark }}>{who(l.referrer_card_id)}</td>
+                <td style={{ padding: '10px 16px', color: C.dark }}>{who(l.referred_card_id)}</td>
+                <td style={{ padding: '10px 16px', color: C.mid }}>{new Date(l.created_at).toLocaleDateString('vi-VN')}</td>
+                <td style={{ padding: '10px 16px', color: l.rewarded_at ? '#1a6b3a' : C.mid }}>{l.rewarded_at ? '✓ Đã nhận' : 'Chờ bạn bè đến lần đầu'}</td>
+              </tr>
+            ))}</tbody>
+          </table>
+        </Card>
+      )}
+    </div>
   )
 }
 

@@ -37,10 +37,11 @@ export async function getServerSideProps({ params, req, query }) {
 
   // Propager le flag preview (pour permettre l'aperçu même si abonnement inactif)
   const previewParam = query.preview === '1' ? '&preview=1' : ''
+  const refParam = query.ref ? '&ref=' + encodeURIComponent(String(query.ref).slice(0, 20)) : ''
 
   return {
     redirect: {
-      destination: `${template}?merchant_id=${merchantId}&api=${apiBase}${previewParam}`,
+      destination: `${template}?merchant_id=${merchantId}&api=${apiBase}${previewParam}${refParam}`,
       permanent: false,
     }
   }
