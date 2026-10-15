@@ -131,8 +131,7 @@ export default async function handler(req, res) {
         enabled: loyalty.enabled,
         visits_required: loyalty.visits_required || 10,
         reward_text: loyalty.reward_text || '',
-        pin: loyalty.pin_code || '0000',
-      } : { enabled: false, visits_required: 10, reward_text: '', pin: '0000' },
+      } : { enabled: false, visits_required: 10, reward_text: '' },
       flash: flash ? {
         enabled: flash.enabled,
         discount_value: flash.discount_value || 0,

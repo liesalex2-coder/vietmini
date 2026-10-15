@@ -749,6 +749,7 @@ function SubFidelite({ merchantId, toast }) {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontWeight: '600', color: C.dark, fontSize: '14px' }}>{card.display_name || card.zalo_id}</div>
+                    {card.phone && <div style={{ fontSize: '12px', color: C.mid, marginTop: '2px' }}>{card.phone}</div>}
                     <div style={{ marginTop: '6px', height: '6px', borderRadius: '3px', background: C.bg, overflow: 'hidden' }}>
                       <div style={{ height: '100%', width: `${pct}%`, background: pct >= 100 ? '#1a6b3a' : C.gold, borderRadius: '3px', transition: 'width .3s' }} />
                     </div>
@@ -1271,14 +1272,14 @@ function SectionContacts({ merchantId }) {
   }, [merchantId])
   return (
     <div>
-      <SectionTitle>Contacts Zalo ({contacts.length})</SectionTitle>
+      <SectionTitle>Khách hàng ({contacts.length})</SectionTitle>
       {loading ? <div style={{ color: C.mid }}>Đang tải…</div> : contacts.length === 0 ? (
         <Card style={{ textAlign: 'center', color: C.mid }}><div style={{ fontSize: '32px', marginBottom: '8px' }}>👥</div><div>Chưa có khách hàng.</div><div style={{ fontSize: '12px', marginTop: '6px' }}>Khách hàng sẽ xuất hiện ngay khi có người mở Mini App của bạn.</div></Card>
       ) : (
         <Card style={{ padding: 0, overflow: 'hidden' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
-            <thead><tr style={{ background: C.bg }}>{['Tên', 'Số điện thoại', 'Zalo ID', 'Đã ghi nhận'].map(h => <th key={h} style={{ padding: '10px 16px', textAlign: 'left', fontWeight: '600', color: C.mid }}>{h}</th>)}</tr></thead>
-            <tbody>{contacts.map((c, i) => (<tr key={c.id} style={{ borderTop: `1px solid ${C.border}`, background: i % 2 === 0 ? C.white : C.cream }}><td style={{ padding: '10px 16px', color: C.dark }}>{c.display_name || '—'}</td><td style={{ padding: '10px 16px', color: C.mid }}>{c.phone || '—'}</td><td style={{ padding: '10px 16px', color: C.mid, fontFamily: 'monospace', fontSize: '11px' }}>{c.zalo_id || '—'}</td><td style={{ padding: '10px 16px', color: C.mid }}>{new Date(c.captured_at).toLocaleDateString('fr-FR')}</td></tr>))}</tbody>
+            <thead><tr style={{ background: C.bg }}>{['Tên', 'Số điện thoại', 'Nguồn', 'Đã ghi nhận'].map(h => <th key={h} style={{ padding: '10px 16px', textAlign: 'left', fontWeight: '600', color: C.mid }}>{h}</th>)}</tr></thead>
+            <tbody>{contacts.map((c, i) => (<tr key={c.id} style={{ borderTop: `1px solid ${C.border}`, background: i % 2 === 0 ? C.white : C.cream }}><td style={{ padding: '10px 16px', color: C.dark }}>{c.display_name || '—'}</td><td style={{ padding: '10px 16px', color: C.mid }}>{c.phone || '—'}</td><td style={{ padding: '10px 16px', color: C.mid }}>{c.source === 'web' ? 'Web' : c.zalo_id ? 'Zalo' : (c.source || '—')}</td><td style={{ padding: '10px 16px', color: C.mid }}>{new Date(c.captured_at).toLocaleDateString('fr-FR')}</td></tr>))}</tbody>
           </table>
         </Card>
       )}
