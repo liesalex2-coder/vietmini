@@ -157,6 +157,23 @@ export default function AdminMerchants() {
     setBusyId(null)
   }
 
+  async function handleSetPlan(m, plan) {
+    setBusyId(m.id)
+    try {
+      const res = await fetch('/api/admin/merchants', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'set_plan', access_token: accessToken, merchant_id: m.id, plan })
+      })
+      const data = await res.json()
+      if (!res.ok) { alert(data.error || 'Erreur'); setBusyId(null); return }
+      await loadMerchants(accessToken)
+    } catch (e) {
+      alert('Erreur de connexion')
+    }
+    setBusyId(null)
+  }
+
   async function handleAssignCommercial(m, newCommercialId) {
     setBusyId(m.id)
     try {
@@ -483,6 +500,17 @@ export default function AdminMerchants() {
                       <span style={{ display: 'inline-block', padding: '3px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: '700', background: status.bg, color: status.color, whiteSpace: 'nowrap' }}>
                         {status.label}
                       </span>
+                      <select
+                        value={['web', 'zalo', 'both'].includes(m.plan) ? m.plan : 'both'}
+                        onChange={e => handleSetPlan(m, e.target.value)}
+                        disabled={isBusy}
+                        title="Formule"
+                        style={{ display: 'block', margin: '6px auto 0', padding: '3px 6px', borderRadius: '6px', border: `1px solid ${C.border}`, fontSize: '11px', color: C.dark, background: C.white, fontFamily: "'Be Vietnam Pro', sans-serif", cursor: isBusy ? 'wait' : 'pointer' }}
+                      >
+                        <option value="web">Web</option>
+                        <option value="zalo">Zalo</option>
+                        <option value="both">Web + Zalo</option>
+                      </select>
                     </div>
                     <div style={{ textAlign: 'center', fontSize: '12px', color: C.mid }}>
                       {formatDate(m.subscription_expires_at)}

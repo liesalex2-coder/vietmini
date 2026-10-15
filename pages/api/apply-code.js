@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import { PLAN_IDS } from '../../lib/plans'
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -8,8 +9,9 @@ const supabaseAdmin = createClient(
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end()
 
-  const { code, access_token } = req.body
+  const { code, access_token, plan } = req.body
   if (!code || !access_token) return res.status(400).json({ error: 'Paramètres manquants' })
+  if (!PLAN_IDS.includes(plan)) return res.status(400).json({ error: 'Gói không hợp lệ' })
 
   // Vérifier le token utilisateur
   const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(access_token)
@@ -58,6 +60,7 @@ export default async function handler(req, res) {
       subscription_active: true,
       subscription_expires_at: newExpiry.toISOString(),
       last_renewal_at: nowISO,
+      plan,
     }
     // signed_at uniquement si null (première signature)
     if (!merchant.signed_at) {

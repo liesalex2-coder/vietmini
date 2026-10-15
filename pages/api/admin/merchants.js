@@ -26,7 +26,7 @@ export default async function handler(req, res) {
     if (action === 'list') {
       const { data: merchants, error } = await supabaseAdmin
         .from('merchants')
-        .select('id, user_id, name, vertical, phone, address, subscription_active, subscription_expires_at, signed_at, last_renewal_at, created_at, commercial_id, commercial_nom_historique')
+        .select('id, user_id, name, vertical, phone, address, subscription_active, subscription_expires_at, signed_at, last_renewal_at, created_at, commercial_id, commercial_nom_historique, plan')
         .order('created_at', { ascending: false })
       if (error) throw error
 
@@ -142,6 +142,20 @@ export default async function handler(req, res) {
           .eq('active', true)
       }
 
+      return res.status(200).json({ ok: true })
+    }
+
+    // SET PLAN (formule : web, zalo, both)
+    if (action === 'set_plan') {
+      const { merchant_id, plan } = req.body
+      if (!merchant_id || !['web', 'zalo', 'both'].includes(plan)) {
+        return res.status(400).json({ error: 'Paramètres invalides' })
+      }
+      const { error } = await supabaseAdmin
+        .from('merchants')
+        .update({ plan })
+        .eq('id', merchant_id)
+      if (error) throw error
       return res.status(200).json({ ok: true })
     }
 

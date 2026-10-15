@@ -3,6 +3,7 @@ import { useRouter } from 'next/router'
 import Head from 'next/head'
 import { supabase } from '../../lib/supabaseClient'
 import QRCode from 'qrcode'
+import { PLANS, normalizePlan, planIncludes } from '../../lib/plans'
 
 
 async function moderate(fields) {
@@ -137,7 +138,7 @@ function SectionApercu({ merchant, contacts, onChangeVertical }) {
   // QR code — visible uniquement si abonnement actif
   const [qrDataUrl, setQrDataUrl] = useState(null)
   useEffect(() => {
-    if (!merchant || !merchant.id || !merchant.subscription_active) return
+    if (!merchant || !merchant.id || !merchant.subscription_active || !planIncludes(merchant.plan, 'web')) return
     const appUrl = `${window.location.origin}/app/${merchant.id}`
     QRCode.toDataURL(appUrl, {
       width: 512,
@@ -180,6 +181,28 @@ function SectionApercu({ merchant, contacts, onChangeVertical }) {
       )}
       {merchant && merchant.subscription_active && (
         <div style={{ marginTop: '16px' }}>
+          <Card style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
+            <div>
+              <div style={{ fontSize: '12px', color: C.mid }}>Gói hiện tại</div>
+              <div style={{ fontWeight: '700', fontSize: '15px', color: C.dark }}>
+                {PLANS[normalizePlan(merchant.plan)].name}
+                {merchant.subscription_expires_at && <span style={{ fontWeight: '500', fontSize: '13px', color: C.mid }}> · hết hạn {new Date(merchant.subscription_expires_at).toLocaleDateString('vi-VN')}</span>}
+              </div>
+            </div>
+            <a href={`/abonnement?plan=${normalizePlan(merchant.plan)}`} style={{ fontSize: '13px', color: C.red, fontWeight: '600', textDecoration: 'none' }}>Gia hạn / đổi gói →</a>
+          </Card>
+        </div>
+      )}
+      {merchant && merchant.subscription_active && planIncludes(merchant.plan, 'zalo') && (
+        <div style={{ marginTop: '16px' }}>
+          <Card>
+            <div style={{ fontWeight: '700', fontSize: '15px', color: C.dark, marginBottom: '6px' }}>Ứng dụng Zalo</div>
+            <div style={{ fontSize: '13px', color: C.mid, lineHeight: '1.5' }}>Mã QR Zalo sẽ hiển thị tại đây khi ứng dụng Zalo được Zalo duyệt và phát hành.</div>
+          </Card>
+        </div>
+      )}
+      {merchant && merchant.subscription_active && planIncludes(merchant.plan, 'web') && (
+        <div style={{ marginTop: '16px' }}>
           <Card>
             <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>
               <div style={{ width: '140px', height: '140px', background: '#fff', borderRadius: '12px', padding: '8px', border: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -190,9 +213,9 @@ function SectionApercu({ merchant, contacts, onChangeVertical }) {
                 )}
               </div>
               <div style={{ flex: 1, minWidth: '200px' }}>
-                <div style={{ fontWeight: '700', fontSize: '15px', color: C.dark, marginBottom: '6px' }}>Mã QR cửa hàng</div>
+                <div style={{ fontWeight: '700', fontSize: '15px', color: C.dark, marginBottom: '6px' }}>Mã QR trang web</div>
                 <div style={{ fontSize: '13px', color: C.mid, lineHeight: '1.5', marginBottom: '12px' }}>
-                  In ra và dán tại quầy để khách hàng quét và truy cập ứng dụng.
+                  In ra và dán tại quầy. Khách quét bằng camera điện thoại, trang mở trên mọi trình duyệt.
                 </div>
                 <Btn variant="primary" small onClick={downloadQR} disabled={!qrDataUrl}>⬇ Tải xuống PNG</Btn>
               </div>

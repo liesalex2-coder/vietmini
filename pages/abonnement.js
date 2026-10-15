@@ -1,8 +1,9 @@
 import Head from 'next/head'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import { supabase } from '../lib/supabaseClient'
+import { PLANS, PLAN_IDS } from '../lib/plans'
 
 const C = {
   red: '#D0021B', gold: '#F5A623', dark: '#1A0A00',
@@ -10,10 +11,7 @@ const C = {
   border: '#e5d9ce'
 }
 
-const BASE_PRICE = 2000000
-
 const FEATURES = [
-  'Mini App Zalo mang đậm dấu ấn thương hiệu',
   'Vòng quay may mắn & ưu đãi chớp nhoáng',
   'Thẻ khách hàng thân thiết điện tử',
   'Mã giảm giá & ưu đãi chào mừng',
@@ -30,6 +28,11 @@ function formatVND(n) {
 
 export default function Abonnement() {
   const router = useRouter()
+  const [plan, setPlan] = useState('both')
+  useEffect(() => {
+    if (router.isReady && PLAN_IDS.includes(router.query.plan)) setPlan(router.query.plan)
+  }, [router.isReady, router.query.plan])
+  const BASE_PRICE = PLANS[plan].price
   const [showCode, setShowCode] = useState(false)
   const [code, setCode] = useState('')
   const [codeMsg, setCodeMsg] = useState('')
@@ -124,7 +127,8 @@ export default function Abonnement() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             code: appliedCode.code,
-            access_token: session.access_token
+            access_token: session.access_token,
+            plan
           })
         })
         const data = await res.json()
@@ -145,7 +149,7 @@ export default function Abonnement() {
     }
 
     // Cas 2 : paiement réel (SePay pas encore branché)
-    alert('Thanh toán sẽ sớm khả dụng — liên hệ với chúng tôi qua Zalo để kích hoạt thuê bao.')
+    alert('Thanh toán sẽ sớm khả dụng — liên hệ với chúng tôi để kích hoạt gói ' + PLANS[plan].name + '.')
   }
 
   return (
@@ -166,11 +170,38 @@ export default function Abonnement() {
 
         <div style={{ textAlign: 'center', padding: '60px 24px 40px' }}>
           <div style={{ display: 'inline-block', background: 'rgba(208,2,27,0.08)', color: C.red, fontSize: '11px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1.5px', padding: '4px 12px', borderRadius: '20px', marginBottom: '16px' }}>Thuê bao hằng năm</div>
-          <h1 style={{ fontSize: 'clamp(28px,4vw,44px)', fontWeight: '900', color: C.dark, letterSpacing: '-1px', lineHeight: 1.1, margin: '0 0 12px' }}>Kích hoạt Mini App Zalo của bạn</h1>
-          <p style={{ fontSize: '16px', color: C.mid, maxWidth: '480px', margin: '0 auto' }}>App của bạn đã sẵn sàng — khách hàng chỉ chờ bạn thôi.</p>
+          <h1 style={{ fontSize: 'clamp(28px,4vw,44px)', fontWeight: '900', color: C.dark, letterSpacing: '-1px', lineHeight: 1.1, margin: '0 0 12px' }}>Kích hoạt thuê bao của bạn</h1>
+          <p style={{ fontSize: '16px', color: C.mid, maxWidth: '480px', margin: '0 auto' }}>Chọn trang web, ứng dụng Zalo, hoặc cả hai.</p>
         </div>
 
         <div style={{ maxWidth: '480px', margin: '0 auto 60px', padding: '0 24px' }}>
+          {/* Choix de la formule */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px' }}>
+            {PLAN_IDS.map(id => {
+              const p = PLANS[id]
+              const active = plan === id
+              return (
+                <button
+                  key={id}
+                  type="button"
+                  onClick={() => setPlan(id)}
+                  style={{ display: 'flex', alignItems: 'center', gap: '14px', width: '100%', textAlign: 'left', padding: '14px 18px', borderRadius: '14px', border: `2px solid ${active ? C.red : C.border}`, background: active ? '#FFF5F5' : C.white, cursor: 'pointer', fontFamily: "'Be Vietnam Pro', sans-serif" }}
+                >
+                  <span style={{ width: '20px', height: '20px', borderRadius: '50%', border: `2px solid ${active ? C.red : C.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    {active && <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: C.red }} />}
+                  </span>
+                  <span style={{ flex: 1 }}>
+                    <span style={{ display: 'block', fontSize: '15px', fontWeight: '700', color: C.dark }}>
+                      {p.name}
+                      {id === 'both' && <span style={{ marginLeft: '8px', fontSize: '11px', fontWeight: '700', color: C.white, background: C.red, padding: '2px 8px', borderRadius: '20px' }}>Tiết kiệm 1.000.000 ₫</span>}
+                    </span>
+                    <span style={{ display: 'block', fontSize: '12px', color: C.mid, marginTop: '2px' }}>{p.desc}</span>
+                  </span>
+                  <span style={{ fontSize: '14px', fontWeight: '800', color: C.dark, whiteSpace: 'nowrap' }}>{formatVND(p.price)} ₫</span>
+                </button>
+              )
+            })}
+          </div>
           <div style={{ background: C.white, borderRadius: '20px', boxShadow: '0 8px 40px rgba(26,10,0,0.1)', overflow: 'hidden', border: `2px solid ${C.gold}` }}>
 
             <div style={{ background: C.gold, padding: '8px 24px', textAlign: 'center' }}>
@@ -196,7 +227,7 @@ export default function Abonnement() {
                 {appliedCode ? (
                   <>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                      <span style={{ fontSize: '14px', color: C.dark, fontWeight: '500' }}>Thuê bao hằng năm</span>
+                      <span style={{ fontSize: '14px', color: C.dark, fontWeight: '500' }}>{PLANS[plan].name} · 1 năm</span>
                       <span style={{ fontSize: '15px', color: C.dark, fontWeight: '700' }}>{formatVND(BASE_PRICE)} ₫</span>
                     </div>
 

@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import { planIncludes } from '../../../lib/plans'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -46,7 +47,10 @@ export default async function handler(req, res) {
     // Abonnement inactif → renvoyer 403 avec infos minimales (name, vertical pour le template)
     // Bypass via ?preview=1 pour permettre la prévisualisation côté dashboard marchand et admin
     const isPreview = req.query.preview === '1'
-    if (!merchant.subscription_active && !isPreview) {
+    // Canal : page web (par défaut) ou app Zalo (?channel=zalo) — doit être inclus dans la formule
+    const channel = req.query.channel === 'zalo' ? 'zalo' : 'web'
+    const channelOk = planIncludes(merchant.plan, channel)
+    if ((!merchant.subscription_active || !channelOk) && !isPreview) {
       res.setHeader('Access-Control-Allow-Origin', '*')
       res.setHeader('Cache-Control', 'no-store')
       return res.status(403).json({
