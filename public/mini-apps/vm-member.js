@@ -10,7 +10,20 @@
   var preview = params.get('preview') === '1';
   var STORE_KEY = 'vm_card_' + merchantId;
 
-  var state = { card: null, loyalty: null, busy: false };
+  var state = { card: null, loyalty: null, prizes: [], busy: false };
+  var pendingSpin = false;
+
+  function applyData(body) {
+    if (body.card) state.card = body.card;
+    if (body.loyalty) state.loyalty = body.loyalty;
+    if (body.prizes) state.prizes = body.prizes;
+  }
+
+  function fmtDate(iso) {
+    if (!iso) return '';
+    var d = new Date(iso);
+    return ('0' + d.getDate()).slice(-2) + '/' + ('0' + (d.getMonth() + 1)).slice(-2) + '/' + d.getFullYear();
+  }
 
   function storeGet() { try { return localStorage.getItem(STORE_KEY); } catch (e) { return null; } }
   function storeSet(v) { try { localStorage.setItem(STORE_KEY, v); } catch (e) {} }
@@ -63,6 +76,12 @@
     '.vmm-keys{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}',
     '.vmm-key{background:#f5f5f5;border:none;border-radius:12px;padding:16px;font-size:20px;font-weight:700;font-family:inherit;cursor:pointer;color:var(--text,#1a1a1a)}',
     '.vmm-key.ok{background:var(--primary,#D0021B);color:#fff}',
+    '.vmm-note{font-size:13px;font-weight:600;color:var(--primary,#D0021B);background:#fff5f5;border-radius:10px;padding:10px 12px;margin-bottom:14px}',
+    '.vmm-prize{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid #f0f0f0}',
+    '.vmm-prize:first-of-type{border-top:none}',
+    '.vmm-prize-name{font-size:15px;font-weight:700}',
+    '.vmm-prize-exp{font-size:12px;color:var(--muted,#777);margin-top:2px}',
+    '.vmm-small-btn{flex-shrink:0;border:none;border-radius:10px;padding:9px 14px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;background:var(--primary,#D0021B);color:#fff}',
     '.vmm-cancel{display:block;width:100%;margin-top:12px;background:#f5f5f5;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;color:var(--muted,#777)}'
   ].join('');
   document.head.appendChild(css);
@@ -78,10 +97,11 @@
   page.appendChild(root);
 
   // ── FORMULAIRE D'IDENTIFICATION ─────────────────────────────
-  function renderForm(prefill) {
+  function renderForm(prefill, note) {
     prefill = prefill || {};
     root.innerHTML =
       '<div class="vmm-card">' +
+        (note ? '<div class="vmm-note">' + esc(note) + '</div>' : '') +
         '<div class="vmm-title">Thẻ thành viên</div>' +
         '<div class="vmm-sub">Nhập tên và số điện thoại để lưu điểm tích lũy của bạn.</div>' +
         '<label class="vmm-label" for="vmmName">Tên</label>' +
@@ -114,10 +134,14 @@
       state.busy = false;
       btn.disabled = false;
       if (r.ok && r.body.card) {
-        state.card = r.body.card;
-        state.loyalty = r.body.loyalty;
+        applyData(r.body);
         storeSet(state.card.id);
         renderMember();
+        if (pendingSpin && typeof openWheelModal === 'function') {
+          pendingSpin = false;
+          if (typeof navTo === 'function') navTo('page-home', 'nav-home');
+          openWheelModal();
+        }
       } else if (r.body.error === 'invalid_phone') {
         err.textContent = 'Số điện thoại không hợp lệ.';
       } else {
@@ -167,10 +191,25 @@
         '</div>';
     }
 
+    if (state.prizes && state.prizes.length) {
+      html += '<div class="vmm-card"><div class="vmm-title">Phần thưởng vòng quay</div>' +
+        '<div class="vmm-sub">Xuất trình cho nhân viên khi đến để nhận thưởng.</div>' +
+        state.prizes.map(function (p) {
+          return '<div class="vmm-prize"><div style="flex:1"><div class="vmm-prize-name">🎁 ' + esc(p.label) + '</div>' +
+            '<div class="vmm-prize-exp">Hết hạn: ' + fmtDate(p.expires_at) + '</div></div>' +
+            '<button class="vmm-small-btn" data-prize="' + esc(p.id) + '">Dùng</button></div>';
+        }).join('') +
+        '<div class="vmm-ok" id="vmmPrizeOk"></div></div>';
+    }
+
     root.innerHTML = html;
+    Array.prototype.forEach.call(root.querySelectorAll('[data-prize]'), function (b) {
+      b.onclick = function () { openPin('use_prize', b.getAttribute('data-prize')); };
+    });
     document.getElementById('vmmLogout').onclick = function () {
       storeDel();
       state.card = null;
+      state.prizes = [];
       renderForm();
     };
     var action = document.getElementById('vmmAction');
@@ -202,13 +241,15 @@
 
   var pinBuf = '';
   var pinAction = 'stamp';
+  var pinSpinId = null;
 
   function drawDots() {
     var dots = pinBd.querySelectorAll('.vmm-dot');
     for (var i = 0; i < dots.length; i++) dots[i].classList.toggle('on', i < pinBuf.length);
   }
-  function openPin(action) {
+  function openPin(action, spinId) {
     pinAction = action;
+    pinSpinId = spinId || null;
     pinBuf = '';
     drawDots();
     document.getElementById('vmmPinError').textContent = '';
@@ -231,17 +272,17 @@
     api('/api/customer/stamp', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ merchant_id: merchantId, card_id: state.card.id, pin: pinBuf, action: pinAction, preview: preview })
+      body: JSON.stringify({ merchant_id: merchantId, card_id: state.card.id, pin: pinBuf, action: pinAction, spin_id: pinSpinId, preview: preview })
     }).then(function (r) {
       state.busy = false;
       if (r.ok && r.body.card) {
-        var redeemed = pinAction === 'redeem';
-        state.card = r.body.card;
-        state.loyalty = r.body.loyalty;
+        var done = pinAction;
+        applyData(r.body);
         closePin();
         renderMember();
-        var ok = document.getElementById('vmmOk');
-        if (ok) ok.textContent = redeemed ? 'Đã dùng phần thưởng.' : 'Đã nhận tem.';
+        var ok = document.getElementById(done === 'use_prize' ? 'vmmPrizeOk' : 'vmmOk');
+        if (!ok && done === 'use_prize') ok = document.getElementById('vmmOk');
+        if (ok) ok.textContent = done === 'stamp' ? 'Đã nhận tem.' : 'Đã dùng phần thưởng.';
         return;
       }
       pinBuf = '';
@@ -258,6 +299,105 @@
     });
   });
 
+  // ── VÒNG QUAY : tirage par le serveur, une partie par jour ──
+  // Remplace spinWheel() des modèles (WP, SL, wAngle, hasSpun, drawWheel… sont définis par le modèle).
+  function wheelReady() {
+    return typeof SL !== 'undefined' && typeof drawWheel === 'function' && typeof wAngle !== 'undefined';
+  }
+
+  function wheelMessage(text) {
+    var sub = document.querySelector('.wm-sub');
+    if (sub) { sub.textContent = text; sub.style.display = ''; }
+  }
+
+  function showSpinResult(spin, already) {
+    var win = !!spin.is_win;
+    var el = function (id) { return document.getElementById(id); };
+    if (el('prizeEmoji')) el('prizeEmoji').textContent = win ? '🎁' : '🌸';
+    if (el('prizeName')) el('prizeName').textContent = spin.label || '';
+    var detail = win ? 'Phần thưởng đã được lưu trong trang Tôi.' : 'Hẹn gặp lại bạn ngày mai!';
+    if (already) detail = 'Bạn đã quay hôm nay. Quay lại vào ngày mai.';
+    if (el('prizeDetail')) el('prizeDetail').textContent = detail;
+    var validity = document.querySelector('.prize-validity');
+    if (validity) validity.style.display = win ? 'inline-block' : 'none';
+    var box = document.querySelector('.prize-zalo-box');
+    if (box) box.style.display = win ? 'flex' : 'none';
+    var txt = document.querySelector('.prize-zalo-text');
+    if (txt) txt.textContent = 'Mở trang Tôi và xuất trình cho nhân viên khi đến để nhận thưởng.';
+    var ww = document.querySelector('.wheel-wrap');
+    var ws = document.querySelector('.wm-sub');
+    if (ww) ww.style.display = 'none';
+    if (ws) ws.style.display = 'none';
+    if (el('prizePopup')) el('prizePopup').classList.add('show');
+    if (el('spinAgainMsg')) el('spinAgainMsg').classList.add('show');
+    if (already) { if (validity) validity.style.display = 'none'; if (box) box.style.display = 'none'; }
+    if (win && !already && typeof confetti === 'function') confetti();
+  }
+
+  function animateTo(index, done) {
+    if (!wheelReady() || !SL[index]) { done(); return; }
+    var mid = 0;
+    for (var i = 0; i < index; i++) mid += SL[i].sweep;
+    mid += SL[index].sweep / 2;
+    var finalA = (-Math.PI / 2 - mid) + (5 + Math.random() * 3) * 2 * Math.PI;
+    var dur = 4200, t0 = performance.now(), s0 = wAngle;
+    function ease(t) { return 1 - Math.pow(1 - t, 4); }
+    function step(now) {
+      var t = Math.min((now - t0) / dur, 1);
+      wAngle = s0 + (finalA - s0) * ease(t);
+      drawWheel(wAngle);
+      if (t < 1) requestAnimationFrame(step);
+      else { wAngle = finalA % (2 * Math.PI); setTimeout(done, 600); }
+    }
+    requestAnimationFrame(step);
+  }
+
+  window.spinWheel = function () {
+    if (typeof hasSpun !== 'undefined' && hasSpun) return;
+    if (state.busy) return;
+
+    if (!state.card) {
+      pendingSpin = true;
+      if (typeof closeWheelModal === 'function') closeWheelModal();
+      if (typeof navTo === 'function') navTo('page-profile', 'nav-profile');
+      renderForm(null, 'Nhập tên và số điện thoại để quay vòng quay may mắn.');
+      return;
+    }
+
+    state.busy = true;
+    try { hasSpun = true; } catch (e) {}
+    var btn = document.getElementById('spinBtn');
+    if (btn) btn.disabled = true;
+
+    api('/api/customer/spin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ merchant_id: merchantId, card_id: state.card.id, preview: preview })
+    }).then(function (r) {
+      state.busy = false;
+      if (r.ok && r.body.spin) {
+        var spin = r.body.spin;
+        animateTo(r.body.index, function () {
+          if (spin.is_win) { state.prizes = [spin].concat(state.prizes || []); renderMember(); }
+          showSpinResult(spin, false);
+        });
+      } else if (r.body.error === 'already_spun' && r.body.spin) {
+        showSpinResult(r.body.spin, true);
+      } else if (r.body.error === 'already_spun') {
+        wheelMessage('Bạn đã quay hôm nay. Quay lại vào ngày mai.');
+      } else {
+        try { hasSpun = false; } catch (e) {}
+        if (btn) btn.disabled = false;
+        wheelMessage('Có lỗi xảy ra, vui lòng thử lại.');
+      }
+    }).catch(function () {
+      state.busy = false;
+      try { hasSpun = false; } catch (e) {}
+      if (btn) btn.disabled = false;
+      wheelMessage('Có lỗi xảy ra, vui lòng thử lại.');
+    });
+  };
+
   // ── DÉMARRAGE ───────────────────────────────────────────────
   var savedId = storeGet();
   if (!savedId) { renderForm(); return; }
@@ -267,8 +407,7 @@
       '&card_id=' + encodeURIComponent(savedId) + (preview ? '&preview=1' : ''))
     .then(function (r) {
       if (r.ok && r.body.card) {
-        state.card = r.body.card;
-        state.loyalty = r.body.loyalty;
+        applyData(r.body);
         renderMember();
       } else {
         if (r.body && r.body.error === 'card_not_found') storeDel();

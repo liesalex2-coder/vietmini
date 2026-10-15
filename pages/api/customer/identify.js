@@ -1,6 +1,6 @@
 import {
   supabaseAdmin, normalizePhone, cleanName, cors,
-  getActiveMerchant, getLoyalty, publicLoyalty, publicCard,
+  getActiveMerchant, getLoyalty, publicLoyalty, publicCard, getActivePrizes,
 } from '../../../lib/customer'
 
 // POST { merchant_id, name, phone, preview }
@@ -66,7 +66,8 @@ export default async function handler(req, res) {
     }
 
     const loyalty = await getLoyalty(merchant.id)
-    return res.status(200).json({ card: publicCard(card), loyalty: publicLoyalty(loyalty) })
+    const prizes = await getActivePrizes(merchant.id, card.id).catch(() => [])
+    return res.status(200).json({ card: publicCard(card), loyalty: publicLoyalty(loyalty), prizes })
   } catch (e) {
     console.error('[customer/identify]', e)
     return res.status(500).json({ error: 'server_error' })

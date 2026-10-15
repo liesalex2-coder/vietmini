@@ -1,5 +1,5 @@
 import {
-  supabaseAdmin, cors, getActiveMerchant, getLoyalty, publicLoyalty, publicCard,
+  supabaseAdmin, cors, getActiveMerchant, getLoyalty, publicLoyalty, publicCard, getActivePrizes,
 } from '../../../lib/customer'
 
 // GET ?merchant_id=…&card_id=…&preview=1
@@ -23,7 +23,8 @@ export default async function handler(req, res) {
     if (!card) return res.status(404).json({ error: 'card_not_found' })
 
     const loyalty = await getLoyalty(merchant.id)
-    return res.status(200).json({ card: publicCard(card), loyalty: publicLoyalty(loyalty) })
+    const prizes = await getActivePrizes(merchant.id, card.id).catch(() => [])
+    return res.status(200).json({ card: publicCard(card), loyalty: publicLoyalty(loyalty), prizes })
   } catch (e) {
     console.error('[customer/card]', e)
     return res.status(500).json({ error: 'server_error' })
