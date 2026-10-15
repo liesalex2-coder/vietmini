@@ -23,7 +23,6 @@ export default function Home() {
           </div>
           <div className="hero-visual">
             <div className="phone-wrap">
-              <div className="phone-bubble phone-bubble-1">📩 Đã gửi tin nhắn<small>247 khách hàng — 2 phút trước</small></div>
               <div className="phone-frame">
                 <span className="phone-notch"></span>
                 <div className="phone-screen">
