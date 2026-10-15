@@ -10,8 +10,8 @@ export default function Home() {
         <div className="hero-inner">
           <div>
             <div className="hero-tag fade-up">Dành cho salon, spa, nhà hàng, gym...</div>
-            <h1 className="fade-up-2">Khách Việt trên Zalo. Khách nước ngoài trên web. <em>Cửa hàng của bạn ở cả hai.</em></h1>
-            <p className="hero-sub fade-up-3">Hai cách để khách mở cửa hàng của bạn trên điện thoại. <strong>Bạn chọn một, hoặc cả hai.</strong></p>
+            <h1 className="fade-up-2">Cửa hàng của bạn, <em>trong điện thoại của mọi khách hàng.</em></h1>
+            <p className="hero-sub fade-up-3">Trên Zalo hoặc trên web. <strong>Bạn chọn một, hoặc cả hai.</strong></p>
             <div className="hero-insight fade-up-3">
               <div className="hero-insight-icon">💡</div>
               <p>VietMini đưa cửa hàng của bạn lên Zalo và lên web chỉ trong vài phút — trang giới thiệu, danh sách dịch vụ, ưu đãi và thẻ tích điểm, quản lý từ một bảng điều khiển duy nhất.</p>
