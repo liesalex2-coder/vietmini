@@ -1207,6 +1207,8 @@ renderStamps();
 
     if (!res.ok) return;
     const d = await res.json();
+    window.VM_DATA = d;
+    try { document.dispatchEvent(new CustomEvent('vm:data', { detail: d })); } catch (e) {}
     const m = d.merchant;
 
     // Nom
@@ -1784,6 +1786,7 @@ document.head.appendChild(cs);
 window.addEventListener('DOMContentLoaded',()=>setTimeout(()=>drawWheel(wAngle),100));
 </script>
 
+<script src="vm-live.js"></script>
 <script src="vm-member.js"></script>
 </body>
 </html>

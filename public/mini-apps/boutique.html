@@ -1083,6 +1083,8 @@ function renderStamps() {}
 
     if (!res.ok) return;
     const d = await res.json();
+    window.VM_DATA = d;
+    try { document.dispatchEvent(new CustomEvent('vm:data', { detail: d })); } catch (e) {}
     const m = d.merchant;
 
     // Nom
@@ -1572,6 +1574,7 @@ function showWelcomePopup() {
     <button onclick="closeFlashModal()" style="display:block;width:calc(100% - 40px);margin:0 20px;background:var(--primary);color:#fff;border:none;border-radius:12px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Be Vietnam Pro',sans-serif;">Đã hiểu — Tôi sẽ xuất trình khi đến</button>
   </div>
 </div>
+<script src="vm-live.js"></script>
 <script src="vm-member.js"></script>
 </body>
 </html>

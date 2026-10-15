@@ -24,6 +24,7 @@ export default async function handler(req, res) {
       { data: gallery },
       { data: announcements },
       { data: reviewConfig },
+      { data: allRatings },
     ] = await Promise.all([
       supabase.from('merchants').select('*').eq('id', merchantId).maybeSingle(),
       supabase.from('services').select('*').eq('merchant_id', merchantId).eq('active', true).order('display_order'),
@@ -37,6 +38,7 @@ export default async function handler(req, res) {
       supabase.from('gallery').select('*').eq('merchant_id', merchantId).eq('active', true).order('display_order'),
       supabase.from('announcements').select('*').eq('merchant_id', merchantId).eq('active', true).order('created_at', { ascending: false }),
       supabase.from('review_config').select('*').eq('merchant_id', merchantId).maybeSingle(),
+      supabase.from('reviews').select('rating').eq('merchant_id', merchantId).eq('visible', true),
     ])
 
     if (!merchant) return res.status(404).json({ error: 'Marchand introuvable' })
@@ -149,6 +151,14 @@ export default async function handler(req, res) {
         discount_referred: referral.discount_referred || 0,
         valid_days: referral.valid_days || 30,
       } : { enabled: false, discount_referrer: 0, discount_referred: 0, valid_days: 30 },
+      review_stats: (() => {
+        const list = merchant.show_reviews !== false ? (allRatings || []) : []
+        const vals = list.map(r => Math.max(1, Math.min(5, parseInt(r.rating) || 5)))
+        return {
+          count: vals.length,
+          avg: vals.length ? Math.round((vals.reduce((a, b) => a + b, 0) / vals.length) * 10) / 10 : 0,
+        }
+      })(),
       reviews: (merchant.show_reviews !== false ? (reviews || []) : []).map(r => ({
         id: r.id,
         author: r.author_name || 'Khách hàng',
