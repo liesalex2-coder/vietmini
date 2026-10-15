@@ -1,18 +1,19 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { supabase } from '../lib/supabaseClient';
 
 const NAV = [
   { label: 'Cách hoạt động', href: '/comment-ca-marche' },
   { label: 'Demo', href: '/demos' },
   { label: 'Bảng giá', href: '/tarifs' },
   { label: 'Liên hệ', href: '/contact' },
-  { label: 'Đăng nhập', href: '/login' },
 ];
 
 export default function Header() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -24,6 +25,12 @@ export default function Header() {
   useEffect(() => {
     setOpen(false);
   }, [router.asPath]);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => setLoggedIn(!!(data && data.session)));
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => setLoggedIn(!!session));
+    return () => sub && sub.subscription && sub.subscription.unsubscribe();
+  }, []);
 
   const isActive = (href) => {
     if (href === '/#features') return router.pathname === '/';
@@ -52,11 +59,16 @@ export default function Header() {
                 {item.label}
               </Link>
             ))}
+            {!loggedIn && (
+              <Link href="/login" className={`nav-link${isActive('/login') ? ' active' : ''}`}>Đăng nhập</Link>
+            )}
           </nav>
 
           {/* CTA + hamburger */}
           <div className="actions">
-            <Link href="/register" className="cta-btn">Tạo tài khoản</Link>
+            {loggedIn
+              ? <Link href="/dashboard" className="cta-btn">Bảng điều khiển</Link>
+              : <Link href="/register" className="cta-btn">Tạo tài khoản</Link>}
             <button
               className={`hamburger${open ? ' open' : ''}`}
               onClick={() => setOpen(!open)}
@@ -78,8 +90,14 @@ export default function Header() {
               {item.label}
             </Link>
           ))}
-          <Link href="/login" className="mobile-link">Đăng nhập</Link>
-          <Link href="/register" className="mobile-cta">Tạo tài khoản</Link>
+          {loggedIn ? (
+            <Link href="/dashboard" className="mobile-cta">Bảng điều khiển</Link>
+          ) : (
+            <>
+              <Link href="/login" className="mobile-link">Đăng nhập</Link>
+              <Link href="/register" className="mobile-cta">Tạo tài khoản</Link>
+            </>
+          )}
         </div>
       </header>
 

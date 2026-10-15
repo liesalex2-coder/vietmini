@@ -1799,6 +1799,7 @@ export default function Dashboard() {
           </nav>
           <div style={{ padding: '16px 20px', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
             <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.7)', marginBottom: '10px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.email}</div>
+            <a href="/" style={{ display: 'block', textAlign: 'center', textDecoration: 'none', width: '100%', boxSizing: 'border-box', padding: '8px', marginBottom: '8px', borderRadius: '7px', background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.85)', fontSize: '13px', fontFamily: "'Be Vietnam Pro', sans-serif" }}>← Trang web VietMini</a>
             <button onClick={logout} style={{ width: '100%', padding: '8px', borderRadius: '7px', background: 'rgba(255,255,255,0.08)', border: 'none', color: 'rgba(255,255,255,0.85)', fontSize: '13px', cursor: 'pointer', fontFamily: "'Be Vietnam Pro', sans-serif" }}>Đăng xuất</button>
           </div>
         </aside>
