@@ -1121,14 +1121,14 @@ function SubThongBao({ merchantId, toast }) {
 
 // ─── Marketing : Khuyến khích đánh giá ───────────────────────
 function SubReviewIncentive({ merchantId, toast }) {
-  const [config, setConfig] = useState({ enabled: false, reward_percent: 10, cooldown_days: 60 })
+  const [config, setConfig] = useState({ enabled: false, reward_percent: 10, cooldown_days: 60, service_name: '' })
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     if (!merchantId) return
     ;(async () => {
       const { data } = await supabase.from('review_config').select('*').eq('merchant_id', merchantId).maybeSingle()
-      if (data) setConfig({ enabled: data.enabled, reward_percent: data.reward_percent, cooldown_days: data.cooldown_days })
+      if (data) setConfig({ enabled: data.enabled, reward_percent: data.reward_percent, cooldown_days: data.cooldown_days, service_name: data.service_name || '' })
       setLoading(false)
     })()
   }, [merchantId])
@@ -1136,7 +1136,8 @@ function SubReviewIncentive({ merchantId, toast }) {
   async function save() {
     const percent = Math.max(5, Math.min(30, parseInt(config.reward_percent) || 10))
     const cooldown = Math.max(30, Math.min(180, parseInt(config.cooldown_days) || 60))
-    const payload = { merchant_id: merchantId, enabled: config.enabled, reward_percent: percent, cooldown_days: cooldown }
+    if (!await moderate([config.service_name])) { toast('Nội dung không được phép', false); return }
+    const payload = { merchant_id: merchantId, enabled: config.enabled, reward_percent: percent, cooldown_days: cooldown, service_name: (config.service_name || '').trim() }
     await supabase.from('review_config').upsert(payload, { onConflict: 'merchant_id' })
     setConfig(p => ({ ...p, reward_percent: percent, cooldown_days: cooldown }))
     toast('Đã lưu', true)
@@ -1145,7 +1146,7 @@ function SubReviewIncentive({ merchantId, toast }) {
   async function toggleEnabled() {
     const newEnabled = !config.enabled
     setConfig(p => ({ ...p, enabled: newEnabled }))
-    await supabase.from('review_config').upsert({ merchant_id: merchantId, enabled: newEnabled, reward_percent: config.reward_percent, cooldown_days: config.cooldown_days }, { onConflict: 'merchant_id' })
+    await supabase.from('review_config').upsert({ merchant_id: merchantId, enabled: newEnabled, reward_percent: config.reward_percent, cooldown_days: config.cooldown_days, service_name: (config.service_name || '').trim() }, { onConflict: 'merchant_id' })
     toast(newEnabled ? 'Đã bật khuyến khích đánh giá' : 'Đã tắt khuyến khích đánh giá', true)
   }
 
@@ -1158,7 +1159,7 @@ function SubReviewIncentive({ merchantId, toast }) {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
         <div>
           <div style={{ fontWeight: '700', fontSize: '15px', color: C.dark }}>Khuyến khích đánh giá bằng giảm giá</div>
-          <div style={{ fontSize: '13px', color: C.mid, marginTop: '4px' }}>Khách hàng đã điểm danh thẻ thân thiết gần đây sẽ nhận mã giảm giá khi viết đánh giá.</div>
+          <div style={{ fontSize: '13px', color: C.mid, marginTop: '4px' }}>Khách đã đến ít nhất một lần gửi đánh giá từ trang Tôi và nhận giảm giá, dù đánh giá mấy sao.</div>
         </div>
         <div onClick={toggleEnabled} style={{ cursor: 'pointer', width: '44px', height: '24px', borderRadius: '12px', background: config.enabled ? C.red : '#ccc', position: 'relative', flexShrink: 0, transition: 'background .15s' }}>
           <div style={{ position: 'absolute', top: '2px', left: config.enabled ? '22px' : '2px', width: '20px', height: '20px', borderRadius: '50%', background: C.white, transition: 'left .15s' }} />
@@ -1173,9 +1174,10 @@ function SubReviewIncentive({ merchantId, toast }) {
             <FieldGroup label="Thời gian giữa 2 đánh giá (ngày)">
               <input type="number" min="30" max="180" value={config.cooldown_days ?? ''} onChange={f('cooldown_days')} style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: `1px solid ${C.border}`, fontSize: '14px', color: C.dark, outline: 'none', boxSizing: 'border-box', background: C.white, fontFamily: "'Be Vietnam Pro', sans-serif" }} />
             </FieldGroup>
+            <div style={{ gridColumn: '1 / -1' }}><FieldGroup label="Dịch vụ áp dụng"><input value={config.service_name || ''} onChange={f('service_name')} placeholder="Ví dụ: Nail Gel, Cắt tóc… (để trống = tất cả dịch vụ)" style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: `1px solid ${C.border}`, fontSize: '14px', boxSizing: 'border-box', fontFamily: "'Be Vietnam Pro', sans-serif" }} /></FieldGroup></div>
           </div>
           <div style={{ fontSize: '12px', color: C.mid, marginBottom: '16px', padding: '12px', background: C.bg, borderRadius: '8px' }}>
-            💡 Giảm giá: 5-30%. Thời gian: 30-180 ngày (mặc định 60). Khách hàng chỉ nhận 1 mã giảm giá mỗi khoảng thời gian này.
+            💡 Giảm giá: 5-30%, dùng một lần, hiệu lực 30 ngày. Thời gian: 30-180 ngày (mặc định 60). Khách hàng chỉ gửi 1 đánh giá và nhận 1 giảm giá mỗi khoảng thời gian này.
           </div>
           <SaveBtn onClick={save} />
         </>

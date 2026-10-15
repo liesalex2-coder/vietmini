@@ -14,7 +14,8 @@
   if (refParam) { try { localStorage.setItem(REF_KEY, refParam.slice(0, 20)); } catch (e) {} }
   function refGet() { try { return localStorage.getItem(REF_KEY) || refParam || ''; } catch (e) { return refParam || ''; } }
 
-  var state = { card: null, loyalty: null, referral: null, prizes: [], busy: false };
+  var state = { card: null, loyalty: null, referral: null, review: null, prizes: [], busy: false };
+  var reviewStars = 0;
   var pendingSpin = false;
 
   function applyData(body) {
@@ -22,6 +23,7 @@
     if (body.loyalty) state.loyalty = body.loyalty;
     if (body.prizes) state.prizes = body.prizes;
     if (body.referral) state.referral = body.referral;
+    if (body.review_state) state.review = body.review_state;
   }
 
   function fmtDate(iso) {
@@ -87,6 +89,10 @@
     '.vmm-prize-name{font-size:15px;font-weight:700}',
     '.vmm-prize-exp{font-size:12px;color:var(--muted,#777);margin-top:2px}',
     '.vmm-small-btn{flex-shrink:0;border:none;border-radius:10px;padding:9px 14px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;background:var(--primary,#D0021B);color:#fff}',
+    '.vmm-stars{display:flex;gap:6px;margin:4px 0 12px}',
+    '.vmm-star{background:none;border:none;font-size:30px;line-height:1;cursor:pointer;color:#ddd;padding:0}',
+    '.vmm-star.on{color:#F5A623}',
+    '.vmm-textarea{display:block;width:100%;box-sizing:border-box;border:1.5px solid #e5e5e5;border-radius:12px;padding:12px 14px;font-size:14px;font-family:inherit;margin-bottom:12px;min-height:80px;resize:vertical;outline:none}',
     '.vmm-cancel{display:block;width:100%;margin-top:12px;background:#f5f5f5;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;color:var(--muted,#777)}'
   ].join('');
   document.head.appendChild(css);
@@ -206,13 +212,37 @@
         '<div class="vmm-ok" id="vmmShareOk"></div></div>';
     }
 
+    var rv = state.review;
+    if (rv && rv.enabled) {
+      var rewardLine = rv.reward_percent
+        ? '<div class="vmm-reward">Nhận <strong>giảm ' + esc(rv.reward_percent) + '% · ' + esc(rv.service_name || 'Tất cả dịch vụ') + '</strong> khi gửi đánh giá.</div>'
+        : '';
+      html += '<div class="vmm-card"><div class="vmm-title">Đánh giá</div>';
+      if (!rv.visited) {
+        html += '<div class="vmm-sub" style="margin-bottom:' + (rewardLine ? '10px' : '0') + '">Bạn có thể đánh giá sau lần ghé đầu tiên.</div>' + rewardLine;
+      } else if (rv.can_review) {
+        var stars = '';
+        for (var si = 1; si <= 5; si++) stars += '<button class="vmm-star' + (si <= reviewStars ? ' on' : '') + '" data-star="' + si + '">★</button>';
+        html += '<div class="vmm-stars">' + stars + '</div>' +
+          '<textarea class="vmm-textarea" id="vmmReviewText" maxlength="500" placeholder="Chia sẻ trải nghiệm của bạn (không bắt buộc)"></textarea>' +
+          rewardLine +
+          '<div class="vmm-error" id="vmmReviewError"></div>' +
+          '<button class="vmm-btn" id="vmmReviewSend">Gửi đánh giá</button>';
+      } else {
+        html += '<div class="vmm-sub" style="margin:0">Cảm ơn bạn đã đánh giá!' +
+          (rv.next_date ? ' Bạn có thể đánh giá lại từ ' + fmtDate(rv.next_date) + '.' : '') + '</div>';
+      }
+      html += '<div class="vmm-ok" id="vmmReviewOk"></div></div>';
+    }
+
     if (state.prizes && state.prizes.length) {
       html += '<div class="vmm-card"><div class="vmm-title">Phần thưởng của bạn</div>' +
         '<div class="vmm-sub">Xuất trình cho nhân viên khi đến để nhận thưởng.</div>' +
         state.prizes.map(function (p) {
-          var origin = p.kind === 'reward'
-            ? (p.source === 'referral_referrer' ? 'Cảm ơn bạn đã giới thiệu' : 'Quà giới thiệu')
-            : 'Vòng quay may mắn';
+          var origin = p.kind !== 'reward' ? 'Vòng quay may mắn'
+            : p.source === 'review' ? 'Cảm ơn bạn đã đánh giá'
+            : p.source === 'referral_referrer' ? 'Cảm ơn bạn đã giới thiệu'
+            : 'Quà giới thiệu';
           return '<div class="vmm-prize"><div style="flex:1"><div class="vmm-prize-name">🎁 ' + esc(p.label) + '</div>' +
             '<div class="vmm-prize-exp">' + origin + ' · Hết hạn: ' + fmtDate(p.expires_at) + '</div></div>' +
             '<button class="vmm-small-btn" data-prize="' + esc(p.id) + '" data-kind="' + esc(p.kind || 'spin') + '">Dùng</button></div>';
@@ -226,6 +256,17 @@
     });
     var share = document.getElementById('vmmShare');
     if (share) share.onclick = shareLink;
+    Array.prototype.forEach.call(root.querySelectorAll('[data-star]'), function (b) {
+      b.onclick = function () {
+        reviewStars = parseInt(b.getAttribute('data-star'), 10);
+        var re = document.getElementById('vmmReviewError'); if (re) re.textContent = '';
+        Array.prototype.forEach.call(root.querySelectorAll('[data-star]'), function (x) {
+          x.classList.toggle('on', parseInt(x.getAttribute('data-star'), 10) <= reviewStars);
+        });
+      };
+    });
+    var send = document.getElementById('vmmReviewSend');
+    if (send) send.onclick = sendReview;
     document.getElementById('vmmLogout').onclick = function () {
       storeDel();
       state.card = null;
@@ -238,6 +279,43 @@
         openPin((c.visit_count || 0) >= (l.visits_required || 10) ? 'redeem' : 'stamp');
       };
     }
+  }
+
+  // ── ENVOI D'UN AVIS ─────────────────────────────────────────
+  function sendReview() {
+    if (state.busy) return;
+    var err = document.getElementById('vmmReviewError');
+    var textEl = document.getElementById('vmmReviewText');
+    err.textContent = '';
+    if (!reviewStars) { err.textContent = 'Vui lòng chọn số sao.'; return; }
+    state.busy = true;
+    var btn = document.getElementById('vmmReviewSend');
+    btn.disabled = true;
+    api('/api/customer/review', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ merchant_id: merchantId, card_id: state.card.id, rating: reviewStars, text: textEl ? textEl.value : '', preview: preview })
+    }).then(function (r) {
+      state.busy = false;
+      if (r.ok) {
+        applyData(r.body);
+        reviewStars = 0;
+        renderMember();
+        var ok = document.getElementById('vmmReviewOk');
+        if (ok) ok.textContent = 'Đánh giá của bạn đã được đăng.';
+        return;
+      }
+      btn.disabled = false;
+      var e = r.body.error;
+      if (e === 'banned_content') err.textContent = 'Nội dung không được phép.';
+      else if (e === 'not_visited') err.textContent = 'Bạn có thể đánh giá sau lần ghé đầu tiên.';
+      else if (e === 'too_soon') err.textContent = 'Bạn đã đánh giá gần đây.';
+      else err.textContent = 'Có lỗi xảy ra, vui lòng thử lại.';
+    }).catch(function () {
+      state.busy = false;
+      btn.disabled = false;
+      err.textContent = 'Có lỗi xảy ra, vui lòng thử lại.';
+    });
   }
 
   // ── PARTAGE DU LIEN DE PARRAINAGE ───────────────────────────

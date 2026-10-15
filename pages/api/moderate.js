@@ -1,22 +1,5 @@
 // pages/api/moderate.js
-const BANNED = [
-  // Prostitution (VI)
-  'gái gọi', 'mại dâm', 'cave', 'gái bán hoa', 'tắm tiên',
-  'massage kích dục', 'dịch vụ vui vẻ', 'dịch vụ đặc biệt',
-  'làm tình', 'địt', 'cặc', 'lồn', 'buôn dâm', 'bán dâm',
-  'gái mại dâm', 'nhà thổ', 'chạy sô',
-
-  // Drogue (VI)
-  'ma túy', 'cần sa', 'thuốc lắc', 'bạch phiến', 'heroin',
-  'buôn ma túy', 'cỏ mỹ', 'xì ke', 'chất kích thích',
-  'cocain', 'ketamin', 'hút chích',
-]
-
-function containsBanned(text) {
-  if (!text) return false
-  const lower = text.toLowerCase()
-  return BANNED.find(w => lower.includes(w.toLowerCase())) || null
-}
+import { containsBanned } from '../../lib/moderation'
 
 export default function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end()

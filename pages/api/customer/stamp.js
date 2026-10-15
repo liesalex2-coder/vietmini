@@ -1,6 +1,6 @@
 import {
   supabaseAdmin, cors, getActiveMerchant, getLoyalty, publicLoyalty, publicCard,
-  getReferral, publicReferral, createReward, getAllRewards,
+  getReferral, publicReferral, createReward, getAllRewards, getReviewState,
 } from '../../../lib/customer'
 
 const MAX_FAILURES = 5
@@ -137,6 +137,7 @@ export default async function handler(req, res) {
       card: publicCard(saved),
       loyalty: publicLoyalty(loyalty),
       referral: publicReferral(referral, saved),
+      review_state: await getReviewState(merchant.id, saved).catch(() => ({ enabled: false })),
       prizes,
     })
   } catch (e) {

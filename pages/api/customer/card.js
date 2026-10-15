@@ -1,6 +1,6 @@
 import {
   supabaseAdmin, cors, getActiveMerchant, getLoyalty, publicLoyalty, publicCard,
-  getReferral, publicReferral, ensureRefCode, getAllRewards,
+  getReferral, publicReferral, ensureRefCode, getAllRewards, getReviewState,
 } from '../../../lib/customer'
 
 // GET ?merchant_id=…&card_id=…&preview=1
@@ -32,6 +32,7 @@ export default async function handler(req, res) {
       card: publicCard(card),
       loyalty: publicLoyalty(loyalty),
       referral: publicReferral(referral, card),
+      review_state: await getReviewState(merchant.id, card).catch(() => ({ enabled: false })),
       prizes,
     })
   } catch (e) {

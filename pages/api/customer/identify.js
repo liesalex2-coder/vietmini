@@ -1,7 +1,7 @@
 import {
   supabaseAdmin, normalizePhone, cleanName, cors,
   getActiveMerchant, getLoyalty, publicLoyalty, publicCard,
-  getReferral, publicReferral, ensureRefCode, createReward, getAllRewards,
+  getReferral, publicReferral, ensureRefCode, createReward, getAllRewards, getReviewState,
 } from '../../../lib/customer'
 
 // POST { merchant_id, name, phone, ref, preview }
@@ -108,6 +108,7 @@ export default async function handler(req, res) {
       card: publicCard(card),
       loyalty: publicLoyalty(loyalty),
       referral: publicReferral(referral, card),
+      review_state: await getReviewState(merchant.id, card).catch(() => ({ enabled: false })),
       prizes,
     })
   } catch (e) {
