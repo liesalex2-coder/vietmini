@@ -70,7 +70,7 @@ export default function DemoPage({ slug, demo }) {
       <div className="page-cta-dark">
         <div>
           <h2 style={{fontFamily:"'Be Vietnam Pro', sans-serif", fontSize:'clamp(26px,3vw,40px)', fontWeight:900, color:'#fff', letterSpacing:'-1px', lineHeight:1.1, margin:'0 0 12px'}}>Trang này có thể là của bạn.</h2>
-          <p style={{fontFamily:"'Be Vietnam Pro', sans-serif", fontSize:'17px', color:'rgba(255,255,255,0.45)', margin:'0 0 36px'}}>Cửa hàng của bạn trên Zalo, sẵn sàng trong chưa đầy 5 phút.</p>
+          <p style={{fontFamily:"'Be Vietnam Pro', sans-serif", fontSize:'17px', color:'rgba(255,255,255,0.45)', margin:'0 0 36px'}}>Việc kinh doanh của bạn trên Zalo và trên web, sẵn sàng trong chưa đầy 5 phút.</p>
           <div style={{display:'flex', gap:'16px', justifyContent:'center', flexWrap:'wrap'}}>
             <a href="/register" style={{fontFamily:"'Be Vietnam Pro', sans-serif", fontSize:'15px', fontWeight:700, color:'#1A0A00', background:'#F5A623', textDecoration:'none', padding:'14px 28px', borderRadius:'12px'}}>Tạo tài khoản miễn phí →</a>
             <Link href="/demos" style={{fontFamily:"'Be Vietnam Pro', sans-serif", fontSize:'15px', fontWeight:600, color:'rgba(255,255,255,0.7)', textDecoration:'none', padding:'14px 28px', borderRadius:'12px', border:'1px solid rgba(255,255,255,0.15)'}}>Xem các ví dụ khác</Link>

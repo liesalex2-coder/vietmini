@@ -25,7 +25,7 @@ const PLANS = [
     name: 'Cả hai',
     price: '3.000.000 ₫',
     monthly: 'chưa VAT, mỗi năm — tức 250.000 ₫ mỗi tháng',
-    desc: 'Cho cửa hàng có cả khách Việt và khách nước ngoài.',
+    desc: 'Khi bạn có cả khách Việt và khách nước ngoài.',
     badge: 'Tiết kiệm 1.000.000 ₫',
     popular: true,
     features: [
@@ -42,7 +42,7 @@ const PLANS = [
     desc: 'Cho khách hàng Việt Nam, những người dùng Zalo mỗi ngày.',
     features: [
       'Ứng dụng Zalo mang đậm dấu ấn thương hiệu của bạn',
-      'Mã QR mở cửa hàng của bạn ngay trong Zalo',
+      'Mã QR mở trang của bạn ngay trong Zalo',
       'Gửi khuyến mãi qua Zalo bất cứ khi nào bạn muốn',
       ...COMMON,
     ],
@@ -53,7 +53,7 @@ export default function Tarifs() {
   const [openFaq, setOpenFaq] = useState(null);
   const FAQS = [
     ["Trang web và ứng dụng Zalo khác nhau thế nào?", "Nội dung và ưu đãi giống nhau. Chỉ khác cách khách mở: ứng dụng Zalo mở trong Zalo, trang web mở trên mọi trình duyệt. Nếu khách của bạn có cả người Việt và người nước ngoài, hãy chọn gói Cả hai."],
-    ["Khách hàng của tôi có cần tải ứng dụng không?", "Không. Với ứng dụng Zalo, khách mở cửa hàng của bạn ngay trong Zalo. Với trang web, khách mở bằng trình duyệt trên điện thoại. Không cần tải thêm, không cần đăng ký gì thêm."],
+    ["Khách hàng của tôi có cần tải ứng dụng không?", "Không. Với ứng dụng Zalo, khách mở trang của bạn ngay trong Zalo. Với trang web, khách mở bằng trình duyệt trên điện thoại. Không cần tải thêm, không cần đăng ký gì thêm."],
     ["Với gói Cả hai, tôi có phải nhập thông tin hai lần không?", "Không. Bạn nhập thông tin một lần trong bảng điều khiển. Trang web và ứng dụng Zalo dùng chung nội dung đó."],
     ["Mất bao lâu để trang hoạt động?", "Chưa đến 5 phút nếu bạn đã chuẩn bị sẵn thông tin. Tên, logo, danh sách dịch vụ — và bạn đã sẵn sàng."],
     ["Hết hạn thuê bao thì sao?", "Trang của bạn vẫn hoạt động đến ngày hết hạn. Sau đó trang sẽ bị tạm ngưng. Bạn có thể gia hạn bất kỳ lúc nào để kích hoạt lại."],

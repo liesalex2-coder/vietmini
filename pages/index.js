@@ -10,11 +10,11 @@ export default function Home() {
         <div className="hero-inner">
           <div>
             <div className="hero-tag fade-up">Dành cho salon, spa, nhà hàng, gym...</div>
-            <h1 className="fade-up-2">Cửa hàng của bạn, <em>trong điện thoại của mọi khách hàng.</em></h1>
+            <h1 className="fade-up-2">Việc kinh doanh của bạn, <em>trong điện thoại của mọi khách hàng.</em></h1>
             <p className="hero-sub fade-up-3">Trên Zalo hoặc trên web. <strong>Bạn chọn một, hoặc cả hai.</strong></p>
             <div className="hero-insight fade-up-3">
               <div className="hero-insight-icon">💡</div>
-              <p>VietMini đưa cửa hàng của bạn lên Zalo và lên web chỉ trong vài phút — trang giới thiệu, danh sách dịch vụ, ưu đãi và thẻ tích điểm, quản lý từ một bảng điều khiển duy nhất.</p>
+              <p>VietMini đưa việc kinh doanh của bạn lên Zalo và lên web chỉ trong vài phút — trang giới thiệu, danh sách dịch vụ, ưu đãi và thẻ tích điểm, quản lý từ một bảng điều khiển duy nhất.</p>
             </div>
             <div className="hero-cta fade-up-3">
               <a href="/register" className="btn-hero">Dùng thử miễn phí →</a>
@@ -41,7 +41,7 @@ export default function Home() {
         <div className="section-inner">
           <div className="section-tag">Hai sản phẩm</div>
           <h2>Trang web hoặc ứng dụng Zalo.<br />Hoặc cả hai.</h2>
-          <p className="section-sub">Cùng nội dung, cùng ưu đãi, cùng bảng điều khiển. Chỉ khác cách khách hàng mở cửa hàng của bạn.</p>
+          <p className="section-sub">Cùng nội dung, cùng ưu đãi, cùng bảng điều khiển. Chỉ khác cách khách hàng tìm đến bạn.</p>
           <div className="features-grid">
             {[
               {
@@ -56,7 +56,7 @@ export default function Home() {
                 icon: '💬',
                 name: 'Ứng dụng Zalo',
                 who: 'Cho khách hàng Việt Nam, những người dùng Zalo mỗi ngày.',
-                how: 'Khách quét mã QR bằng Zalo. Cửa hàng của bạn mở ngay trong Zalo, không cần tải gì.',
+                how: 'Khách quét mã QR bằng Zalo. Trang của bạn mở ngay trong Zalo, không cần tải gì.',
                 where: 'Khách theo dõi Zalo OA của bạn và nhận tin nhắn trực tiếp trên Zalo.',
                 price: '2.000.000 ₫ / năm',
               },
@@ -74,7 +74,7 @@ export default function Home() {
           <div style={{marginTop:'20px',padding:'24px 32px',borderRadius:'20px',border:'1.5px solid rgba(208,2,27,0.2)',background:'linear-gradient(135deg, #FFF5F5, #FFF0E8)',display:'flex',alignItems:'center',justifyContent:'space-between',gap:'16px',flexWrap:'wrap'}}>
             <div>
               <div style={{fontWeight:800,color:'var(--dark)',fontSize:'17px'}}>Cả hai: 3.000.000 ₫ / năm</div>
-              <div style={{color:'var(--mid)',fontSize:'15px'}}>Cho cửa hàng có cả khách Việt và khách nước ngoài. Tiết kiệm 1.000.000 ₫.</div>
+              <div style={{color:'var(--mid)',fontSize:'15px'}}>Khi bạn có cả khách Việt và khách nước ngoài. Tiết kiệm 1.000.000 ₫.</div>
             </div>
             <a href="/tarifs" className="btn-primary">Xem bảng giá</a>
           </div>
@@ -85,14 +85,14 @@ export default function Home() {
       <section className="features" id="features">
         <div className="section-inner">
           <div className="section-tag">VietMini làm được gì</div>
-          <h2>Cửa hàng của bạn trên Zalo và trên web,<br />đúng như bạn mong muốn.</h2>
+          <h2>Việc kinh doanh của bạn trên Zalo và trên web,<br />đúng như bạn mong muốn.</h2>
           <p className="section-sub">Trang giới thiệu đầy đủ, công cụ để khách hàng quay lại, và kênh liên lạc trực tiếp với họ. Tất cả từ điện thoại của bạn.</p>
           <div className="features-grid">
             <div className="feature-card big">
               <div>
                 <div className="feature-icon">🏪</div>
                 <h3>Trang của bạn,<br />đúng phong cách của bạn.</h3>
-                <p>Khách hàng mở trang của bạn trên Zalo hoặc trên trình duyệt. Họ thấy tên, dịch vụ, bảng giá, hình ảnh của bạn. Họ có thể liên hệ chỉ bằng một chạm. Cửa hàng của bạn nằm gọn trong điện thoại của từng khách hàng, không cần tải gì cả.</p>
+                <p>Khách hàng mở trang của bạn trên Zalo hoặc trên trình duyệt. Họ thấy tên, dịch vụ, bảng giá, hình ảnh của bạn. Họ có thể liên hệ chỉ bằng một chạm. Trang của bạn nằm gọn trong điện thoại của từng khách hàng, không cần tải gì cả.</p>
               </div>
               <div className="feature-visual">
                 <div style={{fontSize:'11px',fontWeight:800,color:'var(--red)',textTransform:'uppercase',letterSpacing:'1px',marginBottom:'10px'}}>Bella Salon — Phan Thiết</div>

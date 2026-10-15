@@ -20,7 +20,7 @@ export default function Demos() {
             <span style={{display:'block',width:'24px',height:'2px',background:'var(--red)'}}></span>
             <span style={{fontSize:'11px',fontWeight:800,color:'var(--red)',textTransform:'uppercase',letterSpacing:'1.5px'}}>Demo</span>
           </div>
-          <h1 style={{fontSize:'clamp(32px,4vw,52px)',fontWeight:900,lineHeight:1.1,letterSpacing:'-1px',marginBottom:'20px',color:'#1A0A00'}}>Cửa hàng của bạn,<br />trên Zalo và trên web.</h1>
+          <h1 style={{fontSize:'clamp(32px,4vw,52px)',fontWeight:900,lineHeight:1.1,letterSpacing:'-1px',marginBottom:'20px',color:'#1A0A00'}}>Việc kinh doanh của bạn,<br />trên Zalo và trên web.</h1>
           <p style={{fontSize:'17px',color:'var(--mid)',lineHeight:1.7,maxWidth:'560px',margin:'0 auto'}}>Nhấn vào một ví dụ — đây chính là những gì khách hàng thấy khi mở trang của bạn, trong Zalo hoặc trên trình duyệt.</p>
         </div>
       </div>
