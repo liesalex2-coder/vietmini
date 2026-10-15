@@ -56,7 +56,7 @@ export default function Home() {
                 name: 'Ứng dụng Zalo',
                 who: 'Cho khách hàng Việt Nam, những người dùng Zalo mỗi ngày.',
                 how: 'Khách quét mã QR bằng Zalo. Trang của bạn mở ngay trong Zalo, không cần tải gì.',
-                where: 'Khách theo dõi Zalo OA của bạn và nhận tin nhắn trực tiếp trên Zalo.',
+                where: 'Khách mở lại trang của bạn bất cứ lúc nào, ngay trong Zalo.',
                 price: '2.000.000 ₫ / năm',
               },
             ].map((p) => (
@@ -104,8 +104,8 @@ export default function Home() {
               </div>
             </div>
             <div className="feature-card">
-              <h3>Gửi khuyến mãi qua Zalo,<br />khách hàng quay lại.</h3>
-              <p>Có ưu đãi đặc biệt tối nay? Gửi tin nhắn đến toàn bộ khách hàng chỉ với một cú nhấp. Họ nhận được ngay trên Zalo, trên điện thoại của mình.</p>
+              <h3>Mã giảm giá và thông báo,<br />khách hàng quay lại.</h3>
+              <p>Có ưu đãi đặc biệt tối nay? Đăng mã giảm giá hoặc thông báo từ bảng điều khiển. Khách thấy ngay khi mở trang của bạn, trên Zalo hoặc trên web.</p>
             </div>
             <div className="feature-card">
               <h3>Vòng quay may mắn</h3>

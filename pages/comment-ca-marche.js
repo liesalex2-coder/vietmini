@@ -33,7 +33,7 @@ export default function CommentCaMarche() {
             <div className="step">
               <div className="step-num">3</div>
               <h3>Bạn quản lý từ điện thoại</h3>
-              <p>Gửi khuyến mãi, kích hoạt ưu đãi chớp nhoáng, xem ai đã tham gia — tất cả từ bảng điều khiển, đơn giản như dùng WhatsApp.</p>
+              <p>Cập nhật dịch vụ, kích hoạt ưu đãi chớp nhoáng, xem danh sách khách hàng — tất cả từ bảng điều khiển, đơn giản như dùng WhatsApp.</p>
             </div>
           </div>
         </div>
@@ -45,10 +45,10 @@ export default function CommentCaMarche() {
             <span style={{display:'block',width:'24px',height:'2px',background:'#F5A623'}}></span>
             <span style={{fontSize:'11px',fontWeight:800,color:'#F5A623',textTransform:'uppercase',letterSpacing:'1.5px'}}>Vì sao chọn Zalo</span>
           </div>
-          <h2 style={{fontSize:'clamp(28px,3.5vw,46px)',fontWeight:900,color:'#fff',lineHeight:1.1,letterSpacing:'-1px',marginBottom:'20px'}}>Kênh duy nhất giúp bạn<br />thật sự nói chuyện với khách hàng.</h2>
-          <p style={{fontSize:'16px',color:'rgba(255,255,255,0.5)',maxWidth:'620px',lineHeight:1.7,marginBottom:'48px'}}>Ở Việt Nam, Zalo là ứng dụng nhắn tin của tất cả mọi người — gia đình, bạn bè, đồng nghiệp. Khi bạn gửi tin nhắn, nó đến ngay trong ứng dụng họ dùng cả ngày.</p>
+          <h2 style={{fontSize:'clamp(28px,3.5vw,46px)',fontWeight:900,color:'#fff',lineHeight:1.1,letterSpacing:'-1px',marginBottom:'20px'}}>Ứng dụng khách hàng Việt<br />dùng mỗi ngày.</h2>
+          <p style={{fontSize:'16px',color:'rgba(255,255,255,0.5)',maxWidth:'620px',lineHeight:1.7,marginBottom:'48px'}}>Ở Việt Nam, Zalo là ứng dụng của tất cả mọi người — gia đình, bạn bè, đồng nghiệp. Khách mở trang của bạn ngay trong ứng dụng họ dùng cả ngày.</p>
           <div style={{display:'flex',gap:'48px',marginBottom:'48px',padding:'32px 40px',background:'rgba(255,255,255,0.04)',border:'1px solid rgba(255,255,255,0.08)',borderRadius:'20px',flexWrap:'wrap'}}>
-            {[['74Tr','người Việt dùng Zalo mỗi ngày'],['#1','Ứng dụng nhắn tin tại Việt Nam'],['~80%','tin nhắn gửi đi được khách hàng đọc']].map(([n,l],i) => (
+            {[['74Tr','người Việt dùng Zalo mỗi ngày'],['#1','Ứng dụng nhắn tin tại Việt Nam']].map(([n,l],i) => (
               <div key={i} style={{flex:1,minWidth:'140px'}}>
                 <div style={{fontSize:'38px',fontWeight:900,color:'#F5A623',letterSpacing:'-1.5px',lineHeight:1,marginBottom:'8px'}}>{n}</div>
                 <div style={{fontSize:'13px',color:'rgba(255,255,255,0.45)',lineHeight:1.5,fontWeight:500}}>{l}</div>
@@ -58,8 +58,8 @@ export default function CommentCaMarche() {
           <div style={{background:'rgba(245,166,35,0.1)',border:'1px solid rgba(245,166,35,0.25)',borderRadius:'16px',padding:'28px 36px',display:'flex',gap:'20px',alignItems:'flex-start'}}>
             <span style={{fontSize:'28px',flexShrink:0}}>💬</span>
             <div>
-              <p style={{color:'#fff',fontWeight:700,fontSize:'16px',marginBottom:'8px'}}>Zalo đến thẳng hộp tin nhắn của khách hàng.</p>
-              <p style={{color:'rgba(255,255,255,0.5)',fontSize:'14px',lineHeight:1.7,margin:0}}>Không phải trong bảng tin. Không phải trong thư rác. Ngay trong cùng cuộc trò chuyện với gia đình và bạn bè của họ.</p>
+              <p style={{color:'#fff',fontWeight:700,fontSize:'16px',marginBottom:'8px'}}>Trang của bạn mở ngay trong Zalo.</p>
+              <p style={{color:'rgba(255,255,255,0.5)',fontSize:'14px',lineHeight:1.7,margin:0}}>Không cần tải ứng dụng, không cần tạo tài khoản. Khách quét mã QR là xong.</p>
             </div>
           </div>
         </div>

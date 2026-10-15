@@ -2,6 +2,7 @@ import Layout from '../components/Layout';
 import { useState } from 'react';
 
 const COMMON = [
+  'Mã giảm giá và thông báo hiển thị trên trang của bạn',
   'Vòng quay may mắn: khách hàng chơi và nhận giảm giá',
   'Ưu đãi chớp nhoáng với đồng hồ đếm ngược',
   'Thẻ tích điểm để khách quen quay lại',
@@ -31,7 +32,6 @@ const PLANS = [
     features: [
       'Trang web và ứng dụng Zalo, cùng một nội dung',
       'Đường link và mã QR riêng cho từng kênh',
-      'Gửi khuyến mãi qua Zalo bất cứ khi nào bạn muốn',
       ...COMMON,
     ],
   },
@@ -43,7 +43,6 @@ const PLANS = [
     features: [
       'Ứng dụng Zalo mang đậm dấu ấn thương hiệu của bạn',
       'Mã QR mở trang của bạn ngay trong Zalo',
-      'Gửi khuyến mãi qua Zalo bất cứ khi nào bạn muốn',
       ...COMMON,
     ],
   },
