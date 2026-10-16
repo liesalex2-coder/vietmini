@@ -105,7 +105,7 @@ export default function Home() {
             </div>
             <div className="feature-card">
               <h3>Mã giảm giá và thông báo,<br />khách hàng quay lại.</h3>
-              <p>Có ưu đãi đặc biệt tối nay? Đăng mã giảm giá hoặc thông báo từ bảng điều khiển. Khách thấy ngay khi mở trang của bạn, trên Zalo hoặc trên web.</p>
+              <p>Có ưu đãi đặc biệt hôm nay? Đăng mã giảm giá hoặc thông báo từ bảng điều khiển. Khách thấy ngay khi mở trang của bạn, trên Zalo hoặc trên web.</p>
             </div>
             <div className="feature-card">
               <h3>Vòng quay may mắn</h3>
