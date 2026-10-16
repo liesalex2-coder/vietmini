@@ -109,7 +109,7 @@ export default function Home() {
             </div>
             <div className="feature-card">
               <h3>Vòng quay may mắn</h3>
-              <p>Mỗi ngày, khách được quay một lần để nhận quà hoặc giảm giá. Phần thưởng được lưu trong ứng dụng và dùng ở lần ghé tiếp theo: thêm một lý do để khách quay lại.</p>
+              <p>Mỗi ngày, khách được quay một lần để nhận quà hoặc giảm giá. Thêm một lý do để quay lại.</p>
             </div>
             <div className="feature-card">
               <h3>Thẻ khách hàng thân thiết điện tử</h3>
