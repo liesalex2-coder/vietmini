@@ -26,7 +26,7 @@ const PLANS = [
     name: 'Cả hai',
     price: '3.000.000 ₫',
     monthly: 'chưa VAT, mỗi năm — tức 250.000 ₫ mỗi tháng',
-    desc: 'Khi bạn có cả khách Việt và khách nước ngoài.',
+    desc: 'Cho khách Việt và khách nước ngoài.',
     badge: 'Tiết kiệm 1.000.000 ₫',
     popular: true,
     features: [

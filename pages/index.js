@@ -73,7 +73,7 @@ export default function Home() {
           <div style={{marginTop:'20px',padding:'24px 32px',borderRadius:'20px',border:'1.5px solid rgba(208,2,27,0.2)',background:'linear-gradient(135deg, #FFF5F5, #FFF0E8)',display:'flex',alignItems:'center',justifyContent:'space-between',gap:'16px',flexWrap:'wrap'}}>
             <div>
               <div style={{fontWeight:800,color:'var(--dark)',fontSize:'17px'}}>Cả hai: 3.000.000 ₫ / năm</div>
-              <div style={{color:'var(--mid)',fontSize:'15px'}}>Khi bạn có cả khách Việt và khách nước ngoài. Tiết kiệm 1.000.000 ₫.</div>
+              <div style={{color:'var(--mid)',fontSize:'15px'}}>Cho khách Việt và khách nước ngoài. Rẻ hơn 1.000.000 ₫ so với mua riêng từng gói.</div>
             </div>
             <a href="/tarifs" className="btn-primary">Xem bảng giá</a>
           </div>
