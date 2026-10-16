@@ -48,7 +48,7 @@ export default function Home() {
                 name: 'Trang web',
                 who: 'Cho khách du lịch, người nước ngoài và khách không dùng Zalo.',
                 how: 'Khách quét mã QR hoặc nhấn vào đường link. Trang mở ngay trên mọi trình duyệt, không cần tải gì.',
-                where: 'Chia sẻ đường link ở mọi nơi: Google Maps, Facebook, Instagram, WhatsApp.',
+                where: 'Chia sẻ đường link ở mọi nơi: Google Maps, Facebook, Instagram, WhatsApp…',
                 price: '2.000.000 ₫ / năm',
               },
               {
