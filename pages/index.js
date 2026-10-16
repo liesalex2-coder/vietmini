@@ -113,7 +113,7 @@ export default function Home() {
             </div>
             <div className="feature-card">
               <h3>Thẻ khách hàng thân thiết điện tử</h3>
-              <p>Không cần thẻ giấy nữa. Khách hàng tích điểm mỗi lần ghé, ngay trên điện thoại của mình.</p>
+              <p>Mỗi lần đến, khách nhận một tem trên điện thoại. Đủ số tem bạn chọn, khách được nhận quà. Không cần thẻ giấy.</p>
             </div>
             <div className="feature-card">
               <h3>Ưu đãi chớp nhoáng</h3>
