@@ -104,8 +104,8 @@ export default function Home() {
               </div>
             </div>
             <div className="feature-card">
-              <h3>Mã giảm giá và thông báo,<br />khách hàng quay lại.</h3>
-              <p>Có ưu đãi đặc biệt hôm nay? Đăng mã giảm giá hoặc thông báo từ bảng điều khiển. Khách thấy ngay khi mở trang của bạn, trên Zalo hoặc trên web.</p>
+              <h3>Mã giảm giá và thông báo</h3>
+              <p>Mã giảm giá có hạn dùng, hiển thị trong ứng dụng: khách xuất trình khi thanh toán. Thêm một dòng thông báo chạy ở đầu trang cho tin mới, lịch nghỉ, sự kiện…</p>
             </div>
             <div className="feature-card">
               <h3>Vòng quay may mắn</h3>
@@ -117,7 +117,7 @@ export default function Home() {
             </div>
             <div className="feature-card">
               <h3>Ưu đãi chớp nhoáng</h3>
-              <p>Tạo ưu đãi giới hạn thời gian — giảm giá chỉ hôm nay, hoặc cuối tuần này. Khách hàng thấy đồng hồ đếm ngược và quyết định nhanh.</p>
+              <p>Giảm giá trong khung giờ bạn chọn: chỉ chiều nay, hoặc mỗi thứ Ba từ 14h đến 17h. Hết giờ, ưu đãi tự tắt. Lý tưởng cho những giờ vắng khách.</p>
             </div>
           </div>
         </div>
