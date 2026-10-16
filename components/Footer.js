@@ -37,7 +37,7 @@ export default function Footer() {
             </span>
           </div>
           <p style={{ fontSize: '13px', color: C.mutedLight, lineHeight: 1.7, margin: 0 }}>
-            Ứng dụng web và ứng dụng Zalo cho doanh nghiệp tại Việt Nam.
+            Ứng dụng web và ứng dụng Zalo cho doanh nghiệp.
           </p>
         </div>
 
