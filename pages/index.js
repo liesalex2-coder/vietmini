@@ -39,15 +39,15 @@ export default function Home() {
       <section className="how" id="san-pham">
         <div className="section-inner">
           <div className="section-tag">Hai sản phẩm</div>
-          <h2>Trang web hoặc ứng dụng Zalo.<br />Hoặc cả hai.</h2>
+          <h2>Ứng dụng web hoặc ứng dụng Zalo.<br />Hoặc cả hai.</h2>
           <p className="section-sub">Cùng nội dung, cùng ưu đãi, cùng bảng điều khiển. Chỉ khác cách khách hàng tìm đến bạn.</p>
           <div className="features-grid">
             {[
               {
                 icon: '🌐',
-                name: 'Trang web',
+                name: 'Ứng dụng web',
                 who: 'Cho khách du lịch, người nước ngoài và khách không dùng Zalo.',
-                how: 'Khách quét mã QR hoặc nhấn vào đường link. Trang mở ngay trên mọi trình duyệt, không cần tải gì.',
+                how: 'Khách quét mã QR hoặc nhấn vào đường link. Ứng dụng mở ngay trên mọi trình duyệt, không cần tải gì.',
                 where: 'Chia sẻ đường link ở mọi nơi: Google Maps, Facebook, Instagram, WhatsApp…',
                 price: '2.000.000 ₫ / năm',
               },
@@ -73,7 +73,7 @@ export default function Home() {
           <div style={{marginTop:'20px',padding:'24px 32px',borderRadius:'20px',border:'1.5px solid rgba(208,2,27,0.2)',background:'linear-gradient(135deg, #FFF5F5, #FFF0E8)',display:'flex',alignItems:'center',justifyContent:'space-between',gap:'16px',flexWrap:'wrap'}}>
             <div>
               <div style={{fontWeight:800,color:'var(--dark)',fontSize:'17px'}}>Cả hai: 3.000.000 ₫ / năm</div>
-              <div style={{color:'var(--mid)',fontSize:'15px'}}>Trang web và ứng dụng Zalo trong một gói. Tiết kiệm 1.000.000 ₫.</div>
+              <div style={{color:'var(--mid)',fontSize:'15px'}}>Ứng dụng web và ứng dụng Zalo trong một gói. Tiết kiệm 1.000.000 ₫.</div>
             </div>
             <a href="/tarifs" className="btn-primary">Xem bảng giá</a>
           </div>

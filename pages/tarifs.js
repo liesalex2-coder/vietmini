@@ -12,12 +12,12 @@ const COMMON = [
 
 const PLANS = [
   {
-    name: 'Trang web',
+    name: 'Ứng dụng web',
     price: '2.000.000 ₫',
     monthly: 'chưa VAT, mỗi năm — tức chưa đến 170.000 ₫ mỗi tháng',
     desc: 'Cho khách du lịch, người nước ngoài và khách không dùng Zalo.',
     features: [
-      'Trang web mang đậm dấu ấn thương hiệu của bạn',
+      'Ứng dụng web mang đậm dấu ấn thương hiệu của bạn',
       'Đường link và mã QR riêng, mở trên mọi trình duyệt',
       ...COMMON,
     ],
@@ -30,7 +30,7 @@ const PLANS = [
     badge: 'Tiết kiệm 1.000.000 ₫',
     popular: true,
     features: [
-      'Trang web và ứng dụng Zalo, cùng một nội dung',
+      'Ứng dụng web và ứng dụng Zalo, cùng một nội dung',
       'Đường link và mã QR riêng cho từng kênh',
       ...COMMON,
     ],
@@ -51,9 +51,9 @@ const PLANS = [
 export default function Tarifs() {
   const [openFaq, setOpenFaq] = useState(null);
   const FAQS = [
-    ["Trang web và ứng dụng Zalo khác nhau thế nào?", "Nội dung và ưu đãi giống nhau. Chỉ khác cách khách mở: ứng dụng Zalo mở trong Zalo, trang web mở trên mọi trình duyệt. Nếu khách của bạn có cả người Việt và người nước ngoài, hãy chọn gói Cả hai."],
-    ["Khách hàng của tôi có cần tải ứng dụng không?", "Không. Với ứng dụng Zalo, khách mở trang của bạn ngay trong Zalo. Với trang web, khách mở bằng trình duyệt trên điện thoại. Không cần tải thêm, không cần đăng ký gì thêm."],
-    ["Với gói Cả hai, tôi có phải nhập thông tin hai lần không?", "Không. Bạn nhập thông tin một lần trong bảng điều khiển. Trang web và ứng dụng Zalo dùng chung nội dung đó."],
+    ["Ứng dụng web và ứng dụng Zalo khác nhau thế nào?", "Nội dung và ưu đãi giống nhau. Chỉ khác cách khách mở: ứng dụng Zalo mở trong Zalo, ứng dụng web mở trên mọi trình duyệt. Nếu khách của bạn có cả người Việt và người nước ngoài, hãy chọn gói Cả hai."],
+    ["Khách hàng của tôi có cần tải ứng dụng không?", "Không. Với ứng dụng Zalo, khách mở trang của bạn ngay trong Zalo. Với ứng dụng web, khách mở bằng trình duyệt trên điện thoại. Không cần tải thêm, không cần đăng ký gì thêm."],
+    ["Với gói Cả hai, tôi có phải nhập thông tin hai lần không?", "Không. Bạn nhập thông tin một lần trong bảng điều khiển. Ứng dụng web và ứng dụng Zalo dùng chung nội dung đó."],
     ["Mất bao lâu để trang hoạt động?", "Chưa đến 5 phút nếu bạn đã chuẩn bị sẵn thông tin. Tên, logo, danh sách dịch vụ — và bạn đã sẵn sàng."],
     ["Hết hạn thuê bao thì sao?", "Trang của bạn vẫn hoạt động đến ngày hết hạn. Sau đó trang sẽ bị tạm ngưng. Bạn có thể gia hạn bất kỳ lúc nào để kích hoạt lại."],
     ["Nếu tôi đổi loại hình kinh doanh thì sao?", "Chúng tôi sẽ cập nhật trang cho bạn. Hãy liên hệ và chúng tôi lo hết."],
@@ -68,7 +68,7 @@ export default function Tarifs() {
             <span style={{fontSize:'11px',fontWeight:800,color:'var(--red)',textTransform:'uppercase',letterSpacing:'1.5px'}}>Bảng giá</span>
           </div>
           <h1 style={{fontSize:'clamp(32px,4vw,52px)',fontWeight:900,lineHeight:1.1,letterSpacing:'-1px',marginBottom:'20px',color:'#1A0A00'}}>Chọn kênh của bạn.<br />Đầy đủ tính năng.</h1>
-          <p style={{fontSize:'17px',color:'var(--mid)',lineHeight:1.7,maxWidth:'500px',margin:'0 auto'}}>Trang web, ứng dụng Zalo, hoặc cả hai. Thuê bao hằng năm, không giới hạn, không phát sinh.</p>
+          <p style={{fontSize:'17px',color:'var(--mid)',lineHeight:1.7,maxWidth:'500px',margin:'0 auto'}}>Ứng dụng web, ứng dụng Zalo, hoặc cả hai. Thuê bao hằng năm, không giới hạn, không phát sinh.</p>
         </div>
       </div>
 

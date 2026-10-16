@@ -27,7 +27,7 @@ export default function CommentCaMarche() {
             <div className="step">
               <div className="step-num">2</div>
               <h3>Khách hàng quét mã QR</h3>
-              <p>Khách dùng Zalo mở ứng dụng Zalo của bạn và theo dõi bạn chỉ trong vài giây. Khách không dùng Zalo mở trang web của bạn trên trình duyệt.</p>
+              <p>Khách dùng Zalo mở ứng dụng Zalo của bạn và theo dõi bạn chỉ trong vài giây. Khách không dùng Zalo mở ứng dụng web của bạn trên trình duyệt.</p>
               <div className="step-arrow">&rarr;</div>
             </div>
             <div className="step">
@@ -69,10 +69,10 @@ export default function CommentCaMarche() {
         <div style={{maxWidth:'1200px',margin:'0 auto'}}>
           <div style={{display:'flex',alignItems:'center',gap:'8px',marginBottom:'16px'}}>
             <span style={{display:'block',width:'24px',height:'2px',background:'var(--red)'}}></span>
-            <span style={{fontSize:'11px',fontWeight:800,color:'var(--red)',textTransform:'uppercase',letterSpacing:'1.5px'}}>Vì sao có trang web</span>
+            <span style={{fontSize:'11px',fontWeight:800,color:'var(--red)',textTransform:'uppercase',letterSpacing:'1.5px'}}>Vì sao có ứng dụng web</span>
           </div>
           <h2 style={{fontSize:'clamp(28px,3.5vw,46px)',fontWeight:900,color:'var(--dark)',lineHeight:1.1,letterSpacing:'-1px',marginBottom:'20px'}}>Không phải khách nào<br />cũng dùng Zalo.</h2>
-          <p style={{fontSize:'16px',color:'var(--mid)',maxWidth:'620px',lineHeight:1.7,marginBottom:'48px'}}>Khách du lịch, người nước ngoài sống tại Việt Nam: họ dùng WhatsApp, Telegram, Instagram. Trang web của bạn mở trên mọi trình duyệt, chỉ cần quét mã QR hoặc nhấn vào đường link.</p>
+          <p style={{fontSize:'16px',color:'var(--mid)',maxWidth:'620px',lineHeight:1.7,marginBottom:'48px'}}>Khách du lịch, người nước ngoài sống tại Việt Nam: họ dùng WhatsApp, Telegram, Instagram. Ứng dụng web của bạn mở trên mọi trình duyệt, chỉ cần quét mã QR hoặc nhấn vào đường link.</p>
           <div className="fichier-grid" style={{marginTop:0}}>
             {[
               ['Không cần Zalo','Khách mở trang của bạn bằng trình duyệt có sẵn trên điện thoại.'],
@@ -88,7 +88,7 @@ export default function CommentCaMarche() {
           <div style={{marginTop:'32px',padding:'24px 32px',borderRadius:'16px',border:'1.5px solid rgba(208,2,27,0.2)',background:'linear-gradient(135deg, #FFF5F5, #FFF0E8)',display:'flex',alignItems:'center',justifyContent:'space-between',gap:'16px',flexWrap:'wrap'}}>
             <div>
               <div style={{fontWeight:800,color:'var(--dark)',fontSize:'17px'}}>Có cả khách Việt và khách nước ngoài?</div>
-              <div style={{color:'var(--mid)',fontSize:'15px'}}>Gói Cả hai: trang web và ứng dụng Zalo, 3.000.000 ₫ / năm.</div>
+              <div style={{color:'var(--mid)',fontSize:'15px'}}>Gói Cả hai: ứng dụng web và ứng dụng Zalo, 3.000.000 ₫ / năm.</div>
             </div>
             <a href="/tarifs" className="btn-primary">Xem bảng giá</a>
           </div>

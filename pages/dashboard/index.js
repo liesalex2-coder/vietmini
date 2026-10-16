@@ -213,7 +213,7 @@ function SectionApercu({ merchant, contacts, onChangeVertical }) {
                 )}
               </div>
               <div style={{ flex: 1, minWidth: '200px' }}>
-                <div style={{ fontWeight: '700', fontSize: '15px', color: C.dark, marginBottom: '6px' }}>Mã QR trang web</div>
+                <div style={{ fontWeight: '700', fontSize: '15px', color: C.dark, marginBottom: '6px' }}>Mã QR ứng dụng web</div>
                 <div style={{ fontSize: '13px', color: C.mid, lineHeight: '1.5', marginBottom: '12px' }}>
                   In ra và dán tại quầy. Khách quét bằng camera điện thoại, trang mở trên mọi trình duyệt.
                 </div>

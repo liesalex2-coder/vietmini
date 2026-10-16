@@ -171,7 +171,7 @@ export default function Abonnement() {
         <div style={{ textAlign: 'center', padding: '60px 24px 40px' }}>
           <div style={{ display: 'inline-block', background: 'rgba(208,2,27,0.08)', color: C.red, fontSize: '11px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1.5px', padding: '4px 12px', borderRadius: '20px', marginBottom: '16px' }}>Thuê bao hằng năm</div>
           <h1 style={{ fontSize: 'clamp(28px,4vw,44px)', fontWeight: '900', color: C.dark, letterSpacing: '-1px', lineHeight: 1.1, margin: '0 0 12px' }}>Kích hoạt thuê bao của bạn</h1>
-          <p style={{ fontSize: '16px', color: C.mid, maxWidth: '480px', margin: '0 auto' }}>Chọn trang web, ứng dụng Zalo, hoặc cả hai.</p>
+          <p style={{ fontSize: '16px', color: C.mid, maxWidth: '480px', margin: '0 auto' }}>Chọn ứng dụng web, ứng dụng Zalo, hoặc cả hai.</p>
         </div>
 
         <div style={{ maxWidth: '480px', margin: '0 auto 60px', padding: '0 24px' }}>
