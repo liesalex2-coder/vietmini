@@ -15,7 +15,7 @@ const PLANS = [
     name: 'Ứng dụng web',
     price: '2.000.000 ₫',
     monthly: 'chưa VAT, mỗi năm — tức chưa đến 170.000 ₫ mỗi tháng',
-    desc: 'Cho khách du lịch, người nước ngoài và khách không dùng Zalo.',
+    desc: 'Cho khách dùng WhatsApp, Telegram, Messenger… thay vì Zalo.',
     features: [
       'Ứng dụng web mang đậm dấu ấn thương hiệu của bạn',
       'Đường link và mã QR riêng, mở trên mọi trình duyệt',
@@ -26,7 +26,7 @@ const PLANS = [
     name: 'Cả hai',
     price: '3.000.000 ₫',
     monthly: 'chưa VAT, mỗi năm — tức 250.000 ₫ mỗi tháng',
-    desc: 'Cho khách Việt và khách nước ngoài.',
+    desc: 'Cho khách dùng Zalo và khách dùng ứng dụng khác.',
     badge: 'Tiết kiệm 1.000.000 ₫',
     popular: true,
     features: [
@@ -51,7 +51,7 @@ const PLANS = [
 export default function Tarifs() {
   const [openFaq, setOpenFaq] = useState(null);
   const FAQS = [
-    ["Ứng dụng web và ứng dụng Zalo khác nhau thế nào?", "Nội dung và ưu đãi giống nhau. Chỉ khác cách khách mở: ứng dụng Zalo mở trong Zalo, ứng dụng web mở trên mọi trình duyệt. Nếu khách của bạn có cả người Việt và người nước ngoài, hãy chọn gói Cả hai."],
+    ["Ứng dụng web và ứng dụng Zalo khác nhau thế nào?", "Nội dung và ưu đãi giống nhau. Chỉ khác cách khách mở: ứng dụng Zalo mở trong Zalo, ứng dụng web mở trên mọi trình duyệt. Nếu khách của bạn có người dùng Zalo và người dùng ứng dụng khác, hãy chọn gói Cả hai."],
     ["Khách hàng của tôi có cần tải ứng dụng không?", "Không. Với ứng dụng Zalo, khách mở trang của bạn ngay trong Zalo. Với ứng dụng web, khách mở bằng trình duyệt trên điện thoại. Không cần tải thêm, không cần đăng ký gì thêm."],
     ["Với gói Cả hai, tôi có phải nhập thông tin hai lần không?", "Không. Bạn nhập thông tin một lần trong bảng điều khiển. Ứng dụng web và ứng dụng Zalo dùng chung nội dung đó."],
     ["Mất bao lâu để trang hoạt động?", "Chưa đến 5 phút nếu bạn đã chuẩn bị sẵn thông tin. Tên, logo, danh sách dịch vụ — và bạn đã sẵn sàng."],

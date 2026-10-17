@@ -46,7 +46,7 @@ export default function Home() {
               {
                 icon: '🌐',
                 name: 'Ứng dụng web',
-                who: 'Cho khách du lịch, người nước ngoài và khách không dùng Zalo.',
+                who: 'Cho khách dùng WhatsApp, Telegram, Messenger… thay vì Zalo.',
                 how: 'Khách quét mã QR hoặc nhấn vào đường link. Ứng dụng mở ngay trên mọi trình duyệt, không cần tải gì.',
                 where: 'Chia sẻ đường link ở mọi nơi: Google Maps, Facebook, Instagram, WhatsApp…',
                 price: '2.000.000 ₫ / năm',
