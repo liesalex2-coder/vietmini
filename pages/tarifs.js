@@ -14,7 +14,7 @@ const PLANS = [
   {
     name: 'Ứng dụng web',
     price: '2.000.000 ₫',
-    monthly: 'chưa VAT, mỗi năm — tức chưa đến 170.000 ₫ mỗi tháng',
+    monthly: 'chưa VAT / năm — tức chưa đến 170.000 ₫ / tháng',
     desc: 'Cho khách dùng WhatsApp, Telegram, Messenger… thay vì Zalo.',
     features: [
       'Ứng dụng web mang đậm dấu ấn thương hiệu của bạn',
@@ -25,7 +25,7 @@ const PLANS = [
   {
     name: 'Cả hai',
     price: '3.000.000 ₫',
-    monthly: 'chưa VAT, mỗi năm — tức 250.000 ₫ mỗi tháng',
+    monthly: 'chưa VAT / năm — tức 250.000 ₫ / tháng',
     desc: 'Cho khách dùng Zalo và khách dùng ứng dụng khác.',
     badge: 'Tiết kiệm 1.000.000 ₫',
     popular: true,
@@ -38,7 +38,7 @@ const PLANS = [
   {
     name: 'Ứng dụng Zalo',
     price: '2.000.000 ₫',
-    monthly: 'chưa VAT, mỗi năm — tức chưa đến 170.000 ₫ mỗi tháng',
+    monthly: 'chưa VAT / năm — tức chưa đến 170.000 ₫ / tháng',
     desc: 'Cho khách hàng Việt Nam, những người dùng Zalo mỗi ngày.',
     features: [
       'Ứng dụng Zalo mang đậm dấu ấn thương hiệu của bạn',
