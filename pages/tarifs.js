@@ -2,12 +2,14 @@ import Layout from '../components/Layout';
 import { useState } from 'react';
 
 const COMMON = [
-  'Mã giảm giá có hạn dùng và dòng thông báo trên trang của bạn',
-  'Vòng quay may mắn: khách hàng chơi và nhận giảm giá',
-  'Ưu đãi chớp nhoáng theo khung giờ bạn chọn',
-  'Thẻ tích điểm để khách quen quay lại',
-  'Những hình ảnh đẹp nhất được trưng bày nổi bật',
-  'Quản lý tất cả từ điện thoại của bạn',
+  'Thẻ tích điểm',
+  'Vòng quay may mắn',
+  'Mã giảm giá',
+  'Ưu đãi chớp nhoáng',
+  'Giới thiệu bạn bè',
+  'Đánh giá khách hàng',
+  'Dòng thông báo',
+  'Quản lý từ điện thoại',
 ];
 
 const PLANS = [
