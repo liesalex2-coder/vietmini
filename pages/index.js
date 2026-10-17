@@ -105,7 +105,7 @@ export default function Home() {
             </div>
             <div className="feature-card">
               <h3>Mã giảm giá và thông báo</h3>
-              <p>Mã giảm giá có hạn dùng, hiển thị trong ứng dụng: khách xuất trình khi thanh toán. Thêm một dòng thông báo chạy ở đầu trang cho tin mới, lịch nghỉ, sự kiện…</p>
+              <p>Tạo mã giảm giá và đăng tin mới cho khách, ngay trên ứng dụng của bạn.</p>
             </div>
             <div className="feature-card">
               <h3>Vòng quay may mắn</h3>
