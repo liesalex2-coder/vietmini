@@ -72,7 +72,7 @@ export default function CommentCaMarche() {
             <span style={{fontSize:'11px',fontWeight:800,color:'var(--red)',textTransform:'uppercase',letterSpacing:'1.5px'}}>Vì sao có ứng dụng web</span>
           </div>
           <h2 style={{fontSize:'clamp(28px,3.5vw,46px)',fontWeight:900,color:'var(--dark)',lineHeight:1.1,letterSpacing:'-1px',marginBottom:'20px'}}>Dành cho khách<br />không dùng Zalo.</h2>
-          <p style={{fontSize:'16px',color:'var(--mid)',maxWidth:'620px',lineHeight:1.7,marginBottom:'48px'}}>Khách du lịch, người nước ngoài sống tại Việt Nam dùng những ứng dụng nhắn tin khác: WhatsApp, Telegram, Messenger, Line, KakaoTalk… Ứng dụng web của bạn mở trên mọi trình duyệt, chỉ cần quét mã QR hoặc nhấn vào đường link.</p>
+          <p style={{fontSize:'16px',color:'var(--mid)',maxWidth:'620px',lineHeight:1.7,marginBottom:'48px'}}>Nhiều khách hàng dùng những ứng dụng nhắn tin khác như WhatsApp, Telegram, Messenger, Line, KakaoTalk… Ứng dụng web của bạn mở trên mọi trình duyệt, chỉ cần quét mã QR hoặc nhấn vào đường link.</p>
           <div className="fichier-grid" style={{marginTop:0}}>
             {[
               ['Không cần Zalo','Khách mở trang của bạn bằng trình duyệt có sẵn trên điện thoại.'],
