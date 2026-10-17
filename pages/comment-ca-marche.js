@@ -87,7 +87,7 @@ export default function CommentCaMarche() {
           </div>
           <div style={{marginTop:'32px',padding:'24px 32px',borderRadius:'16px',border:'1.5px solid rgba(208,2,27,0.2)',background:'linear-gradient(135deg, #FFF5F5, #FFF0E8)',display:'flex',alignItems:'center',justifyContent:'space-between',gap:'16px',flexWrap:'wrap'}}>
             <div>
-              <div style={{fontWeight:800,color:'var(--dark)',fontSize:'17px'}}>Có cả khách dùng Zalo và khách dùng ứng dụng khác?</div>
+              <div style={{fontWeight:800,color:'var(--dark)',fontSize:'17px'}}>Muốn có cả hai?</div>
               <div style={{color:'var(--mid)',fontSize:'15px'}}>Gói Cả hai: ứng dụng web và ứng dụng Zalo, 3.000.000 ₫ / năm.</div>
             </div>
             <a href="/tarifs" className="btn-primary">Xem bảng giá</a>
