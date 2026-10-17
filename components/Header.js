@@ -239,6 +239,7 @@ export default function Header() {
           align-items: center;
           gap: 4px;
           flex-shrink: 0;
+          margin-left: auto;
         }
         .cta-btn {
           font-family: 'Be Vietnam Pro', sans-serif;
