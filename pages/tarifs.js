@@ -19,7 +19,6 @@ const PLANS = [
     features: [
       'Ứng dụng web mang đậm dấu ấn thương hiệu của bạn',
       'Đường link và mã QR riêng, mở trên mọi trình duyệt',
-      ...COMMON,
     ],
   },
   {
@@ -32,7 +31,6 @@ const PLANS = [
     features: [
       'Ứng dụng web và ứng dụng Zalo, cùng một nội dung',
       'Đường link và mã QR riêng cho từng kênh',
-      ...COMMON,
     ],
   },
   {
@@ -43,7 +41,6 @@ const PLANS = [
     features: [
       'Ứng dụng Zalo mang đậm dấu ấn thương hiệu của bạn',
       'Mã QR mở trang của bạn ngay trong Zalo',
-      ...COMMON,
     ],
   },
 ];
@@ -96,6 +93,13 @@ export default function Tarifs() {
                 </a>
               </div>
             ))}
+          </div>
+
+          <div style={{maxWidth:'760px',margin:'40px auto 0',padding:'28px 32px',borderRadius:'20px',background:'var(--white)',border:'1.5px solid var(--border)'}}>
+            <div style={{fontSize:'13px',fontWeight:800,color:'var(--light-txt)',textTransform:'uppercase',letterSpacing:'1.5px',marginBottom:'16px',textAlign:'center'}}>Gói nào cũng có đầy đủ</div>
+            <ul className="plan-features" style={{display:'grid',gridTemplateColumns:'repeat(auto-fit, minmax(260px, 1fr))',gap:'12px 24px',marginBottom:0}}>
+              {COMMON.map((f) => <li key={f}>{f}</li>)}
+            </ul>
           </div>
 
           <div style={{maxWidth:'520px',margin:'48px auto 0'}}>
