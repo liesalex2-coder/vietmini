@@ -76,7 +76,7 @@ export default function CommentCaMarche() {
           <div className="fichier-grid" style={{marginTop:0}}>
             {[
               ['Không cần Zalo','Khách mở trang của bạn bằng trình duyệt có sẵn trên điện thoại.'],
-              ['Không cần tải ứng dụng','Quét mã QR tại quầy, trang mở ngay. Không đăng ký, không cài đặt.'],
+              ['Không cần tải ứng dụng','Khách quét mã QR (trên quầy, bàn, cửa kính, tờ rơi…) hoặc nhấn vào đường link: ứng dụng mở ngay, không cần cài đặt.'],
               ['Chia sẻ ở mọi nơi','Đặt đường link trên Google Maps, Facebook, Instagram hay gửi qua WhatsApp.'],
             ].map(([t,d]) => (
               <div key={t} className="fichier-card">
