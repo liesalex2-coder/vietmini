@@ -872,7 +872,7 @@ const CONFIG = { booking: true, wheel: true, promo: true };
       body.className = 'svc-body';
       const hotBadge = s.hot ? '<span class="badge-hot">HOT</span>' : '';
       body.innerHTML = '<div class="svc-name">' + s.name + hotBadge + '</div>' +
-        '<div class="svc-dur">⏱ ' + s.dur + ' phút</div>' +
+        (s.dur ? '<div class="svc-dur">⏱ ' + s.dur + ' phút</div>' : '') +
         '<div class="svc-price">' + fmt(s.price) + '</div>';
 
       const arrow = document.createElement('div');
@@ -904,7 +904,7 @@ const CONFIG = { booking: true, wheel: true, promo: true };
     
     document.getElementById('svc-title').textContent = s.name;
     document.getElementById('svc-price-detail').textContent = fmt(s.price);
-    document.getElementById('svc-dur-detail').textContent = '⏱ ' + s.dur + ' phút';
+    document.getElementById('svc-dur-detail').textContent = s.dur ? '⏱ ' + s.dur + ' phút' : '—';
     document.getElementById('svc-cat-detail').textContent = s.cat;
     document.getElementById('svc-desc-detail').textContent = s.desc;
     goPage('page-service');

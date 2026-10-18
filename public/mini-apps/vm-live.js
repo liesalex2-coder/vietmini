@@ -6,7 +6,44 @@
    Ne fait rien sans ?merchant_id= (pages de démonstration). */
 (function () {
   var params = new URLSearchParams(window.location.search);
-  if (!params.get('merchant_id')) return;
+  var DEMO_NEWS = {
+    salon: ['Chào đón chuyên viên nail mới tại salon.', 'Chủ nhật này mở cửa đến 20h.'],
+    barber: ['Mở cửa thêm sáng Chủ nhật, từ 8h.', 'Đã có sáp vuốt tóc mới tại quầy.'],
+    spa: ['Phòng xông hơi thảo dược đã mở cửa.', 'Vui lòng đến trước 10 phút để thư giãn.'],
+    resto: ['Món mới: phở bò Wagyu.', 'Có chỗ đậu xe máy miễn phí trước quán.'],
+    gym: ['Lớp yoga buổi sáng mới: thứ Hai, Tư, Sáu lúc 6h.', 'Phòng tập mở cửa đến 22h mỗi ngày.'],
+    pet: ['Đã có dịch vụ đón và trả thú cưng tận nhà.', 'Nhớ mang sổ tiêm phòng khi đến lần đầu.'],
+    karaoke: ['Phòng VIP mới với hệ thống âm thanh mới.', 'Cập nhật bài hát mới mỗi tuần.'],
+    boutique: ['Bộ sưu tập thu đông đã về.', 'Mở cửa đến 22h vào cuối tuần.']
+  };
+
+  function esc0(s) { return String(s).replace(/[&<>]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]; }); }
+  function addBanner(texts) {
+    var anchor = document.querySelector('.cta-bar');
+    if (!anchor || !texts.length) return;
+    var items = texts.map(function (t) { return '<div class="vml-item">' + esc0(t) + '</div>'; }).join('');
+    var banner = document.createElement('div');
+    banner.className = 'vml-banner';
+    banner.innerHTML = '<div class="vml-track">' + items + items + '</div>';
+    anchor.parentNode.insertBefore(banner, anchor.nextSibling);
+  }
+  var BANNER_CSS = '.vml-banner{background:linear-gradient(90deg,var(--accent,var(--primary,#D0021B)),var(--primary-dark,var(--primary,#D0021B)));color:#fff;padding:10px 0;overflow:hidden;display:flex;align-items:center;margin:10px 16px 0;border-radius:12px;font-size:13px;font-weight:500}' +
+    '.vml-track{display:flex;gap:48px;animation:vml-scroll 20s linear infinite;white-space:nowrap;padding-left:16px}' +
+    '.vml-item{flex-shrink:0}' +
+    '.vml-item+.vml-item::before{content:"•";margin-right:48px;opacity:.6}' +
+    '@keyframes vml-scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}';
+
+  // Démo (sans merchant_id) : message déroulant d'exemple, propre à chaque activité
+  if (!params.get('merchant_id')) {
+    var page = (location.pathname.split('/').pop() || '').replace('.html', '');
+    var news = DEMO_NEWS[page];
+    if (news) {
+      var st = document.createElement('style'); st.textContent = BANNER_CSS; document.head.appendChild(st);
+      var go = function () { addBanner(news); };
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', go); else go();
+    }
+    return;
+  }
 
   var done = false;
 

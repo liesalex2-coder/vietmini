@@ -991,7 +991,7 @@ const CONFIG = { booking: true, wheel: true, promo: true, loyalty: true };
     
     document.getElementById('svc-title').textContent = s.name;
     document.getElementById('svc-price-detail').textContent = fmt(s.price);
-    document.getElementById('svc-dur-detail').textContent = '⏱ ' + s.dur + ' phút';
+    document.getElementById('svc-dur-detail').textContent = s.dur ? '⏱ ' + s.dur + ' phút' : '—';
     document.getElementById('svc-cat-detail').textContent = s.cat;
     document.getElementById('svc-desc-detail').textContent = s.desc;
     goPage('page-service');
