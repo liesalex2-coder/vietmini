@@ -44,10 +44,11 @@ export default function DemoPage({ slug, demo }) {
         <span style={{display:'inline-block', fontFamily:"'Be Vietnam Pro', sans-serif", fontSize:'11px', fontWeight:800, color:'#D0021B', textTransform:'uppercase', letterSpacing:'1.5px', background:'rgba(208,2,27,0.08)', padding:'4px 12px', borderRadius:'20px', marginBottom:'12px'}}>{demo.vertical}</span>
         <h1 style={{fontFamily:"'Be Vietnam Pro', sans-serif", fontSize:'clamp(24px,3vw,36px)', fontWeight:900, color:'#1A0A00', letterSpacing:'-0.5px', lineHeight:1.1, margin:'0 0 10px'}}>{demo.name}</h1>
         <p style={{fontFamily:"'Be Vietnam Pro', sans-serif", fontSize:'15px', color:'#7A4A2A', margin:0}}>Đây chính là những gì khách hàng thấy khi mở trang của bạn, trong Zalo hoặc trên trình duyệt.</p>
+        <p style={{fontFamily:"'Be Vietnam Pro', sans-serif", fontSize:'15px', fontWeight:700, color:'#D0021B', margin:'10px 0 0'}}>Đây chỉ là một ví dụ. Còn nhiều tính năng khác, bạn bật hoặc tắt tùy ý. Tất cả đã có trong gói.</p>
       </div>
 
       {/* Phone mockup */}
-      <div style={{background:'#FDF6EE', padding:'48px 24px', display:'flex', flexDirection:'column', alignItems:'center'}}>
+      <div style={{background:'#FDF6EE', padding:'48px 24px', display:'flex', justifyContent:'center'}}>
         <div style={{width:'340px', background:'#1A0A00', borderRadius:'44px', padding:'10px', boxShadow:'0 0 0 1px rgba(255,255,255,0.08), 0 24px 64px rgba(26,10,0,0.2)'}}>
           <div style={{display:'flex', justifyContent:'center', padding:'8px 0 6px'}}>
             <div style={{width:'56px', height:'4px', background:'#333', borderRadius:'3px'}}></div>
@@ -63,10 +64,6 @@ export default function DemoPage({ slug, demo }) {
           <div style={{display:'flex', justifyContent:'center', padding:'8px 0 4px'}}>
             <div style={{width:'80px', height:'4px', background:'#444', borderRadius:'2px'}}></div>
           </div>
-        </div>
-        <div style={{maxWidth:'420px', marginTop:'28px', padding:'18px 22px', background:'#fff', border:'1.5px solid rgba(208,2,27,0.15)', borderRadius:'16px', textAlign:'center', fontFamily:"'Be Vietnam Pro', sans-serif"}}>
-          <div style={{fontSize:'15px', fontWeight:800, color:'#1A0A00', marginBottom:'6px'}}>Và còn nhiều tính năng khác.</div>
-          <div style={{fontSize:'14px', color:'#7A4A2A', lineHeight:1.6}}>Bạn bật hoặc tắt từng tính năng tùy ý. Tất cả đã có trong gói.</div>
         </div>
       </div>
 
