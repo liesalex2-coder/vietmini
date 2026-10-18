@@ -2,14 +2,14 @@ import Layout from '../../components/Layout';
 import Link from 'next/link';
 
 const DEMOS = {
-  bella:   { name:'Bella Beauty Salon',    vertical:'Làm đẹp',        url:'https://bella-demo-rosy.vercel.app' },
-  barber:  { name:'Kingsmen Barbershop',   vertical:'Nam giới',       url:'https://barber-demo-five.vercel.app' },
-  spa:     { name:'Lotus Spa',             vertical:'Chăm sóc sức khỏe', url:'https://spa-demo-sand.vercel.app' },
-  resto:   { name:'Phở Saigon 1975',       vertical:'Ẩm thực',        url:'https://restaurant-demo-ten-dusky.vercel.app' },
-  gym:     { name:'PowerFit Gym',          vertical:'Thể thao',       url:'https://gym-demo-lyart.vercel.app' },
-  paw:     { name:'Paw & Style',           vertical:'Thú cưng',       url:'https://paw-demo.vercel.app' },
-  karaoke: { name:'Star Karaoke',          vertical:'Giải trí',       url:'https://karaoke-demo-gules.vercel.app' },
-  fashion: { name:'Luna Fashion',          vertical:'Cửa hàng & Bán lẻ', url:'https://store-demo-ecru.vercel.app' },
+  bella:   { name:'Bella Beauty Salon',    vertical:'Làm đẹp',        url:'/mini-apps/salon.html?lang=vi' },
+  barber:  { name:'Kingsmen Barbershop',   vertical:'Nam giới',       url:'/mini-apps/barber.html?lang=vi' },
+  spa:     { name:'Lotus Spa',             vertical:'Chăm sóc sức khỏe', url:'/mini-apps/spa.html?lang=vi' },
+  resto:   { name:'Phở Saigon 1975',       vertical:'Ẩm thực',        url:'/mini-apps/resto.html?lang=vi' },
+  gym:     { name:'PowerFit Gym',          vertical:'Thể thao',       url:'/mini-apps/gym.html?lang=vi' },
+  paw:     { name:'Paw & Style',           vertical:'Thú cưng',       url:'/mini-apps/pet.html?lang=vi' },
+  karaoke: { name:'Star Karaoke',          vertical:'Giải trí',       url:'/mini-apps/karaoke.html?lang=vi' },
+  fashion: { name:'Luna Fashion',          vertical:'Cửa hàng & Bán lẻ', url:'/mini-apps/boutique.html?lang=vi' },
 };
 
 export async function getStaticPaths() {
