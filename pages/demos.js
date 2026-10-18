@@ -44,6 +44,10 @@ export default function Demos() {
               </a>
             ))}
           </div>
+          <div style={{maxWidth:'560px',margin:'40px auto 0',padding:'20px 28px',background:'var(--white)',border:'1.5px solid rgba(208,2,27,0.15)',borderRadius:'16px',textAlign:'center'}}>
+            <div style={{fontSize:'17px',fontWeight:800,color:'var(--dark)',marginBottom:'6px'}}>Và còn nhiều tính năng khác.</div>
+            <div style={{fontSize:'15px',color:'var(--mid)',lineHeight:1.6}}>Bạn bật hoặc tắt từng tính năng tùy ý. Tất cả đã có trong gói.</div>
+          </div>
         </div>
       </section>
 
